@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { Menu, X, Music, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Navbar() {
+interface NavbarProps {
+  onOpenRegister: () => void;
+}
+
+export default function Navbar({ onOpenRegister }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { t, language, toggleLanguage } = useLanguage();
 
@@ -12,18 +16,17 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex flex-col">
-              <span className="flex items-center gap-2 font-bold text-xl tracking-tight text-white leading-none">
+              <a href="#" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white leading-none hover:opacity-90 transition-opacity">
                 <Music className="h-6 w-6 text-primary" />
                 <span className="text-white/20 font-light mx-1">|</span>
                 Lassen Music Academy
-              </span>
+              </a>
               <a href="https://www.lassenmusik.com/" target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-400 hover:text-primary transition-colors ml-10 mt-1 font-medium tracking-wide">
                 {t.navbar.subtitle}
               </a>
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
-                <a href="#" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.startHere}</a>
                 <a href="#courses" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.courses}</a>
                 <a href="#podcast" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.podcast}</a>
                 <a href="#community" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.community}</a>
@@ -43,7 +46,10 @@ export default function Navbar() {
               <button className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 {t.navbar.login}
               </button>
-              <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg shadow-primary/20">
+              <button 
+                onClick={onOpenRegister}
+                className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg shadow-primary/20"
+              >
                 {t.navbar.freeTrial}
               </button>
             </div>
@@ -69,7 +75,6 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden bg-background border-b border-white/10">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.startHere}</a>
             <a href="#courses" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.courses}</a>
             <a href="#podcast" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.podcast}</a>
             <a href="#community" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.community}</a>
@@ -78,7 +83,10 @@ export default function Navbar() {
                <button className="w-full text-left text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
                 {t.navbar.login}
               </button>
-              <button className="w-full mt-2 bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-md text-base font-medium transition-colors">
+              <button 
+                onClick={onOpenRegister}
+                className="w-full mt-2 bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-md text-base font-medium transition-colors"
+              >
                 {t.navbar.freeTrial}
               </button>
             </div>

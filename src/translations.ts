@@ -74,7 +74,21 @@ export const translations = {
       subheadline: 'Slut dig til tusindvis af tilfredse elever på Lassen Music Academy.'
     },
     videoSection: {
-      headline: 'Start din rejse i dag'
+      subtitle: 'Mød Stifteren',
+      founderName: 'Kristian Lassen',
+      role: 'Stifter, Bassist (Master fra SDMK) & Indehaver af Kristian Lassen Musik ApS',
+      context: 'Hør stifteren spille bas med The Sonic Flow:',
+      headline: 'Start din rejse i dag',
+      description: 'THE SONIC FLOW. Lassen i en optagelse fra 2016 sammen med Sidsel Marie Søholm, Steffen Schackinger, Hans Mydtskov & Adam Winberg.'
+    },
+    auth: {
+      registerTitle: 'Opret profil',
+      nameLabel: 'Navn',
+      emailLabel: 'Email',
+      passwordLabel: 'Adgangskode',
+      submitButton: 'Opret profil',
+      loginLink: 'Har du allerede en bruger? Log ind',
+      close: 'Luk'
     }
   },
   en: {
@@ -150,7 +164,21 @@ export const translations = {
       subheadline: 'Join thousands of satisfied students at Lassen Music Academy.'
     },
     videoSection: {
-      headline: 'Start your journey today'
+      subtitle: 'Meet the Founder',
+      founderName: 'Kristian Lassen',
+      role: 'Founder, Bassist (Master from SDMK) & Owner of Kristian Lassen Musik ApS',
+      context: 'Hear the founder play bass with The Sonic Flow:',
+      headline: 'Start your journey today',
+      description: 'THE SONIC FLOW. Lassen in a recording from 2016 together with Sidsel Marie Søholm, Steffen Schackinger, Hans Mydtskov & Adam Winberg.'
+    },
+    auth: {
+      registerTitle: 'Create Account',
+      nameLabel: 'Name',
+      emailLabel: 'Email',
+      passwordLabel: 'Password',
+      submitButton: 'Sign Up',
+      loginLink: 'Already have an account? Log in',
+      close: 'Close'
     }
   }
 };

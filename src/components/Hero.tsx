@@ -1,7 +1,11 @@
 import { Play, ArrowRight, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Hero() {
+interface HeroProps {
+  onOpenRegister: () => void;
+}
+
+export default function Hero({ onOpenRegister }: HeroProps) {
   const { t } = useLanguage();
 
   return (
@@ -33,13 +37,13 @@ export default function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <a
-              href="#"
+            <button
+              onClick={onOpenRegister}
               className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-full text-white bg-primary hover:bg-primary/90 transition-all hover:scale-105 shadow-[0_0_20px_rgba(225,29,72,0.4)] tracking-wide min-w-[200px]"
             >
               {t.hero.ctaMain}
               <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
-            </a>
+            </button>
             <a
               href="#"
               className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-black/40 hover:bg-black/60 backdrop-blur-md transition-all min-w-[200px]"
