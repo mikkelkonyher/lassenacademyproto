@@ -86,7 +86,7 @@ export default function FeaturedSection() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {tutors.map((tutor, idx) => (
-                    <div key={idx} className="group relative rounded-xl bg-card/50 backdrop-blur-sm overflow-hidden border border-white/5 hover:border-primary/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(225,29,72,0.2)]">
+                    <div key={idx} className="group relative rounded-2xl glass-strong overflow-hidden border border-white/10 hover:border-primary/50 transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_-10px_rgba(251,146,60,0.4)]">
                         <div className="aspect-[3/4] overflow-hidden">
                             <img src={tutor.image} alt={tutor.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90"></div>
@@ -110,14 +110,14 @@ export default function FeaturedSection() {
                      <span className="text-accent font-bold tracking-wider uppercase text-sm mb-2 block">{t.featured.libraryTitle}</span>
                      <h2 className="text-4xl font-extrabold text-white">{t.featured.libraryHeadline}</h2>
                 </div>
-                <button className="hidden sm:flex px-8 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all text-white text-sm font-bold tracking-wide backdrop-blur-sm">
+                <button className="hidden sm:flex px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-white/20 hover:scale-105">
                     {t.featured.viewAllCourses}
                 </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                  {courses.map((course, idx) => (
-                    <div key={idx} className="bg-card/50 backdrop-blur-sm rounded-xl border border-white/5 hover:border-accent/50 transition-all group overflow-hidden hover:shadow-lg hover:shadow-accent/10">
+                    <div key={idx} className="glass rounded-2xl border border-white/10 hover:border-accent/50 transition-all duration-500 group overflow-hidden hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-1">
                         <div className="relative aspect-video overflow-hidden">
                              <img src={course.image} alt={course.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
                              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
@@ -145,7 +145,7 @@ export default function FeaturedSection() {
                  ))}
             </div>
              <div className="mt-8 text-center sm:hidden">
-                <button className="w-full px-8 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all text-white text-sm font-bold tracking-wide">
+                <button className="w-full px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-white/20">
                     {t.featured.viewAllCourses}
                 </button>
             </div>

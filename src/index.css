@@ -1,30 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  /* Vibrant Dark Theme */
-  --color-background: hsl(240 10% 4%); /* Deep Zinc/Black */
-  --color-foreground: hsl(0 0% 100%); /* Pure White */
+  /* Modern Lighter Dark Theme - Professional & Artistic */
+  --color-background: hsl(240 8% 10%); /* Lighter dark blue-grey */
+  --color-foreground: hsl(0 0% 98%); /* Soft white */
 
   /* Vibrant Accent Colors */
   --color-primary: hsl(24 95% 53%); /* Vibrant Orange */
   --color-primary-foreground: hsl(0 0% 100%);
 
-  --color-secondary: hsl(217 33% 17%); /* Rich Blue Grey */
+  --color-secondary: hsl(217 20% 22%); /* Lighter Blue Grey */
   --color-secondary-foreground: hsl(210 40% 98%);
 
-  --color-accent: hsl(262 80% 60%); /* Creative Purple Accent */
+  --color-accent: hsl(262 70% 65%); /* Softer Purple Accent */
   --color-accent-foreground: hsl(210 40% 98%);
 
-  /* Card background slightly lighter than bg */
-  --color-card: hsl(240 10% 6%);
-  --color-card-foreground: hsl(0 0% 100%);
+  /* Card background - glassmorphism ready */
+  --color-card: hsl(240 8% 14% / 0.6);
+  --color-card-foreground: hsl(0 0% 98%);
 
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
   --font-sans: "Inter", sans-serif;
 
   --animate-gradient-x: gradient-x 8s ease infinite;
   --animate-shimmer: shimmer 3s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 
   @keyframes gradient-x {
     0%,
@@ -44,6 +46,26 @@
     50% {
       opacity: 1.1;
       filter: brightness(1.2);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.5;
+      box-shadow: 0 0 20px rgba(251, 146, 60, 0.3);
+    }
+    50% {
+      opacity: 1;
+      box-shadow: 0 0 40px rgba(251, 146, 60, 0.6);
     }
   }
 }
@@ -67,4 +89,24 @@ img {
 
 .bg-300\% {
   background-size: 300% 300%;
+}
+
+/* Modern glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }

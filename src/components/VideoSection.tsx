@@ -5,8 +5,8 @@ export default function VideoSection() {
 
   return (
     <section className="py-24 bg-background relative overflow-hidden">
-      {/* Background glow for ambience */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+      {/* Background glow for ambience - more vibrant */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         
@@ -25,7 +25,7 @@ export default function VideoSection() {
             </p>
         </div>
         
-        <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.6)] border border-white/10 group">
+        <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.3)] border border-white/20 group hover:shadow-[0_0_80px_rgba(251,146,60,0.5)] transition-all duration-500">
           <iframe 
             src="https://www.youtube.com/embed/WXmv63UQ5og?si=aC5sCjv_u4B7U_a2" 
             title="Lassen Music Academy Introduction" 

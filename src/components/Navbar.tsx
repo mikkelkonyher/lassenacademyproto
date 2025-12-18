@@ -11,7 +11,7 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
   const { t, language, toggleLanguage } = useLanguage();
 
   return (
-    <nav className="fixed w-full z-50 bg-background/80 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed w-full z-50 glass-strong border-b border-white/15">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
@@ -29,12 +29,12 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
           {/* Center: Navigation Links */}
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
             <div className="flex items-baseline space-x-4">
-              <a href="#courses" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.courses}</a>
-              <a href="#podcast" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.podcast}</a>
-              <a href="#community" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.community}</a>
-              <a href="#pricing" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.pricing}</a>
-              <a href="#about" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.about}</a>
-              <a href="#contact" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">{t.navbar.contact}</a>
+              <a href="#courses" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.courses}</a>
+              <a href="#podcast" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.podcast}</a>
+              <a href="#community" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.community}</a>
+              <a href="#pricing" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.pricing}</a>
+              <a href="#about" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.about}</a>
+              <a href="#contact" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.contact}</a>
             </div>
           </div>
           
@@ -53,7 +53,7 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
               </button>
               <button 
                 onClick={onOpenRegister}
-                className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg shadow-primary/20"
+                className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-primary/30 hover:scale-105"
               >
                 {t.navbar.freeTrial}
               </button>

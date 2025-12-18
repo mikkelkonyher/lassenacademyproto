@@ -25,21 +25,23 @@ export default function SocialProof() {
   const { t } = useLanguage();
 
   return (
-    <section className="bg-secondary/20 py-24 border-y border-white/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 border-y border-white/10 relative overflow-hidden">
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/10 to-transparent"></div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
             {t.socialProof.headline}
           </h2>
-          <p className="mt-4 text-xl text-gray-400">
+          <p className="mt-4 text-xl text-gray-300">
             {t.socialProof.subheadline}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-card p-8 rounded-xl border border-white/5 relative">
+            <div key={index} className="glass-strong p-8 rounded-2xl border border-white/10 relative hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               {/* Quote icon decoration */}
-              <div className="absolute top-4 right-6 text-7xl text-primary/10 font-serif leading-none">"</div>
+              <div className="absolute top-4 right-6 text-7xl text-primary/15 font-serif leading-none">"</div>
               
               <div className="relative">
                 <p className="text-gray-300 text-lg mb-6 italic">

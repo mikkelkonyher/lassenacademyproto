@@ -22,12 +22,12 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" 
+        className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" 
         onClick={onClose}
       ></div>
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-md bg-card/90 border border-white/10 rounded-2xl p-8 shadow-[0_0_50px_rgba(225,29,72,0.15)] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md glass-strong border border-white/20 rounded-2xl p-8 shadow-[0_0_60px_rgba(251,146,60,0.3)] animate-in fade-in zoom-in-95 duration-300">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
@@ -50,7 +50,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
               <input 
                 type="text" 
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder={t.auth.nameLabel}
               />
             </div>
@@ -65,7 +65,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
               <input 
                 type="email" 
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder="name@example.com"
               />
             </div>
@@ -80,7 +80,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
               <input 
                 type="password" 
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder="••••••••"
               />
             </div>

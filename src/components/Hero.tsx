@@ -9,7 +9,7 @@ export default function Hero({ onOpenRegister }: HeroProps) {
   const { t } = useLanguage();
 
   return (
-    <div className="relative pt-40 pb-20 sm:pt-48 sm:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+    <div className="relative pt-24 pb-20 sm:pt-28 sm:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
         {/* Full Color Background Image */}
         <div className="absolute inset-0 z-0">
             <img 
@@ -21,19 +21,32 @@ export default function Hero({ onOpenRegister }: HeroProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center rounded-full border border-primary/30 bg-black/50 px-4 py-1.5 text-sm font-medium text-primary-foreground mb-8 backdrop-blur-md shadow-lg">
-                <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor]"></span>
+            <div className="inline-flex items-center rounded-full border border-primary/40 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg animate-pulse-glow">
+                <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor] animate-pulse"></span>
                 <span className="text-white">{t.hero.newMasterclass}</span>
             </div>
           
-          <h1 className="text-5xl tracking-tight font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-50 via-orange-300 to-orange-50 sm:text-6xl md:text-7xl mb-8 drop-shadow-2xl animate-gradient-x bg-300% [text-shadow:0_0_30px_rgba(251,146,60,0.5)] animate-shimmer">
-            {t.hero.headline}<br />
-            {t.hero.subheadline}
-          </h1>
-          
-          <p className="mt-4 text-xl sm:text-2xl text-white mb-10 leading-relaxed max-w-3xl drop-shadow-md font-medium">
-            {t.hero.description}
-          </p>
+          {/* Artistic Headline Layout */}
+          <div className="mb-12 space-y-8">
+            {/* Main Headline - Large and Bold */}
+            <div className="relative">
+              {/* Decorative accent line */}
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-px h-10 bg-gradient-to-b from-transparent via-primary/60 to-transparent"></div>
+              
+              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-[-0.02em] font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-50 via-orange-300 to-orange-50 drop-shadow-2xl animate-gradient-x bg-300% [text-shadow:0_0_50px_rgba(251,146,60,0.7)] animate-shimmer leading-[0.95]">
+                {t.hero.headline}
+              </h1>
+            </div>
+            
+            {/* Subheadline - Elegant and Connected */}
+            <div className="relative flex items-center justify-center gap-6 mt-6">
+              <div className="h-px w-20 sm:w-24 bg-gradient-to-r from-transparent via-primary/70 to-primary/40"></div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-[0.15em] uppercase drop-shadow-lg whitespace-nowrap">
+                {t.hero.subheadline}
+              </h2>
+              <div className="h-px w-20 sm:w-24 bg-gradient-to-l from-transparent via-primary/70 to-primary/40"></div>
+            </div>
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <button
@@ -45,7 +58,7 @@ export default function Hero({ onOpenRegister }: HeroProps) {
             </button>
             <a
               href="#"
-              className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-black/40 hover:bg-black/60 backdrop-blur-md transition-all min-w-[200px]"
+              className="inline-flex items-center justify-center px-8 py-4 border border-white/30 text-base font-medium rounded-full text-white glass hover:glass-strong transition-all min-w-[200px] hover:scale-105"
             >
               <Play className="w-5 h-5 mr-2 text-white" />
               {t.hero.ctaSecondary}
@@ -54,7 +67,7 @@ export default function Hero({ onOpenRegister }: HeroProps) {
           
           <div className="mt-16 flex flex-wrap justify-center gap-6 sm:gap-8">
              {t.hero.benefits.map((benefit, idx) => (
-               <div key={idx} className="flex items-center gap-2 text-gray-200 bg-black/60 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
+               <div key={idx} className="flex items-center gap-2 text-gray-100 glass px-5 py-2.5 rounded-full border border-white/20 hover:border-primary/50 transition-all hover:scale-105">
                   <CheckCircle className="w-5 h-5 text-primary" />
                   <span className="font-medium">{benefit}</span>
                </div>
