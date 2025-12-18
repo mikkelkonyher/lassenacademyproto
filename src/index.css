@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  /* Vibrant Dark Theme */
+  --color-background: hsl(240 10% 4%);     /* Deep Zinc/Black */
+  --color-foreground: hsl(0 0% 100%);      /* Pure White */
+
+  /* Vibrant Accent Colors */
+  --color-primary: hsl(346.8 90% 55%);     /* Bright Punchy Red */
+  --color-primary-foreground: hsl(0 0% 100%);
+
+  --color-secondary: hsl(217 33% 17%);     /* Rich Blue Grey */
+  --color-secondary-foreground: hsl(210 40% 98%);
+
+  --color-accent: hsl(262 80% 60%);        /* Creative Purple Accent */
+  --color-accent-foreground: hsl(210 40% 98%);
+
+  /* Card background slightly lighter than bg */
+  --color-card: hsl(240 10% 6%);
+  --color-card-foreground: hsl(0 0% 100%);
+
+  --radius: 0.5rem;
+  
+  --font-sans: 'Inter', sans-serif;
+
+  --animate-gradient-x: gradient-x 15s ease infinite;
+
+  @keyframes gradient-x {
+      0%, 100% {
+          background-position: 0% 50%;
+      }
+      50% {
+          background-position: 100% 50%;
+      }
+  }
+}
+
+/* Base styles */
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.bg-300\% {
+    background-size: 300% 300%;
+}
