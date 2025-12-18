@@ -90,12 +90,9 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
       {/* Scroll Indicator Arrow */}
       <button
         onClick={scrollToNext}
-        className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all hover:scale-110 group cursor-pointer"
+        className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center text-white/80 hover:text-white transition-all hover:scale-110 cursor-pointer"
         aria-label="Scroll down"
       >
-        <span className="text-xs font-medium tracking-wider uppercase opacity-70 group-hover:opacity-100 transition-opacity hidden sm:block">
-          Scroll
-        </span>
         <div className="relative">
           <ChevronDown className="w-8 h-8 animate-bounce text-primary drop-shadow-lg" />
           <div className="absolute inset-0 w-8 h-8 bg-primary/20 rounded-full blur-md animate-pulse"></div>
