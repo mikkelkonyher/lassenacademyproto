@@ -1,8 +1,10 @@
-import { PlayCircle, Star, Music2, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { PlayCircle, Star, Music2, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function FeaturedSection() {
   const { t } = useLanguage();
+  const [courseIndex, setCourseIndex] = useState(0);
 
   const tutors = [
     {
@@ -49,8 +51,90 @@ export default function FeaturedSection() {
       duration: '8t 00m',
       image: 'https://images.unsplash.com/photo-1552422535-c45813c61732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
       tags: [t.featured.tags.harmoni, t.featured.tags.impro]
+    },
+    {
+      title: 'Slap Bass Fundamentals',
+      instructor: 'Kristian Lassen',
+      level: t.featured.courseData.bassLevel,
+      duration: '5t 45m',
+      image: 'https://images.unsplash.com/photo-1511735111819-9a3f7709049c?q=80&w=2274&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.teknik, t.featured.tags.groove]
+    },
+    {
+      title: 'Jazz Harmony & Voicings',
+      instructor: 'Elena Rossi',
+      level: t.featured.courseData.pianoLevel,
+      duration: '7t 20m',
+      image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.harmoni, t.featured.tags.teori]
+    },
+    {
+      title: 'Fingerstyle Guitar Mastery',
+      instructor: 'Ludwig Hamilton-Wittendorff',
+      level: t.featured.courseData.bassLevel,
+      duration: '6t 00m',
+      image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.teknik, t.featured.tags.teori]
+    },
+    {
+      title: 'Walking Bass Lines',
+      instructor: 'Kristian Lassen',
+      level: t.featured.courseData.pianoLevel,
+      duration: '5t 15m',
+      image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.groove, t.featured.tags.harmoni]
+    },
+    {
+      title: 'Music Theory Essentials',
+      instructor: 'Ludwig Hamilton-Wittendorff',
+      level: t.featured.courseData.guitarLevel,
+      duration: '4t 00m',
+      image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.teori, t.featured.tags.harmoni]
+    },
+    {
+      title: 'Advanced Improvisation',
+      instructor: 'Elena Rossi',
+      level: t.featured.courseData.pianoLevel,
+      duration: '9t 30m',
+      image: 'https://images.unsplash.com/photo-1511735111819-9a3f7709049c?q=80&w=2274&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.impro, t.featured.tags.harmoni]
     }
   ];
+
+  // Calculate how many cards to show based on screen size
+  const getCardsPerView = () => {
+    if (typeof window === 'undefined') return 3;
+    if (window.innerWidth < 640) return 1; // mobile
+    if (window.innerWidth < 1024) return 2; // tablet
+    return 3; // desktop
+  };
+
+  const [cardsPerView, setCardsPerView] = useState(getCardsPerView());
+
+  // Update cards per view on resize
+  useEffect(() => {
+    const handleResize = () => {
+      const newCardsPerView = getCardsPerView();
+      setCardsPerView(newCardsPerView);
+      // Reset index if needed
+      const newMaxIndex = Math.max(0, courses.length - newCardsPerView);
+      setCourseIndex((prev) => Math.min(prev, newMaxIndex));
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [courses.length]);
+
+  const maxIndex = Math.max(0, courses.length - cardsPerView);
+
+  const nextCourses = () => {
+    setCourseIndex((prev) => Math.min(prev + 1, maxIndex));
+  };
+
+  const prevCourses = () => {
+    setCourseIndex((prev) => Math.max(prev - 1, 0));
+  };
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -117,39 +201,101 @@ export default function FeaturedSection() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                 {courses.map((course, idx) => (
-                    <div key={idx} className="glass-strong rounded-2xl border border-white/15 hover:border-primary/50 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-2">
-                        <div className="relative aspect-video overflow-hidden">
-                             <img src={course.image} alt={course.title} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
-                             {/* Gradient overlay */}
-                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent group-hover:from-black/80 transition-all"></div>
-                             {/* Tags overlay on image */}
-                             <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-                                {course.tags.map(tag => (
-                                    <span key={tag} className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 shadow-lg">
-                                        {tag}
-                                    </span>
-                                ))}
-                             </div>
-                        </div>
-                        <div className="p-6 bg-gradient-to-b from-transparent to-background/50">
-                            <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight">{course.title}</h3>
-                            <p className="text-sm text-white/70 mb-5 font-medium">{t.featured.with} <span className="text-white/90">{course.instructor}</span></p>
-                            <div className="flex items-center justify-between text-sm pt-4 border-t border-white/10">
-                                <span className="flex items-center text-white/80 font-medium">
-                                    <PlayCircle className="w-4 h-4 mr-2 text-primary" /> 
-                                    {course.duration}
-                                </span>
-                                <span className="flex items-center text-white/90 font-semibold">
-                                    <Star className="w-4 h-4 mr-1.5 text-yellow-400 fill-yellow-400" /> 
-                                    4.9
-                                </span>
+            {/* Carousel Container */}
+            <div className="relative">
+                {/* Navigation Buttons */}
+                <button
+                    onClick={prevCourses}
+                    disabled={courseIndex === 0}
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 rounded-full glass-strong border border-white/20 flex items-center justify-center transition-all hover:scale-110 ${
+                        courseIndex === 0 
+                            ? 'opacity-50 cursor-not-allowed' 
+                            : 'hover:border-primary/50 hover:shadow-lg hover:shadow-primary/30'
+                    }`}
+                    aria-label="Previous courses"
+                >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+
+                <button
+                    onClick={nextCourses}
+                    disabled={courseIndex >= maxIndex}
+                    className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 rounded-full glass-strong border border-white/20 flex items-center justify-center transition-all hover:scale-110 ${
+                        courseIndex >= maxIndex 
+                            ? 'opacity-50 cursor-not-allowed' 
+                            : 'hover:border-primary/50 hover:shadow-lg hover:shadow-primary/30'
+                    }`}
+                    aria-label="Next courses"
+                >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                </button>
+
+                {/* Carousel */}
+                <div className="overflow-hidden">
+                    <div 
+                        className="flex transition-transform duration-500 ease-in-out"
+                        style={{ 
+                            transform: `translateX(calc(-${courseIndex} * (100% / ${cardsPerView}) - ${courseIndex * 2}rem))`
+                        }}
+                    >
+                        {courses.map((course, idx) => (
+                            <div 
+                                key={idx} 
+                                className="flex-shrink-0 glass-strong rounded-2xl border border-white/15 hover:border-primary/50 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-2"
+                                style={{ 
+                                    width: `calc((100% - ${(cardsPerView - 1) * 2}rem) / ${cardsPerView})`,
+                                    marginRight: idx < courses.length - 1 ? '2rem' : '0'
+                                }}
+                            >
+                                <div className="relative aspect-video overflow-hidden">
+                                     <img src={course.image} alt={course.title} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
+                                     {/* Gradient overlay */}
+                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent group-hover:from-black/80 transition-all"></div>
+                                     {/* Tags overlay on image */}
+                                     <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+                                        {course.tags.map(tag => (
+                                            <span key={tag} className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 shadow-lg">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                     </div>
+                                </div>
+                                <div className="p-6 bg-gradient-to-b from-transparent to-background/50">
+                                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight">{course.title}</h3>
+                                    <p className="text-sm text-white/70 mb-5 font-medium">{t.featured.with} <span className="text-white/90">{course.instructor}</span></p>
+                                    <div className="flex items-center justify-between text-sm pt-4 border-t border-white/10">
+                                        <span className="flex items-center text-white/80 font-medium">
+                                            <PlayCircle className="w-4 h-4 mr-2 text-primary" /> 
+                                            {course.duration}
+                                        </span>
+                                        <span className="flex items-center text-white/90 font-semibold">
+                                            <Star className="w-4 h-4 mr-1.5 text-yellow-400 fill-yellow-400" /> 
+                                            4.9
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
-                 ))}
+                </div>
+
+                {/* Carousel Indicators */}
+                <div className="flex justify-center gap-2 mt-8">
+                    {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setCourseIndex(idx)}
+                            className={`h-2 rounded-full transition-all ${
+                                idx === courseIndex 
+                                    ? 'w-8 bg-primary' 
+                                    : 'w-2 bg-white/30 hover:bg-white/50'
+                            }`}
+                            aria-label={`Go to slide ${idx + 1}`}
+                        />
+                    ))}
+                </div>
             </div>
+
              <div className="mt-8 text-center sm:hidden">
                 <button className="w-full px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-white/20">
                     {t.featured.viewAllCourses}
