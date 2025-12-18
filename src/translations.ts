@@ -24,14 +24,14 @@ export const translations = {
       benefits: ['Ubegrænset adgang', 'Personlig feedback', 'Eksklusivt community']
     },
     featured: {
-      expertsTitle: 'Eksperterne',
-      expertsHeadline: 'Mød dine nye mentorer',
-      viewInstructors: 'Mød alle instruktører',
+      expertsTitle: 'Undervisere',
+      expertsHeadline: 'Vores undervisere',
+      viewInstructors: 'Se alle undervisere',
       libraryTitle: 'Biblioteket',
       libraryHeadline: 'Nyeste Kurser',
       viewAllCourses: 'SE ALLE KURSER',
       instructorRoles: {
-        kristian: 'Bass til alle niveauer',
+        kristian: 'Bas og grundlæggende teknik',
         ludwig: 'Guitar og teori',
         elena: 'Piano & Composition'
       },
@@ -116,9 +116,9 @@ export const translations = {
       benefits: ['Unlimited access', 'Personal feedback', 'Exclusive community']
     },
     featured: {
-      expertsTitle: 'The Experts',
-      expertsHeadline: 'Meet your new mentors',
-      viewInstructors: 'Meet all instructors',
+      expertsTitle: 'Instructors',
+      expertsHeadline: 'Our instructors',
+      viewInstructors: 'View all instructors',
       libraryTitle: 'The Library',
       libraryHeadline: 'Latest Courses',
       viewAllCourses: 'VIEW ALL COURSES',

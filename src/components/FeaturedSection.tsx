@@ -87,15 +87,17 @@ export default function FeaturedSection() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {tutors.map((tutor, idx) => (
                     <div key={idx} className="group relative rounded-2xl glass-strong overflow-hidden border border-white/10 hover:border-primary/50 transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_-10px_rgba(251,146,60,0.4)]">
-                        <div className="aspect-[3/4] overflow-hidden">
+                        <div className="aspect-[3/4] overflow-hidden relative">
                             <img src={tutor.image} alt={tutor.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90"></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-                            <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{tutor.name}</h3>
-                            <p className="text-gray-300 font-medium mb-4">{tutor.role}</p>
-                            <div className="flex items-center text-xs text-gray-500 uppercase tracking-widest border-t border-white/10 pt-4">
-                                <Music2 className="w-3 h-3 mr-2 text-primary" /> {tutor.studio}
+                        <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                            <div className="mb-6">
+                                <h3 className="text-3xl font-bold text-primary mb-2 leading-tight">{tutor.name}</h3>
+                                <p className="text-white/80 text-lg font-medium mb-1">{tutor.role}</p>
+                            </div>
+                            <div className="flex items-center text-xs text-white/60 uppercase tracking-[0.15em] font-medium">
+                                <Music2 className="w-3.5 h-3.5 mr-2 text-primary" /> {tutor.studio}
                             </div>
                         </div>
                     </div>
