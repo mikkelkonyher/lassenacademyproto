@@ -6,22 +6,27 @@ import FeaturedSection from './components/FeaturedSection';
 import SocialProof from './components/SocialProof';
 import Footer from './components/Footer';
 import RegisterModal from './components/RegisterModal';
+import VideoModal from './components/VideoModal';
 
 function App() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   const openRegister = () => setIsRegisterOpen(true);
   const closeRegister = () => setIsRegisterOpen(false);
+  const openVideo = () => setIsVideoOpen(true);
+  const closeVideo = () => setIsVideoOpen(false);
 
   return (
     <div className="min-h-screen bg-background text-white selection:bg-primary/30">
       <Navbar onOpenRegister={openRegister} />
-      <Hero onOpenRegister={openRegister} />
+      <Hero onOpenRegister={openRegister} onOpenVideo={openVideo} />
       <VideoSection />
       <FeaturedSection />
       <SocialProof />
       <Footer />
       <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+      <VideoModal isOpen={isVideoOpen} onClose={closeVideo} videoId="Y-x0efG1seA" />
     </div>
   )
 }

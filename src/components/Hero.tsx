@@ -3,9 +3,10 @@ import { useLanguage } from '../context/LanguageContext';
 
 interface HeroProps {
   onOpenRegister: () => void;
+  onOpenVideo: () => void;
 }
 
-export default function Hero({ onOpenRegister }: HeroProps) {
+export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
   const { t } = useLanguage();
 
   return (
@@ -56,13 +57,13 @@ export default function Hero({ onOpenRegister }: HeroProps) {
               {t.hero.ctaMain}
               <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
             </button>
-            <a
-              href="#"
+            <button
+              onClick={onOpenVideo}
               className="inline-flex items-center justify-center px-8 py-4 border border-white/30 text-base font-medium rounded-full text-white glass hover:glass-strong transition-all min-w-[200px] hover:scale-105"
             >
               <Play className="w-5 h-5 mr-2 text-white" />
               {t.hero.ctaSecondary}
-            </a>
+            </button>
           </div>
           
           <div className="mt-16 flex flex-wrap justify-center gap-6 sm:gap-8">

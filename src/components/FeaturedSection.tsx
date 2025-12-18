@@ -119,28 +119,32 @@ export default function FeaturedSection() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                  {courses.map((course, idx) => (
-                    <div key={idx} className="glass rounded-2xl border border-white/10 hover:border-accent/50 transition-all duration-500 group overflow-hidden hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-1">
+                    <div key={idx} className="glass-strong rounded-2xl border border-white/15 hover:border-primary/50 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-2">
                         <div className="relative aspect-video overflow-hidden">
-                             <img src={course.image} alt={course.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
-                             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                <div className="bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/20 opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300">
-                                     <PlayCircle className="w-8 h-8 text-white fill-white/20" />
-                                </div>
-                             </div>
-                        </div>
-                        <div className="p-6">
-                            <div className="flex gap-2 mb-3">
+                             <img src={course.image} alt={course.title} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
+                             {/* Gradient overlay */}
+                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent group-hover:from-black/80 transition-all"></div>
+                             {/* Tags overlay on image */}
+                             <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
                                 {course.tags.map(tag => (
-                                    <span key={tag} className="text-[10px] font-bold uppercase tracking-wider text-accent bg-accent/10 px-2 py-1 rounded">
+                                    <span key={tag} className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 shadow-lg">
                                         {tag}
                                     </span>
                                 ))}
-                            </div>
-                            <h3 className="text-lg font-bold text-white mb-2 group-hover:text-accent transition-colors">{course.title}</h3>
-                            <p className="text-sm text-gray-400 mb-4">{t.featured.with} <span className="text-gray-300">{course.instructor}</span></p>
-                            <div className="flex items-center justify-between text-sm text-gray-500 border-t border-white/5 pt-4">
-                                <span className="flex items-center"><PlayCircle className="w-4 h-4 mr-1" /> {course.duration}</span>
-                                <span className="flex items-center text-gray-300"><Star className="w-4 h-4 mr-1 text-yellow-500 fill-current" /> 4.9</span>
+                             </div>
+                        </div>
+                        <div className="p-6 bg-gradient-to-b from-transparent to-background/50">
+                            <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight">{course.title}</h3>
+                            <p className="text-sm text-white/70 mb-5 font-medium">{t.featured.with} <span className="text-white/90">{course.instructor}</span></p>
+                            <div className="flex items-center justify-between text-sm pt-4 border-t border-white/10">
+                                <span className="flex items-center text-white/80 font-medium">
+                                    <PlayCircle className="w-4 h-4 mr-2 text-primary" /> 
+                                    {course.duration}
+                                </span>
+                                <span className="flex items-center text-white/90 font-semibold">
+                                    <Star className="w-4 h-4 mr-1.5 text-yellow-400 fill-yellow-400" /> 
+                                    4.9
+                                </span>
                             </div>
                         </div>
                     </div>
