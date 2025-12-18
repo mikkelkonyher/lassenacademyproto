@@ -1,5 +1,5 @@
-import { Play, ArrowRight, CheckCircle } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import { Play, ArrowRight, CheckCircle, ChevronDown } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 
 interface HeroProps {
   onOpenRegister: () => void;
@@ -9,36 +9,43 @@ interface HeroProps {
 export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
   const { t } = useLanguage();
 
+  const scrollToNext = () => {
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <div className="relative pt-24 pb-20 sm:pt-28 sm:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
-        {/* Full Color Background Image */}
-        <div className="absolute inset-0 z-0">
-            <img 
-                src="https://images.unsplash.com/photo-1602900326340-4445b41cdd4e?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                alt="Music Studio" 
-                className="w-full h-full object-cover"
-            />
-        </div>
+    <div className="relative pt-24 pb-20 sm:pt-28 sm:pb-32 overflow-hidden h-screen flex flex-col justify-center">
+      {/* Full Color Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1602900326340-4445b41cdd4e?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Music Studio"
+          className="w-full h-full object-cover"
+        />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center rounded-full border border-primary/40 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg animate-pulse-glow">
-                <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor] animate-pulse"></span>
-                <span className="text-white">{t.hero.newMasterclass}</span>
-            </div>
-          
+          <div className="inline-flex items-center rounded-full border border-primary/40 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg animate-pulse-glow">
+            <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor] animate-pulse"></span>
+            <span className="text-white">{t.hero.newMasterclass}</span>
+          </div>
+
           {/* Artistic Headline Layout */}
           <div className="mb-12 space-y-8">
             {/* Main Headline - Large and Bold */}
             <div className="relative">
               {/* Decorative accent line */}
               <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-px h-10 bg-gradient-to-b from-transparent via-primary/60 to-transparent"></div>
-              
+
               <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-[-0.02em] font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-50 via-orange-300 to-orange-50 drop-shadow-2xl animate-gradient-x bg-300% [text-shadow:0_0_50px_rgba(251,146,60,0.7)] animate-shimmer leading-[0.95]">
                 {t.hero.headline}
               </h1>
             </div>
-            
+
             {/* Subheadline - Elegant and Connected */}
             <div className="relative flex items-center justify-center gap-6 mt-6">
               <div className="h-px w-20 sm:w-24 bg-gradient-to-r from-transparent via-primary/70 to-primary/40"></div>
@@ -48,7 +55,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
               <div className="h-px w-20 sm:w-24 bg-gradient-to-l from-transparent via-primary/70 to-primary/40"></div>
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <button
               onClick={onOpenRegister}
@@ -65,17 +72,35 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
               {t.hero.ctaSecondary}
             </button>
           </div>
-          
+
           <div className="mt-16 flex flex-wrap justify-center gap-6 sm:gap-8">
-             {t.hero.benefits.map((benefit, idx) => (
-               <div key={idx} className="flex items-center gap-2 text-gray-100 glass px-5 py-2.5 rounded-full border border-white/20 hover:border-primary/50 transition-all hover:scale-105">
-                  <CheckCircle className="w-5 h-5 text-primary" />
-                  <span className="font-medium">{benefit}</span>
-               </div>
-             ))}
+            {t.hero.benefits.map((benefit, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 text-gray-100 glass px-5 py-2.5 rounded-full border border-white/20 hover:border-primary/50 transition-all hover:scale-105"
+              >
+                <CheckCircle className="w-5 h-5 text-primary" />
+                <span className="font-medium">{benefit}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* Scroll Indicator Arrow */}
+      <button
+        onClick={scrollToNext}
+        className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all hover:scale-110 group cursor-pointer"
+        aria-label="Scroll down"
+      >
+        <span className="text-xs font-medium tracking-wider uppercase opacity-70 group-hover:opacity-100 transition-opacity hidden sm:block">
+          Scroll
+        </span>
+        <div className="relative">
+          <ChevronDown className="w-8 h-8 animate-bounce text-primary drop-shadow-lg" />
+          <div className="absolute inset-0 w-8 h-8 bg-primary/20 rounded-full blur-md animate-pulse"></div>
+        </div>
+      </button>
     </div>
   );
 }
