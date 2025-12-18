@@ -1,4 +1,8 @@
+import { useLanguage } from '../context/LanguageContext';
+
 export default function VideoSection() {
+  const { t } = useLanguage();
+
   return (
     <section className="py-20 bg-background relative overflow-hidden">
       {/* Background glow for ambience */}
@@ -6,7 +10,7 @@ export default function VideoSection() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-12 tracking-tight">
-          Start din rejse i dag
+          {t.videoSection.headline}
         </h2>
         
         <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.6)] border border-white/10 group">

@@ -1,54 +1,57 @@
 import { PlayCircle, Star, Music2, ArrowRight } from 'lucide-react';
-
-const tutors = [
-  {
-    name: 'Kristian Lassen',
-    role: 'Bass til alle niveauer',
-    image: 'https://images.unsplash.com/photo-1602408960011-61d979be537e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', // Explicit Bass Player Image
-    studio: 'Lassen HQ'
-  },
-  {
-    name: 'Ludwig Hamilton-Wittendorff',
-    role: 'Guitar og teori',
-    image: 'https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', // Explicit Guitar Player Image
-    studio: 'Akkorder og scalaer'
-  },
-  {
-    name: 'Elena Rossi',
-    role: 'Piano & Composition',
-    image: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    studio: 'Nordic Sound'
-  }
-];
-
-const courses = [
-  {
-    title: 'Begynder Guitar: Fra 0 til Helt',
-    instructor: 'Ludwig Hamilton-Wittendorff',
-    level: 'Begynder',
-    duration: '4t 30m',
-    image: 'https://images.unsplash.com/photo-1473216508076-2e90e7555883?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    tags: ['Teknik', 'Teori']
-  },
-  {
-    title: 'Slap Bass Fundamentals',
-    instructor: 'Kristian Lassen',
-    level: 'Mellem',
-    duration: '6t 15m',
-    image: 'https://images.unsplash.com/photo-1568222622765-abdaacbbde2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    tags: ['Groove', 'Rytme']
-  },
-  {
-    title: 'Jazz Piano og Improvisation',
-    instructor: 'Elena Rossi',
-    level: 'Avanceret',
-    duration: '8t 00m',
-    image: 'https://images.unsplash.com/photo-1552422535-c45813c61732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    tags: ['Harmoni', 'Impro']
-  }
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export default function FeaturedSection() {
+  const { t } = useLanguage();
+
+  const tutors = [
+    {
+      name: 'Kristian Lassen',
+      role: t.featured.instructorRoles.kristian,
+      image: 'https://storage.buzzsprout.com/n42rc747h78xv4w7z7kjf5uv52oy?.jpg', // Explicit Bass Player Image
+      studio: 'Lassen HQ'
+    },
+    {
+      name: 'Ludwig Hamilton-Wittendorff',
+      role: t.featured.instructorRoles.ludwig,
+      image: 'https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', // Explicit Guitar Player Image
+      studio: 'Akkorder og scalaer'
+    },
+    {
+      name: 'Elena Rossi',
+      role: t.featured.instructorRoles.elena,
+      image: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      studio: 'Nordic Sound'
+    }
+  ];
+
+  const courses = [
+    {
+      title: t.featured.courseData.guitarTitle,
+      instructor: 'Ludwig Hamilton-Wittendorff',
+      level: t.featured.courseData.guitarLevel,
+      duration: '4t 30m',
+      image: 'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=2338&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.teknik, t.featured.tags.teori]
+    },
+    {
+      title: t.featured.courseData.bassTitle,
+      instructor: 'Kristian Lassen',
+      level: t.featured.courseData.bassLevel,
+      duration: '6t 15m',
+      image: 'https://images.unsplash.com/photo-1525898181636-29b30c26f6e1?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      tags: [t.featured.tags.groove, t.featured.tags.rytme]
+    },
+    {
+      title: t.featured.courseData.pianoTitle,
+      instructor: 'Elena Rossi',
+      level: t.featured.courseData.pianoLevel,
+      duration: '8t 00m',
+      image: 'https://images.unsplash.com/photo-1552422535-c45813c61732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      tags: [t.featured.tags.harmoni, t.featured.tags.impro]
+    }
+  ];
+
   return (
     <section className="py-24 relative overflow-hidden">
         {/* Background Image Texture */}
@@ -71,13 +74,13 @@ export default function FeaturedSection() {
         <div className="mb-32">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
                 <div>
-                     <span className="text-primary font-bold tracking-wider uppercase text-sm mb-2 block">Eksperterne</span>
+                     <span className="text-primary font-bold tracking-wider uppercase text-sm mb-2 block">{t.featured.expertsTitle}</span>
                     <h2 className="text-4xl font-extrabold text-white">
-                        Mød dine nye mentorer
+                        {t.featured.expertsHeadline}
                     </h2>
                 </div>
                  <a href="#" className="flex items-center text-gray-300 hover:text-white transition-colors group font-medium">
-                    Mød alle instruktører <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform text-primary" />
+                    {t.featured.viewInstructors} <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform text-primary" />
                 </a>
             </div>
             
@@ -104,11 +107,11 @@ export default function FeaturedSection() {
         <div>
             <div className="flex justify-between items-end mb-12">
                 <div>
-                     <span className="text-accent font-bold tracking-wider uppercase text-sm mb-2 block">Biblioteket</span>
-                     <h2 className="text-4xl font-extrabold text-white">Nyeste Kurser</h2>
+                     <span className="text-accent font-bold tracking-wider uppercase text-sm mb-2 block">{t.featured.libraryTitle}</span>
+                     <h2 className="text-4xl font-extrabold text-white">{t.featured.libraryHeadline}</h2>
                 </div>
                 <button className="hidden sm:flex px-8 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all text-white text-sm font-bold tracking-wide backdrop-blur-sm">
-                    SE ALLE KURSER
+                    {t.featured.viewAllCourses}
                 </button>
             </div>
 
@@ -132,7 +135,7 @@ export default function FeaturedSection() {
                                 ))}
                             </div>
                             <h3 className="text-lg font-bold text-white mb-2 group-hover:text-accent transition-colors">{course.title}</h3>
-                            <p className="text-sm text-gray-400 mb-4">med <span className="text-gray-300">{course.instructor}</span></p>
+                            <p className="text-sm text-gray-400 mb-4">{t.featured.with} <span className="text-gray-300">{course.instructor}</span></p>
                             <div className="flex items-center justify-between text-sm text-gray-500 border-t border-white/5 pt-4">
                                 <span className="flex items-center"><PlayCircle className="w-4 h-4 mr-1" /> {course.duration}</span>
                                 <span className="flex items-center text-gray-300"><Star className="w-4 h-4 mr-1 text-yellow-500 fill-current" /> 4.9</span>
@@ -143,7 +146,7 @@ export default function FeaturedSection() {
             </div>
              <div className="mt-8 text-center sm:hidden">
                 <button className="w-full px-8 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all text-white text-sm font-bold tracking-wide">
-                    SE ALLE KURSER
+                    {t.featured.viewAllCourses}
                 </button>
             </div>
         </div>

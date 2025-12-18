@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 
 const testimonials = [
   {
@@ -21,15 +22,17 @@ const testimonials = [
 ];
 
 export default function SocialProof() {
+  const { t } = useLanguage();
+
   return (
     <section className="bg-secondary/20 py-24 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-            Elsket af musikere i hele Danmark
+            {t.socialProof.headline}
           </h2>
           <p className="mt-4 text-xl text-gray-400">
-            Slut dig til tusindvis af tilfredse elever på Lassen Music Academy.
+            {t.socialProof.subheadline}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">

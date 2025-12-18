@@ -6,7 +6,7 @@
   --color-foreground: hsl(0 0% 100%);      /* Pure White */
 
   /* Vibrant Accent Colors */
-  --color-primary: hsl(346.8 90% 55%);     /* Bright Punchy Red */
+  --color-primary: hsl(24 95% 53%);        /* Vibrant Orange */
   --color-primary-foreground: hsl(0 0% 100%);
 
   --color-secondary: hsl(217 33% 17%);     /* Rich Blue Grey */
