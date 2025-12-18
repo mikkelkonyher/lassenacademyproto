@@ -10,13 +10,12 @@ export default function Hero({ onOpenRegister }: HeroProps) {
 
   return (
     <div className="relative pt-40 pb-20 sm:pt-48 sm:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
-        {/* Full Color Background Image - Logic Fixed */}
+        {/* Full Color Background Image */}
         <div className="absolute inset-0 z-0">
-             <div className="absolute inset-0 bg-black/60 z-10" /> {/* Overlay for text readability - ON TOP of image */}
             <img 
-                src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80" 
+                src="https://images.unsplash.com/photo-1602900326340-4445b41cdd4e?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
                 alt="Music Studio" 
-                className="w-full h-full object-cover grayscale"
+                className="w-full h-full object-cover"
             />
         </div>
 
@@ -27,7 +26,7 @@ export default function Hero({ onOpenRegister }: HeroProps) {
                 <span className="text-white">{t.hero.newMasterclass}</span>
             </div>
           
-          <h1 className="text-5xl tracking-tight font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-accent sm:text-6xl md:text-7xl mb-8 drop-shadow-2xl animate-gradient-x bg-300%">
+          <h1 className="text-5xl tracking-tight font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-50 via-orange-300 to-orange-50 sm:text-6xl md:text-7xl mb-8 drop-shadow-2xl animate-gradient-x bg-300% [text-shadow:0_0_30px_rgba(251,146,60,0.5)] animate-shimmer">
             {t.hero.headline}<br />
             {t.hero.subheadline}
           </h1>

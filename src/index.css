@@ -2,17 +2,17 @@
 
 @theme {
   /* Vibrant Dark Theme */
-  --color-background: hsl(240 10% 4%);     /* Deep Zinc/Black */
-  --color-foreground: hsl(0 0% 100%);      /* Pure White */
+  --color-background: hsl(240 10% 4%); /* Deep Zinc/Black */
+  --color-foreground: hsl(0 0% 100%); /* Pure White */
 
   /* Vibrant Accent Colors */
-  --color-primary: hsl(24 95% 53%);        /* Vibrant Orange */
+  --color-primary: hsl(24 95% 53%); /* Vibrant Orange */
   --color-primary-foreground: hsl(0 0% 100%);
 
-  --color-secondary: hsl(217 33% 17%);     /* Rich Blue Grey */
+  --color-secondary: hsl(217 33% 17%); /* Rich Blue Grey */
   --color-secondary-foreground: hsl(210 40% 98%);
 
-  --color-accent: hsl(262 80% 60%);        /* Creative Purple Accent */
+  --color-accent: hsl(262 80% 60%); /* Creative Purple Accent */
   --color-accent-foreground: hsl(210 40% 98%);
 
   /* Card background slightly lighter than bg */
@@ -20,18 +20,31 @@
   --color-card-foreground: hsl(0 0% 100%);
 
   --radius: 0.5rem;
-  
-  --font-sans: 'Inter', sans-serif;
 
-  --animate-gradient-x: gradient-x 15s ease infinite;
+  --font-sans: "Inter", sans-serif;
+
+  --animate-gradient-x: gradient-x 8s ease infinite;
+  --animate-shimmer: shimmer 3s ease-in-out infinite;
 
   @keyframes gradient-x {
-      0%, 100% {
-          background-position: 0% 50%;
-      }
-      50% {
-          background-position: 100% 50%;
-      }
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes shimmer {
+    0%, 100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 1.1;
+      filter: brightness(1.2);
+    }
   }
 }
 
@@ -53,5 +66,5 @@ img {
 }
 
 .bg-300\% {
-    background-size: 300% 300%;
+  background-size: 300% 300%;
 }

@@ -9,6 +9,8 @@ export const translations = {
       podcast: 'Podcast',
       community: 'Fællesskab',
       pricing: 'Priser',
+      about: 'Om',
+      contact: 'Kontakt',
       login: 'Log ind',
       freeTrial: 'Prøv Gratis'
     },
@@ -99,6 +101,8 @@ export const translations = {
       podcast: 'Podcast',
       community: 'Community',
       pricing: 'Pricing',
+      about: 'About',
+      contact: 'Contact',
       login: 'Log in',
       freeTrial: 'Try for Free'
     },
