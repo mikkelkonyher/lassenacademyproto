@@ -17,7 +17,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
   };
 
   return (
-    <div className="relative pt-24 pb-20 sm:pt-28 sm:pb-32 overflow-hidden h-screen flex flex-col justify-center">
+    <div className="relative pt-24 pb-20 sm:pt-28 sm:pb-32 overflow-hidden h-[95vh] flex flex-col justify-center">
       {/* Full Color Background Image */}
       <div className="absolute inset-0 z-0">
         <img
