@@ -216,7 +216,7 @@ export default function FeaturedSection() {
 
         {/* Feature Tutors */}
         <div>
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+          <div className="flex justify-between items-end mb-16">
             <div>
               <span className="text-primary font-bold tracking-wider uppercase text-sm mb-2 block">
                 {t.featured.expertsTitle}
@@ -227,7 +227,7 @@ export default function FeaturedSection() {
             </div>
             <a
               href="#"
-              className="flex items-center text-gray-300 hover:text-white transition-colors group font-medium"
+              className="hidden md:flex items-center text-gray-300 hover:text-white transition-colors group font-medium"
             >
               {t.featured.viewInstructors}{" "}
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform text-primary" />

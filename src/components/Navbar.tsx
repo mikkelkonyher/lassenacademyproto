@@ -11,7 +11,7 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
   const { t, language, toggleLanguage } = useLanguage();
 
   return (
-    <nav className="fixed w-full z-50 bg-black/70 backdrop-blur-md border-b border-white/20 relative">
+    <nav className="fixed top-0 left-0 right-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/10" style={{ position: 'fixed' }}>
       {/* Subtle colorful accent at top */}
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
