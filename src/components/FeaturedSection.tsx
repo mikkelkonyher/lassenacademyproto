@@ -127,7 +127,10 @@ export default function FeaturedSection() {
 
       {/* Enhanced Glow Effects - More Dominant Colors */}
       <div className="absolute top-0 right-0 -mr-64 -mt-64 w-[600px] h-[600px] bg-primary/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 -ml-64 -mb-64 w-[600px] h-[600px] bg-accent/20 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <div
+        className="absolute bottom-0 left-0 -ml-64 -mb-64 w-[600px] h-[600px] bg-accent/20 rounded-full blur-3xl pointer-events-none animate-pulse"
+        style={{ animationDelay: "1s" }}
+      ></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -152,57 +155,81 @@ export default function FeaturedSection() {
             {/* Scrollable Courses */}
             <div className="overflow-x-auto scrollbar-thumb-only pb-4 -mx-4 px-4">
               <div className="flex gap-8 min-w-max">
-                {courses.map((course, idx) => (
-                  <div
-                    key={idx}
-                    className="flex-shrink-0 glass-strong rounded-2xl border border-white/15 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/40 hover:-translate-y-2"
-                    style={{
-                      width: "min(calc(100vw - 4rem), 400px)",
-                    }}
-                  >
-                    <div className="relative aspect-video overflow-hidden">
-                      <img
-                        src={course.image}
-                        alt={course.title}
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                      />
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/70 transition-all"></div>
-                      {/* Tags overlay on image */}
-                      <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-                        {course.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-primary/50 shadow-lg shadow-primary/40"
-                          >
-                            {tag}
+                {courses.map((course, idx) => {
+                  // Create dynamic gradient colors for each card
+                  const gradients = [
+                    "from-primary/20 via-accent/15 to-primary/10",
+                    "from-accent/20 via-primary/15 to-accent/10",
+                    "from-primary/25 via-accent/20 to-primary/15",
+                    "from-accent/25 via-primary/20 to-accent/15",
+                    "from-primary/20 via-accent/20 to-primary/15",
+                    "from-accent/20 via-primary/20 to-accent/15",
+                    "from-primary/25 via-accent/25 to-primary/20",
+                    "from-accent/25 via-primary/25 to-accent/20",
+                    "from-primary/20 via-accent/25 to-primary/20",
+                  ];
+                  const gradient = gradients[idx % gradients.length];
+
+                  return (
+                    <div
+                      key={idx}
+                      className="flex-shrink-0 rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-2 relative"
+                      style={{
+                        width: "min(calc(100vw - 4rem), 400px)",
+                      }}
+                    >
+                      {/* Colorful gradient background */}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-90`}
+                      ></div>
+
+                      {/* Animated glow effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 transform -skew-x-12 group-hover:translate-x-full"></div>
+
+                      <div className="relative aspect-video overflow-hidden">
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                        />
+                        {/* Vibrant gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-primary/20 to-transparent group-hover:from-black/80 transition-all"></div>
+                        {/* Tags overlay on image */}
+                        <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+                          {course.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-primary/50 shadow-lg shadow-primary/40"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="relative p-6">
+                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight drop-shadow-lg">
+                          {course.title}
+                        </h3>
+                        <p className="text-sm text-white/90 mb-5 font-medium">
+                          {t.featured.with}{" "}
+                          <span className="text-white font-semibold">
+                            {course.instructor}
                           </span>
-                        ))}
+                        </p>
+                        <div className="flex items-center justify-between text-sm pt-4 border-t border-white/20">
+                          <span className="flex items-center text-white font-medium">
+                            <PlayCircle className="w-4 h-4 mr-2 text-primary drop-shadow-lg" />
+                            {course.duration}
+                          </span>
+                          <span className="flex items-center text-white font-semibold">
+                            <Star className="w-4 h-4 mr-1.5 text-yellow-400 fill-yellow-400 drop-shadow-lg" />
+                            4.9
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="p-6 bg-gradient-to-b from-transparent to-background/50">
-                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight">
-                        {course.title}
-                      </h3>
-                      <p className="text-sm text-white/70 mb-5 font-medium">
-                        {t.featured.with}{" "}
-                        <span className="text-white/90">
-                          {course.instructor}
-                        </span>
-                      </p>
-                      <div className="flex items-center justify-between text-sm pt-4 border-t border-white/10">
-                        <span className="flex items-center text-white/80 font-medium">
-                          <PlayCircle className="w-4 h-4 mr-2 text-primary" />
-                          {course.duration}
-                        </span>
-                        <span className="flex items-center text-white/90 font-semibold">
-                          <Star className="w-4 h-4 mr-1.5 text-yellow-400 fill-yellow-400" />
-                          4.9
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
