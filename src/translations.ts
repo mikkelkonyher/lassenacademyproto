@@ -100,6 +100,56 @@ export const translations = {
       submitButton: "Opret profil",
       loginLink: "Har du allerede en bruger? Log ind",
       close: "Luk",
+      goBack: "Tilbage",
+      goBackHome: "Gå tilbage til forsiden",
+    },
+    teachers: {
+      specialties: "Specialer",
+      experience: "Erfaring",
+      achievements: "Præstationer",
+      kristianlassen: {
+        bio: "Kristian Lassen er en passioneret bassist og musikpædagog med en dyb forståelse for rytme og groove. Med mange års erfaring både på scenen og i undervisningssammenhæng, hjælper han elever med at udvikle deres tekniske færdigheder og musikalske forståelse.",
+        specialties: [
+          "Bas teknik",
+          "Groove & Rytme",
+          "Improvisation",
+          "Musik teori",
+        ],
+        experience:
+          "Master fra SDMK med speciale i bas. Har spillet med adskillige bands og kunstnere gennem årene, inklusive The Sonic Flow. Grundlægger af Lassen Music Academy og indehaver af Kristian Lassen Musik ApS.",
+        achievements: [
+          "Master fra SDMK",
+          "Grundlægger af Lassen Music Academy",
+          "Erfaren live og studiomusiker",
+        ],
+      },
+      ludwighamiltonwittendorff: {
+        bio: "Ludwig Hamilton-Wittendorff er en dedikeret guitarinstruktør med en stærk passion for musikteori og teknik. Han specialiserer sig i at hjælpe elever med at forstå komplekse musikalske koncepter på en tilgængelig måde.",
+        specialties: [
+          "Guitar teknik",
+          "Musik teori",
+          "Akkorder & Scalaer",
+          "Komposition",
+        ],
+        experience:
+          "Erfaren guitarinstruktør med fokus på både teknik og teori. Har undervist elever på alle niveauer og hjælper med at bygge en solid fundament i musikalsk forståelse.",
+        achievements: [
+          "Specialist i guitar og teori",
+          "Erfaren underviser på alle niveauer",
+          "Ekspert i akkorder og scalaer",
+        ],
+      },
+      elenarossi: {
+        bio: "Elena Rossi er en talentfuld pianist og komponist med en unik tilgang til jazz og improvisation. Hendes undervisning kombinerer tekniske færdigheder med kreativ udfoldelse.",
+        specialties: ["Jazz piano", "Improvisation", "Komposition", "Harmoni"],
+        experience:
+          "Professionel pianist med omfattende erfaring inden for jazz og improvisation. Har optrådt på adskillige scener og deltager aktivt i det musikalske miljø.",
+        achievements: [
+          "Ekspert i jazz piano",
+          "Erfaren komponist",
+          "Aktiv performer i musikmiljøet",
+        ],
+      },
     },
     learningPaths: {
       subtitle: "Struktureret Læring",
@@ -230,6 +280,56 @@ export const translations = {
       submitButton: "Sign Up",
       loginLink: "Already have an account? Log in",
       close: "Close",
+      goBack: "Go back",
+      goBackHome: "Go back home",
+    },
+    teachers: {
+      specialties: "Specialties",
+      experience: "Experience",
+      achievements: "Achievements",
+      kristianlassen: {
+        bio: "Kristian Lassen is a passionate bassist and music educator with a deep understanding of rhythm and groove. With many years of experience both on stage and in teaching contexts, he helps students develop their technical skills and musical understanding.",
+        specialties: [
+          "Bass technique",
+          "Groove & Rhythm",
+          "Improvisation",
+          "Music theory",
+        ],
+        experience:
+          "Master from SDMK specializing in bass. Has played with numerous bands and artists over the years, including The Sonic Flow. Founder of Lassen Music Academy and owner of Kristian Lassen Musik ApS.",
+        achievements: [
+          "Master from SDMK",
+          "Founder of Lassen Music Academy",
+          "Experienced live and studio musician",
+        ],
+      },
+      ludwighamiltonwittendorff: {
+        bio: "Ludwig Hamilton-Wittendorff is a dedicated guitar instructor with a strong passion for music theory and technique. He specializes in helping students understand complex musical concepts in an accessible way.",
+        specialties: [
+          "Guitar technique",
+          "Music theory",
+          "Chords & Scales",
+          "Composition",
+        ],
+        experience:
+          "Experienced guitar instructor with focus on both technique and theory. Has taught students at all levels and helps build a solid foundation in musical understanding.",
+        achievements: [
+          "Specialist in guitar and theory",
+          "Experienced teacher at all levels",
+          "Expert in chords and scales",
+        ],
+      },
+      elenarossi: {
+        bio: "Elena Rossi is a talented pianist and composer with a unique approach to jazz and improvisation. Her teaching combines technical skills with creative expression.",
+        specialties: ["Jazz piano", "Improvisation", "Composition", "Harmony"],
+        experience:
+          "Professional pianist with extensive experience in jazz and improvisation. Has performed on numerous stages and actively participates in the music scene.",
+        achievements: [
+          "Expert in jazz piano",
+          "Experienced composer",
+          "Active performer in music scene",
+        ],
+      },
     },
     learningPaths: {
       subtitle: "Structured Learning",
