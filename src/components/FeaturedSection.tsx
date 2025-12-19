@@ -152,7 +152,7 @@ export default function FeaturedSection() {
           {/* Scrollable Courses Container */}
           <div className="relative">
             {/* Scrollable Courses */}
-            <div className="overflow-x-auto scrollbar-thumb-only pb-4 -mx-4 px-4">
+            <div className="overflow-x-auto scrollbar-thumb-only pb-4 pt-6 -mx-4 px-4">
               <div className="flex gap-8 min-w-max">
                 {courses.map((course, idx) => {
                   // Create dynamic gradient colors for each card
