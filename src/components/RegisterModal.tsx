@@ -22,7 +22,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" 
+        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity" 
         onClick={onClose}
       ></div>
 
@@ -46,11 +46,11 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
               {t.auth.nameLabel}
             </label>
             <div className="relative group">
-              <User className="absolute left-3 top-3 h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
+              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
               <input 
                 type="text" 
                 required
-                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
+                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder={t.auth.nameLabel}
               />
             </div>
@@ -61,11 +61,11 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
               {t.auth.emailLabel}
             </label>
             <div className="relative group">
-              <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
+              <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
               <input 
                 type="email" 
                 required
-                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
+                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder="name@example.com"
               />
             </div>
@@ -76,11 +76,11 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
               {t.auth.passwordLabel}
             </label>
             <div className="relative group">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
+              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
               <input 
                 type="password" 
                 required
-                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
+                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder="••••••••"
               />
             </div>

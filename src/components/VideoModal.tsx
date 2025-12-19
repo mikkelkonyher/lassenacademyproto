@@ -13,7 +13,7 @@ export default function VideoModal({ isOpen, onClose, videoId }: VideoModalProps
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" 
+        className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" 
         onClick={onClose}
       ></div>
 
@@ -21,7 +21,7 @@ export default function VideoModal({ isOpen, onClose, videoId }: VideoModalProps
       <div className="relative w-full max-w-5xl glass-strong border border-white/20 rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.3)] animate-in fade-in zoom-in-95 duration-300">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 text-white hover:text-primary transition-colors bg-black/50 rounded-full p-2 backdrop-blur-sm"
+          className="absolute top-4 right-4 z-20 text-white hover:text-primary transition-colors bg-black/40 rounded-full p-2 backdrop-blur-sm"
         >
           <X className="w-6 h-6" />
           <span className="sr-only">Close</span>

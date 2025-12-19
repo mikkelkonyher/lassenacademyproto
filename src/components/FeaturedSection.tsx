@@ -121,11 +121,14 @@ export default function FeaturedSection() {
           className="w-full h-full object-cover opacity-10 blur-sm"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
+        {/* Colorful gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5"></div>
       </div>
 
-      {/* Glow Effects */}
-      <div className="absolute top-0 right-0 -mr-64 -mt-64 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 -ml-64 -mb-64 w-[500px] h-[500px] bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Enhanced Glow Effects - More Dominant Colors */}
+      <div className="absolute top-0 right-0 -mr-64 -mt-64 w-[600px] h-[600px] bg-primary/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 -ml-64 -mb-64 w-[600px] h-[600px] bg-accent/20 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Feature Tutors */}
@@ -152,7 +155,7 @@ export default function FeaturedSection() {
             {tutors.map((tutor, idx) => (
               <div
                 key={idx}
-                className="group relative rounded-2xl glass-strong overflow-hidden border border-white/10 hover:border-primary/50 transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_-10px_rgba(251,146,60,0.4)]"
+                className="group relative rounded-2xl glass-strong overflow-hidden border border-white/10 hover:border-primary/60 transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_-10px_rgba(251,146,60,0.5)] hover:shadow-primary/40"
               >
                 <div className="aspect-[3/4] overflow-hidden relative">
                   <img
@@ -160,7 +163,7 @@ export default function FeaturedSection() {
                     alt={tutor.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
                   <div className="mb-6">
@@ -192,7 +195,7 @@ export default function FeaturedSection() {
                 {t.featured.libraryHeadline}
               </h2>
             </div>
-            <button className="hidden sm:flex px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-white/20 hover:scale-105">
+            <button className="hidden sm:flex px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-accent/40 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/30 hover:scale-105">
               {t.featured.viewAllCourses}
             </button>
           </div>
@@ -205,7 +208,7 @@ export default function FeaturedSection() {
                 {courses.map((course, idx) => (
                   <div
                     key={idx}
-                    className="flex-shrink-0 glass-strong rounded-2xl border border-white/15 hover:border-primary/50 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-2"
+                    className="flex-shrink-0 glass-strong rounded-2xl border border-white/15 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/40 hover:-translate-y-2"
                     style={{
                       width: "min(calc(100vw - 4rem), 400px)",
                     }}
@@ -217,13 +220,13 @@ export default function FeaturedSection() {
                         className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                       />
                       {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent group-hover:from-black/80 transition-all"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/70 transition-all"></div>
                       {/* Tags overlay on image */}
                       <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
                         {course.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 shadow-lg"
+                            className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-primary/50 shadow-lg shadow-primary/40"
                           >
                             {tag}
                           </span>
@@ -258,7 +261,7 @@ export default function FeaturedSection() {
           </div>
 
           <div className="mt-8 text-center sm:hidden">
-            <button className="w-full px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-white/20">
+            <button className="w-full px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-accent/40 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/30">
               {t.featured.viewAllCourses}
             </button>
           </div>

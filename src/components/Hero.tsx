@@ -25,11 +25,17 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
           alt="Music Studio"
           className="w-full h-full object-cover"
         />
+        {/* Colorful gradient overlays for warmth and creativity */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15"></div>
       </div>
+
+      {/* Enhanced colorful glow effects */}
+      <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none z-10 animate-pulse"></div>
+      <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[100px] pointer-events-none z-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center rounded-full border border-primary/40 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg animate-pulse-glow">
+          <div className="inline-flex items-center rounded-full border border-primary/60 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg shadow-primary/30 animate-pulse-glow">
             <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor] animate-pulse"></span>
             <span className="text-white">{t.hero.newMasterclass}</span>
           </div>
@@ -48,11 +54,11 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
 
             {/* Subheadline - Elegant and Connected */}
             <div className="relative flex items-center justify-center gap-6 mt-6">
-              <div className="h-px w-20 sm:w-24 bg-gradient-to-r from-transparent via-primary/70 to-primary/40"></div>
+              <div className="h-px w-20 sm:w-24 bg-gradient-to-r from-transparent via-primary/80 to-primary/60"></div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-[0.15em] uppercase drop-shadow-lg whitespace-nowrap">
                 {t.hero.subheadline}
               </h2>
-              <div className="h-px w-20 sm:w-24 bg-gradient-to-l from-transparent via-primary/70 to-primary/40"></div>
+              <div className="h-px w-20 sm:w-24 bg-gradient-to-l from-transparent via-primary/80 to-primary/60"></div>
             </div>
           </div>
 
@@ -77,7 +83,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
             {t.hero.benefits.map((benefit, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 text-gray-100 glass px-5 py-2.5 rounded-full border border-white/20 hover:border-primary/50 transition-all hover:scale-105"
+                className="flex items-center gap-2 text-gray-100 glass px-5 py-2.5 rounded-full border border-white/20 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/30 transition-all hover:scale-105"
               >
                 <CheckCircle className="w-5 h-5 text-primary" />
                 <span className="font-medium">{benefit}</span>
