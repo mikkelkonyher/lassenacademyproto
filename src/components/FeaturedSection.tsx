@@ -1,4 +1,4 @@
-import { PlayCircle, Star, Music2, ArrowRight } from "lucide-react";
+import { PlayCircle, Star, Music2 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 
 export default function FeaturedSection() {
@@ -249,13 +249,9 @@ export default function FeaturedSection() {
                 {t.featured.expertsHeadline}
               </h2>
             </div>
-            <a
-              href="#"
-              className="hidden md:flex items-center text-gray-300 hover:text-white transition-colors group font-medium"
-            >
-              {t.featured.viewInstructors}{" "}
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform text-primary" />
-            </a>
+            <button className="hidden sm:flex px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-primary/40 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/30 hover:scale-105">
+              {t.featured.viewInstructors}
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -288,6 +284,12 @@ export default function FeaturedSection() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-8 text-center sm:hidden">
+            <button className="w-full px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-primary/40 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/30">
+              {t.featured.viewInstructors}
+            </button>
           </div>
         </div>
       </div>

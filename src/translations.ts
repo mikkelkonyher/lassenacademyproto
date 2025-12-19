@@ -33,7 +33,7 @@ export const translations = {
       viewInstructors: "Se alle undervisere",
       libraryTitle: "Biblioteket",
       libraryHeadline: "Nyeste Kurser",
-      viewAllCourses: "SE ALLE KURSER",
+      viewAllCourses: "Se alle kurser",
       instructorRoles: {
         kristian: "Bas og grundlæggende teknik",
         ludwig: "Guitar og teori",
@@ -107,28 +107,28 @@ export const translations = {
       description:
         "Følg en struktureret vej fra begynder til mester. Vores læringsstier guider dig gennem hvert trin af din musikalske rejse.",
       beginner: {
-        title: "Begynder Stien",
+        title: "Begynder stien",
         description:
           "Perfekt for dem der starter fra bunden. Lær fundamenterne og byg en solid base for din musikalske rejse.",
         duration: "20+ timer video",
         courses: "8+ kurser",
       },
       intermediate: {
-        title: "Mellem Stien",
+        title: "Mellem stien",
         description:
           "For dem der har grundlæggende færdigheder og er klar til at udvide deres horisont med avancerede teknikker.",
         duration: "40+ timer video",
         courses: "12+ kurser",
       },
       advanced: {
-        title: "Avanceret Sti",
+        title: "Avanceret sti",
         description:
           "Mester niveau læring for erfarne musikere der ønsker at perfektionere deres kunst og udforske nye dimensioner.",
         duration: "60+ timer video",
         courses: "15+ kurser",
       },
-      cta: "Start Stien",
-      viewAll: "Se Alle Læringsstier",
+      cta: "Start stien",
+      viewAll: "Se alle læringsstier",
     },
   },
   en: {
@@ -163,7 +163,7 @@ export const translations = {
       viewInstructors: "View all instructors",
       libraryTitle: "The Library",
       libraryHeadline: "Latest Courses",
-      viewAllCourses: "VIEW ALL COURSES",
+      viewAllCourses: "View All Courses",
       instructorRoles: {
         kristian: "Bass for all levels",
         ludwig: "Guitar and theory",
