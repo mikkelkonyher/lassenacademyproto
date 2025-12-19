@@ -99,6 +99,35 @@ export const translations = {
       loginLink: "Har du allerede en bruger? Log ind",
       close: "Luk",
     },
+    learningPaths: {
+      subtitle: "Struktureret Læring",
+      headline: "Læringsstier",
+      description:
+        "Følg en struktureret vej fra begynder til mester. Vores læringsstier guider dig gennem hvert trin af din musikalske rejse.",
+      beginner: {
+        title: "Begynder Stien",
+        description:
+          "Perfekt for dem der starter fra bunden. Lær fundamenterne og byg en solid base for din musikalske rejse.",
+        duration: "20+ timer video",
+        courses: "8+ kurser",
+      },
+      intermediate: {
+        title: "Mellem Stien",
+        description:
+          "For dem der har grundlæggende færdigheder og er klar til at udvide deres horisont med avancerede teknikker.",
+        duration: "40+ timer video",
+        courses: "12+ kurser",
+      },
+      advanced: {
+        title: "Avanceret Sti",
+        description:
+          "Mester niveau læring for erfarne musikere der ønsker at perfektionere deres kunst og udforske nye dimensioner.",
+        duration: "60+ timer video",
+        courses: "15+ kurser",
+      },
+      cta: "Start Stien",
+      viewAll: "Se Alle Læringsstier",
+    },
   },
   en: {
     navbar: {
@@ -197,6 +226,35 @@ export const translations = {
       submitButton: "Sign Up",
       loginLink: "Already have an account? Log in",
       close: "Close",
+    },
+    learningPaths: {
+      subtitle: "Structured Learning",
+      headline: "Learning Paths",
+      description:
+        "Follow a structured path from beginner to master. Our learning paths guide you through every step of your musical journey.",
+      beginner: {
+        title: "Beginner Path",
+        description:
+          "Perfect for those starting from scratch. Learn the fundamentals and build a solid foundation for your musical journey.",
+        duration: "20+ hours of video",
+        courses: "8+ courses",
+      },
+      intermediate: {
+        title: "Intermediate Path",
+        description:
+          "For those with basic skills ready to expand their horizons with advanced techniques and deeper understanding.",
+        duration: "40+ hours of video",
+        courses: "12+ courses",
+      },
+      advanced: {
+        title: "Advanced Path",
+        description:
+          "Master level learning for experienced musicians who want to perfect their craft and explore new dimensions.",
+        duration: "60+ hours of video",
+        courses: "15+ courses",
+      },
+      cta: "Start Path",
+      viewAll: "View All Learning Paths",
     },
   },
 };

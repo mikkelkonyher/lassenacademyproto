@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import VideoSection from './components/VideoSection';
 import FeaturedSection from './components/FeaturedSection';
+import LearningPaths from './components/LearningPaths';
 import SocialProof from './components/SocialProof';
 import Footer from './components/Footer';
 import RegisterModal from './components/RegisterModal';
@@ -21,8 +22,9 @@ function App() {
     <div className="min-h-screen bg-background text-white selection:bg-primary/30">
       <Navbar onOpenRegister={openRegister} />
       <Hero onOpenRegister={openRegister} onOpenVideo={openVideo} />
-      <VideoSection />
       <FeaturedSection />
+      <LearningPaths />
+      <VideoSection />
       <SocialProof />
       <Footer />
       <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
