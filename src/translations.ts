@@ -92,6 +92,8 @@ export const translations = {
     },
     auth: {
       registerTitle: "Opret profil",
+      registerSubtitle:
+        "Start din rejse. Tilmeld dig gratis og begynd at lære.",
       nameLabel: "Navn",
       emailLabel: "Email",
       passwordLabel: "Adgangskode",
@@ -220,6 +222,8 @@ export const translations = {
     },
     auth: {
       registerTitle: "Create Account",
+      registerSubtitle:
+        "Start your journey. Sign up for free and begin to learn.",
       nameLabel: "Name",
       emailLabel: "Email",
       passwordLabel: "Password",

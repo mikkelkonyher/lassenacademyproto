@@ -1,4 +1,4 @@
-import { X, User, Mail, Lock } from 'lucide-react';
+import { X, User, Mail, Lock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import type { FormEvent } from 'react';
 
@@ -37,7 +37,13 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
         </button>
 
         <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">{t.auth.registerTitle}</h2>
+            <div className="flex items-center justify-center mb-4">
+              <div className="p-3 rounded-full bg-primary/20 border border-primary/30">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-3">{t.auth.registerTitle}</h2>
+            <p className="text-gray-300 text-base leading-relaxed max-w-sm mx-auto">{t.auth.registerSubtitle}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
