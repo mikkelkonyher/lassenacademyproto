@@ -37,7 +37,7 @@ export default function FeaturedSection() {
       duration: "4t 30m",
       image:
         "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=2338&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.teknik, t.featured.tags.teori],
+      tags: [t.featured.tags.guitar, t.featured.tags.teknik, t.featured.tags.teori],
     },
     {
       title: t.featured.courseData.bassTitle,
@@ -46,7 +46,7 @@ export default function FeaturedSection() {
       duration: "6t 15m",
       image:
         "https://images.unsplash.com/photo-1525898181636-29b30c26f6e1?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.groove, t.featured.tags.rytme],
+      tags: [t.featured.tags.bas, t.featured.tags.groove, t.featured.tags.rytme],
     },
     {
       title: t.featured.courseData.pianoTitle,
@@ -55,7 +55,7 @@ export default function FeaturedSection() {
       duration: "8t 00m",
       image:
         "https://images.unsplash.com/photo-1552422535-c45813c61732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: [t.featured.tags.harmoni, t.featured.tags.impro],
+      tags: [t.featured.tags.klaver, t.featured.tags.harmoni, t.featured.tags.impro],
     },
     {
       title: "Slap Bass Fundamentals",
@@ -64,7 +64,7 @@ export default function FeaturedSection() {
       duration: "5t 45m",
       image:
         "https://images.unsplash.com/photo-1511735111819-9a3f7709049c?q=80&w=2274&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.teknik, t.featured.tags.groove],
+      tags: [t.featured.tags.bas, t.featured.tags.teknik, t.featured.tags.groove],
     },
     {
       title: "Jazz Harmony & Voicings",
@@ -73,7 +73,7 @@ export default function FeaturedSection() {
       duration: "7t 20m",
       image:
         "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.harmoni, t.featured.tags.teori],
+      tags: [t.featured.tags.klaver, t.featured.tags.harmoni, t.featured.tags.teori],
     },
     {
       title: "Fingerstyle Guitar Mastery",
@@ -82,7 +82,7 @@ export default function FeaturedSection() {
       duration: "6t 00m",
       image:
         "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.teknik, t.featured.tags.teori],
+      tags: [t.featured.tags.guitar, t.featured.tags.teknik, t.featured.tags.teori],
     },
     {
       title: "Walking Bass Lines",
@@ -91,7 +91,7 @@ export default function FeaturedSection() {
       duration: "5t 15m",
       image:
         "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.groove, t.featured.tags.harmoni],
+      tags: [t.featured.tags.bas, t.featured.tags.groove, t.featured.tags.harmoni],
     },
     {
       title: "Music Theory Essentials",
@@ -100,7 +100,7 @@ export default function FeaturedSection() {
       duration: "4t 00m",
       image:
         "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.teori, t.featured.tags.harmoni],
+      tags: [t.featured.tags.guitar, t.featured.tags.teori, t.featured.tags.harmoni],
     },
     {
       title: "Advanced Improvisation",
@@ -109,7 +109,7 @@ export default function FeaturedSection() {
       duration: "9t 30m",
       image:
         "https://images.unsplash.com/photo-1511735111819-9a3f7709049c?q=80&w=2274&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.impro, t.featured.tags.harmoni],
+      tags: [t.featured.tags.klaver, t.featured.tags.impro, t.featured.tags.harmoni],
     },
   ];
 
@@ -144,7 +144,7 @@ export default function FeaturedSection() {
                 {t.featured.libraryHeadline}
               </h2>
             </div>
-            <button className="hidden sm:flex px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-accent/40 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/30 hover:scale-105">
+            <button onClick={() => navigate('/courses')} className="hidden sm:flex px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-accent/40 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/30 hover:scale-105">
               {t.featured.viewAllCourses}
             </button>
           </div>
@@ -234,7 +234,7 @@ export default function FeaturedSection() {
           </div>
 
           <div className="mt-8 text-center sm:hidden">
-            <button className="w-full px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-accent/40 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/30">
+            <button onClick={() => navigate('/courses')} className="w-full px-8 py-3 glass rounded-full hover:glass-strong transition-all text-white text-sm font-bold tracking-wide border border-accent/40 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/30">
               {t.featured.viewAllCourses}
             </button>
           </div>

@@ -12,6 +12,7 @@ import VideoModal from './components/VideoModal';
 import ScrollToTop from './components/ScrollToTop';
 import TeacherDetail from './pages/TeacherDetail';
 import MyProfile from './pages/MyProfile';
+import AllCourses from './pages/AllCourses';
 
 function App() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -43,6 +44,7 @@ function App() {
           }
         />
         <Route path="/teacher/:teacherSlug" element={<TeacherDetail />} />
+        <Route path="/courses" element={<AllCourses />} />
         <Route path="/profile" element={<MyProfile />} />
       </Routes>
     </>
