@@ -192,6 +192,14 @@ export const translations = {
       showingOne: "Viser 1 kursus",
       noCourses: "Ingen kurser matcher de valgte filtre",
     },
+    podcastPage: {
+      pageTitle: "Podcast",
+      pageSubtitle: "Lyt til samtaler med musikere, undervisere og branchefolk",
+      latestEpisodes: "Seneste Episoder",
+      listen: "Lyt",
+      minutes: "min",
+      with: "med",
+    },
     myProfile: {
       pageTitle: "Min Profil",
       pageSubtitle: "Administrer din konto og se dine kurser",
@@ -419,6 +427,14 @@ export const translations = {
       showingResults: "Showing {count} courses",
       showingOne: "Showing 1 course",
       noCourses: "No courses match the selected filters",
+    },
+    podcastPage: {
+      pageTitle: "Podcast",
+      pageSubtitle: "Listen to conversations with musicians, educators, and industry professionals",
+      latestEpisodes: "Latest Episodes",
+      listen: "Listen",
+      minutes: "min",
+      with: "with",
     },
     myProfile: {
       pageTitle: "My Profile",

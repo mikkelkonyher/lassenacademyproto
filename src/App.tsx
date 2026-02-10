@@ -13,6 +13,7 @@ import ScrollToTop from './components/ScrollToTop';
 import TeacherDetail from './pages/TeacherDetail';
 import MyProfile from './pages/MyProfile';
 import AllCourses from './pages/AllCourses';
+import Podcast from './pages/Podcast';
 
 function App() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -45,6 +46,7 @@ function App() {
         />
         <Route path="/teacher/:teacherSlug" element={<TeacherDetail />} />
         <Route path="/courses" element={<AllCourses />} />
+        <Route path="/podcast" element={<Podcast />} />
         <Route path="/profile" element={<MyProfile />} />
       </Routes>
     </>

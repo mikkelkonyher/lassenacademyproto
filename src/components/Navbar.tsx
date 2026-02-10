@@ -19,11 +19,11 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
           <div className="flex-shrink-0 flex flex-col">
-            <a href="#" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white leading-none hover:opacity-90 transition-opacity">
+            <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white leading-none hover:opacity-90 transition-opacity">
               <Music className="h-6 w-6 text-primary" />
               <span className="text-white/20 font-light mx-1">|</span>
               <span>Lassen Music Academy</span>
-            </a>
+            </Link>
             <a href="https://www.lassenmusik.com/" target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:text-primary/80 transition-colors mt-0.5 ml-[3.5rem] font-medium tracking-wide">
               {t.navbar.subtitle}
             </a>
@@ -32,8 +32,8 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
           {/* Center: Navigation Links */}
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
             <div className="flex items-baseline space-x-4">
-              <a href="#courses" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.courses}</a>
-              <a href="#podcast" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.podcast}</a>
+              <Link to="/courses" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.courses}</Link>
+              <Link to="/podcast" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.podcast}</Link>
               <a href="#community" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.community}</a>
               <a href="#pricing" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.pricing}</a>
               <a href="#about" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.about}</a>
@@ -91,8 +91,8 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
       {isOpen && (
         <div className="md:hidden bg-background border-b border-white/10">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a href="#courses" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.courses}</a>
-            <a href="#podcast" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.podcast}</a>
+            <Link to="/courses" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.courses}</Link>
+            <Link to="/podcast" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.podcast}</Link>
             <a href="#community" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.community}</a>
             <a href="#pricing" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.pricing}</a>
             <a href="#about" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.about}</a>
