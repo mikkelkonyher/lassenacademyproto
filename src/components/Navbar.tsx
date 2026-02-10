@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Menu, X, Music, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Menu, X, Music, Globe, User } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
@@ -50,6 +51,12 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
                 <Globe className="w-4 h-4" />
                 {language === 'da' ? 'EN' : 'DA'}
               </button>
+              <Link
+                to="/profile"
+                className="text-gray-300 hover:text-white p-2 rounded-full transition-colors hover:bg-white/10"
+              >
+                <User className="w-5 h-5" />
+              </Link>
               <button className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 {t.navbar.login}
               </button>
@@ -91,6 +98,10 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
             <a href="#about" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.about}</a>
             <a href="#contact" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.contact}</a>
             <div className="pt-4 border-t border-gray-700">
+              <Link to="/profile" className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                <User className="w-5 h-5" />
+                {t.myProfile.pageTitle}
+              </Link>
                <button className="w-full text-left text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
                 {t.navbar.login}
               </button>
