@@ -16,6 +16,8 @@ import AllCourses from './pages/AllCourses';
 import Podcast from './pages/Podcast';
 import Community from './pages/Community';
 import Pricing from './pages/Pricing';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 function App() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -51,6 +53,8 @@ function App() {
         <Route path="/podcast" element={<Podcast />} />
         <Route path="/community" element={<Community />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/profile" element={<MyProfile />} />
       </Routes>
     </>

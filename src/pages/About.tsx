@@ -1,0 +1,201 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Music,
+  Target,
+  Heart,
+  Users,
+  GraduationCap,
+  Award,
+} from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import RegisterModal from "../components/RegisterModal";
+
+export default function About() {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+  const openRegister = () => setIsRegisterOpen(true);
+  const closeRegister = () => setIsRegisterOpen(false);
+
+  const at = t.aboutPage;
+
+  const values = [
+    { icon: <Heart className="w-6 h-6" />, title: at.values.passion.title, description: at.values.passion.description },
+    { icon: <Users className="w-6 h-6" />, title: at.values.community.title, description: at.values.community.description },
+    { icon: <Target className="w-6 h-6" />, title: at.values.quality.title, description: at.values.quality.description },
+    { icon: <GraduationCap className="w-6 h-6" />, title: at.values.growth.title, description: at.values.growth.description },
+  ];
+
+  const stats = [
+    { value: "500+", label: at.stats.students },
+    { value: "50+", label: at.stats.courses },
+    { value: "6+", label: at.stats.instructors },
+    { value: "2024", label: at.stats.founded },
+  ];
+
+  const team = [
+    {
+      name: "Kristian Lassen",
+      role: at.team.kristian.role,
+      bio: at.team.kristian.bio,
+      image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=400&auto=format&fit=crop",
+      initials: "KL",
+    },
+    {
+      name: "Ludwig Hamilton-Wittendorff",
+      role: at.team.ludwig.role,
+      bio: at.team.ludwig.bio,
+      image: "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=400&auto=format&fit=crop",
+      initials: "LH",
+    },
+    {
+      name: "Elena Rossi",
+      role: at.team.elena.role,
+      bio: at.team.elena.bio,
+      image: "https://images.unsplash.com/photo-1552422535-c45813c61732?q=80&w=400&auto=format&fit=crop",
+      initials: "ER",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background text-white">
+      <Navbar onOpenRegister={openRegister} />
+
+      <div className="pt-24 pb-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>{t.auth.goBack}</span>
+          </button>
+
+          {/* Hero Section */}
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Music className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-primary uppercase tracking-wider">
+                {at.tagline}
+              </span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
+              {at.pageTitle}
+            </h1>
+            <p className="text-lg text-gray-400 leading-relaxed max-w-2xl">
+              {at.pageSubtitle}
+            </p>
+          </div>
+
+          {/* Story Section */}
+          <div className="mb-16">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              {at.storyTitle}
+            </h2>
+            <div className="space-y-4 text-gray-400 leading-relaxed">
+              <p>{at.storyP1}</p>
+              <p>{at.storyP2}</p>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-16">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center"
+              >
+                <div className="text-3xl font-bold text-primary mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-gray-500">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Values */}
+          <div className="mb-16">
+            <h2 className="text-2xl font-bold text-white mb-8">
+              {at.valuesTitle}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {values.map((value) => (
+                <div
+                  key={value.title}
+                  className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 hover:border-white/20 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
+                    {value.icon}
+                  </div>
+                  <h3 className="text-base font-semibold text-white mb-2">
+                    {value.title}
+                  </h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    {value.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Team */}
+          <div className="mb-16">
+            <h2 className="text-2xl font-bold text-white mb-8">
+              {at.teamTitle}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {team.map((member) => (
+                <div
+                  key={member.name}
+                  className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden hover:border-white/20 transition-all group"
+                >
+                  <div className="aspect-[4/3] overflow-hidden relative">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-base font-bold text-white mb-0.5">
+                      {member.name}
+                    </h3>
+                    <p className="text-xs font-medium text-primary mb-3">
+                      {member.role}
+                    </p>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                      {member.bio}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mission Banner */}
+          <div className="rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 p-8 text-center">
+            <Award className="w-10 h-10 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">
+              {at.missionTitle}
+            </h3>
+            <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
+              {at.missionText}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+    </div>
+  );
+}
