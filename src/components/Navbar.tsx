@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Music, Globe, User } from 'lucide-react';
+import { Menu, X, Globe, User } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
@@ -19,19 +19,26 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
           <div className="flex-shrink-0 flex flex-col">
-            <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white leading-none hover:opacity-90 transition-opacity">
-              <Music className="h-6 w-6 text-primary" />
-              <span className="text-white/20 font-light mx-1">|</span>
-              <span>Lassen Music Academy</span>
+            <Link to="/" className="group flex items-center gap-0 leading-none hover:opacity-90 transition-opacity">
+              {/* Accent bar */}
+              <div className="w-1 h-9 rounded-full bg-gradient-to-b from-accent to-primary mr-3 group-hover:from-primary group-hover:to-primary/40 transition-all duration-500" />
+              <div className="flex flex-col">
+                <span className="text-[13px] font-extrabold tracking-[0.25em] uppercase text-white leading-none">
+                  Lassen
+                </span>
+                <span className="text-[9px] font-medium tracking-[0.3em] uppercase text-accent/70 group-hover:text-white/50 leading-none mt-1 transition-colors duration-500">
+                  Music Academy
+                </span>
+              </div>
             </Link>
-            <a href="https://www.lassenmusik.com/" target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:text-primary/80 transition-colors mt-0.5 ml-[3.5rem] font-medium tracking-wide">
+            <a href="https://www.lassenmusik.com/" target="_blank" rel="noopener noreferrer" className="text-[8px] text-primary/60 hover:text-primary transition-colors mt-0.5 ml-4 font-medium tracking-[0.2em] uppercase leading-none">
               {t.navbar.subtitle}
             </a>
           </div>
-          
+
           {/* Center: Navigation Links */}
-          <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
-            <div className="flex items-baseline space-x-4">
+          <div className="hidden md:flex flex-1 justify-center">
+            <div className="flex items-baseline space-x-1 lg:space-x-3">
               <Link to="/courses" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.courses}</Link>
               <Link to="/podcast" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.podcast}</Link>
               <Link to="/community" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.community}</Link>

@@ -1,4 +1,4 @@
-import { Music, Facebook, Instagram, Youtube, Mail } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
@@ -16,10 +16,17 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-1 md:col-span-1">
-             <span className="flex items-center gap-2 font-bold text-xl tracking-tight text-white mb-4">
-                <Music className="h-6 w-6 text-primary" />
-                Lassen Music Academy
-              </span>
+             <div className="flex items-center gap-0 mb-4">
+                <div className="w-1 h-9 rounded-full bg-gradient-to-b from-accent to-primary mr-3" />
+                <div className="flex flex-col">
+                  <span className="text-[13px] font-extrabold tracking-[0.25em] uppercase text-white leading-none">
+                    Lassen
+                  </span>
+                  <span className="text-[9px] font-medium tracking-[0.3em] uppercase text-accent/70 leading-none mt-1">
+                    Music Academy
+                  </span>
+                </div>
+              </div>
               <p className="text-gray-300 text-sm mb-4 leading-relaxed">
                 {t.footer.description}
               </p>
