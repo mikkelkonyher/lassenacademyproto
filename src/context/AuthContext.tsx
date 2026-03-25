@@ -170,17 +170,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const resetPasswordRequest = async (email: string) => {
-    // Check if email exists in profiles
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .single();
-
-    if (!profileData) {
-      return { error: 'EMAIL_NOT_FOUND' };
-    }
-
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
