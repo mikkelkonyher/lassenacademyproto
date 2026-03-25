@@ -16,6 +16,8 @@ const mockGetSession = vi.fn().mockResolvedValue({ data: { session: null } });
 const mockOnAuthStateChange = vi.fn().mockReturnValue({
   data: { subscription: { unsubscribe: vi.fn() } },
 });
+const mockResetPasswordForEmail = vi.fn();
+const mockUpdateUser = vi.fn();
 const mockFrom = vi.fn().mockReturnValue({
   select: vi.fn().mockReturnValue({
     eq: vi.fn().mockReturnValue({
@@ -32,6 +34,8 @@ vi.mock('../src/supabase/client', () => ({
       signOut: () => mockSignOut(),
       getSession: () => mockGetSession(),
       onAuthStateChange: (cb: unknown) => mockOnAuthStateChange(cb),
+      resetPasswordForEmail: (...args: unknown[]) => mockResetPasswordForEmail(...args),
+      updateUser: (...args: unknown[]) => mockUpdateUser(...args),
     },
     from: (table: string) => mockFrom(table),
   },
@@ -323,5 +327,79 @@ describe('LoginModal', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: '...' })).toBeDisabled();
     });
+  });
+
+  it('shows forgot password form when link is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
+    );
+
+    await user.click(screen.getByText('Glemt adgangskode?'));
+
+    expect(screen.getByText('Nulstil adgangskode')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('name@example.com')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send nulstillingslink' })).toBeInTheDocument();
+  });
+
+  it('sends reset email on forgot password submit', async () => {
+    mockResetPasswordForEmail.mockResolvedValueOnce({ error: null });
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
+    );
+
+    await user.click(screen.getByText('Glemt adgangskode?'));
+    await user.type(screen.getByPlaceholderText('name@example.com'), 'test@test.com');
+
+    const submitBtn = screen.getByRole('button', { name: 'Send nulstillingslink' });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(mockResetPasswordForEmail).toHaveBeenCalledWith('test@test.com', expect.objectContaining({
+        redirectTo: expect.stringContaining('/reset-password'),
+      }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Vi har sendt et link til din email. Tjek din indbakke.')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error on forgot password failure', async () => {
+    mockResetPasswordForEmail.mockResolvedValueOnce({
+      error: { message: 'User not found' },
+    });
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
+    );
+
+    await user.click(screen.getByText('Glemt adgangskode?'));
+    await user.type(screen.getByPlaceholderText('name@example.com'), 'unknown@test.com');
+
+    const submitBtn = screen.getByRole('button', { name: 'Send nulstillingslink' });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('User not found')).toBeInTheDocument();
+    });
+  });
+
+  it('returns to login form when back to login is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
+    );
+
+    await user.click(screen.getByText('Glemt adgangskode?'));
+    expect(screen.getByText('Nulstil adgangskode')).toBeInTheDocument();
+
+    await user.click(screen.getByText('Tilbage til log ind'));
+
+    expect(screen.getAllByText('Log ind').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
   });
 });
