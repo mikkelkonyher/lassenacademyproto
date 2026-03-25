@@ -238,6 +238,7 @@ export default function MyProfile() {
                       type="text"
                       value={settingsName}
                       onChange={(e) => setSettingsName(e.target.value)}
+                      maxLength={100}
                       className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                     />
                   </div>
@@ -263,6 +264,7 @@ export default function MyProfile() {
                     rows={3}
                     className="w-full glass border border-white/20 rounded-lg py-3 px-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all resize-none"
                   />
+                  <p className="text-xs text-gray-500 text-right mt-1">{settingsBio.length}/500</p>
                 </div>
               </div>
             </div>
@@ -279,6 +281,7 @@ export default function MyProfile() {
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
+                      maxLength={128}
                       placeholder="••••••••"
                       className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                     />
@@ -292,6 +295,7 @@ export default function MyProfile() {
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
+                      maxLength={128}
                       placeholder="••••••••"
                       className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                     />
@@ -305,6 +309,7 @@ export default function MyProfile() {
                       type="password"
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      maxLength={128}
                       placeholder="••••••••"
                       className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                     />

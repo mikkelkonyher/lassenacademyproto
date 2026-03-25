@@ -81,6 +81,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                maxLength={255}
                 className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder="name@example.com"
               />
@@ -98,6 +99,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                maxLength={128}
                 className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder="••••••••"
               />
