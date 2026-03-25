@@ -1,10 +1,11 @@
-import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Music2, Award, BookOpen, Users } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuthModals } from '../hooks/useAuthModals';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RegisterModal from '../components/RegisterModal';
+import LoginModal from '../components/LoginModal';
 
 // Teacher data - should match FeaturedSection
 const teachers = [
@@ -29,10 +30,7 @@ export default function TeacherDetail() {
   const { teacherSlug } = useParams<{ teacherSlug: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-
-  const openRegister = () => setIsRegisterOpen(true);
-  const closeRegister = () => setIsRegisterOpen(false);
+  const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
   // Find teacher by slug (name converted to URL-friendly format)
   const teacher = teachers.find(
@@ -42,7 +40,7 @@ export default function TeacherDetail() {
   if (!teacher) {
     return (
       <div className="min-h-screen bg-background text-white">
-        <Navbar onOpenRegister={() => {}} />
+        <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Teacher not found</h1>
@@ -75,7 +73,7 @@ export default function TeacherDetail() {
 
   return (
     <div className="min-h-screen bg-background text-white">
-      <Navbar onOpenRegister={openRegister} />
+      <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
       
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -171,7 +169,8 @@ export default function TeacherDetail() {
       </div>
 
       <Footer />
-      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+      <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
     </div>
   );
 }

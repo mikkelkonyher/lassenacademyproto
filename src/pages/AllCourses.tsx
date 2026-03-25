@@ -2,18 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, PlayCircle, Star } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
+import LoginModal from "../components/LoginModal";
 
 export default function AllCourses() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
   const [activeTags, setActiveTags] = useState<string[]>([]);
-
-  const openRegister = () => setIsRegisterOpen(true);
-  const closeRegister = () => setIsRegisterOpen(false);
 
   const allTags = [
     t.featured.tags.guitar,
@@ -144,7 +143,7 @@ export default function AllCourses() {
 
   return (
     <div className="min-h-screen bg-background text-white">
-      <Navbar onOpenRegister={openRegister} />
+      <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -274,7 +273,8 @@ export default function AllCourses() {
       </div>
 
       <Footer />
-      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+      <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import LearningPaths from './components/LearningPaths';
 import SocialProof from './components/SocialProof';
 import Footer from './components/Footer';
 import RegisterModal from './components/RegisterModal';
+import LoginModal from './components/LoginModal';
 import VideoModal from './components/VideoModal';
 import ScrollToTop from './components/ScrollToTop';
 import TeacherDetail from './pages/TeacherDetail';
@@ -18,13 +19,17 @@ import Community from './pages/Community';
 import Pricing from './pages/Pricing';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import PublicProfile from './pages/PublicProfile';
 
 function App() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
-  const openRegister = () => setIsRegisterOpen(true);
+  const openRegister = () => { setIsLoginOpen(false); setIsRegisterOpen(true); };
   const closeRegister = () => setIsRegisterOpen(false);
+  const openLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
+  const closeLogin = () => setIsLoginOpen(false);
   const openVideo = () => setIsVideoOpen(true);
   const closeVideo = () => setIsVideoOpen(false);
 
@@ -36,14 +41,15 @@ function App() {
           path="/"
           element={
             <div className="min-h-screen bg-background text-white selection:bg-primary/30">
-              <Navbar onOpenRegister={openRegister} />
+              <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
               <Hero onOpenRegister={openRegister} onOpenVideo={openVideo} />
               <FeaturedSection />
               <LearningPaths />
               <VideoSection />
               <SocialProof />
               <Footer />
-              <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+              <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+              <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
               <VideoModal isOpen={isVideoOpen} onClose={closeVideo} videoId="Y-x0efG1seA" />
             </div>
           }
@@ -56,6 +62,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile" element={<MyProfile />} />
+        <Route path="/profile/:userId" element={<PublicProfile />} />
       </Routes>
     </>
   )

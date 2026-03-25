@@ -15,9 +15,11 @@ import {
   Users,
 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
+import LoginModal from "../components/LoginModal";
 
 interface Comment {
   author: string;
@@ -50,13 +52,10 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export default function Community() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
   const [activeCategory, setActiveCategory] = useState("all");
   const [expandedPost, setExpandedPost] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const openRegister = () => setIsRegisterOpen(true);
-  const closeRegister = () => setIsRegisterOpen(false);
 
   const ct = t.communityPage;
 
@@ -283,7 +282,7 @@ export default function Community() {
 
   return (
     <div className="min-h-screen bg-background text-white">
-      <Navbar onOpenRegister={openRegister} />
+      <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -474,7 +473,8 @@ export default function Community() {
       </div>
 
       <Footer />
-      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+      <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
     </div>
   );
 }

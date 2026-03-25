@@ -1,10 +1,11 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, Clock, Mic } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
+import LoginModal from "../components/LoginModal";
 
 interface Episode {
   title: string;
@@ -18,10 +19,7 @@ interface Episode {
 export default function Podcast() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-
-  const openRegister = () => setIsRegisterOpen(true);
-  const closeRegister = () => setIsRegisterOpen(false);
+  const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
   const episodes: Episode[] = [
     {
@@ -136,7 +134,7 @@ export default function Podcast() {
 
   return (
     <div className="min-h-screen bg-background text-white">
-      <Navbar onOpenRegister={openRegister} />
+      <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -229,7 +227,8 @@ export default function Podcast() {
       </div>
 
       <Footer />
-      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+      <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
     </div>
   );
 }

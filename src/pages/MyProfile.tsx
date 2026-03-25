@@ -1,94 +1,169 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Heart, User, Mail, Lock, Bell, Globe, Star } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RegisterModal from '../components/RegisterModal';
-
-const purchasedVideos = [
-  {
-    title: 'Groove & Rhythmic Understanding',
-    instructor: 'Kristian Lassen',
-    duration: '6t 15m',
-    image: 'https://images.unsplash.com/photo-1525898181636-29b30c26f6e1?q=80&w=2324&auto=format&fit=crop',
-    progress: 72,
-  },
-  {
-    title: 'Beginner Guitar: From 0 to Hero',
-    instructor: 'Ludwig Hamilton-Wittendorff',
-    duration: '4t 30m',
-    image: 'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=2338&auto=format&fit=crop',
-    progress: 35,
-  },
-  {
-    title: 'Jazz Piano and Improvisation',
-    instructor: 'Elena Rossi',
-    duration: '8t 00m',
-    image: 'https://images.unsplash.com/photo-1552422535-c45813c61732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    progress: 10,
-  },
-  {
-    title: 'Slap Bass Fundamentals',
-    instructor: 'Kristian Lassen',
-    duration: '5t 45m',
-    image: 'https://images.unsplash.com/photo-1511735111819-9a3f7709049c?q=80&w=2274&auto=format&fit=crop',
-    progress: 100,
-  },
-];
-
-const favoriteCourses = [
-  {
-    title: 'Walking Bass Lines',
-    instructor: 'Kristian Lassen',
-    duration: '5t 15m',
-    image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop',
-    rating: 4.9,
-  },
-  {
-    title: 'Jazz Harmony & Voicings',
-    instructor: 'Elena Rossi',
-    duration: '7t 20m',
-    image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop',
-    rating: 4.8,
-  },
-  {
-    title: 'Fingerstyle Guitar Mastery',
-    instructor: 'Ludwig Hamilton-Wittendorff',
-    duration: '6t 00m',
-    image: 'https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.7,
-  },
-];
-
-type Tab = 'videos' | 'favorites' | 'settings';
+import LoginModal from '../components/LoginModal';
 
 export default function MyProfile() {
   const navigate = useNavigate();
   const { t, language, toggleLanguage } = useLanguage();
+  const { user, profile, loading, updateProfile, uploadAvatar, changePassword } = useAuth();
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>('videos');
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [notifications, setNotifications] = useState({
     email: true,
     courseUpdates: true,
     newsletter: false,
   });
+  const [settingsName, setSettingsName] = useState('');
+  const [settingsBio, setSettingsBio] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const openRegister = () => setIsRegisterOpen(true);
+  useEffect(() => {
+    if (profile) {
+      setSettingsName(profile.full_name);
+      setSettingsBio(profile.bio ?? '');
+      setNotifications({
+        email: profile.notify_email,
+        courseUpdates: profile.notify_course_updates,
+        newsletter: profile.notify_newsletter,
+      });
+    }
+  }, [profile]);
+
+  const openRegister = () => { setIsLoginOpen(false); setIsRegisterOpen(true); };
   const closeRegister = () => setIsRegisterOpen(false);
+  const openLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
+  const closeLogin = () => setIsLoginOpen(false);
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'videos', label: t.myProfile.tabs.videos },
-    { key: 'favorites', label: t.myProfile.tabs.favorites },
-    { key: 'settings', label: t.myProfile.tabs.settings },
-  ];
+  const handleSaveSettings = async () => {
+    setIsSaving(true);
+    setSaveMessage('');
+    const { error } = await updateProfile({
+      full_name: settingsName,
+      bio: settingsBio,
+      notify_email: notifications.email,
+      notify_course_updates: notifications.courseUpdates,
+      notify_newsletter: notifications.newsletter,
+      preferred_language: language,
+    });
+    setIsSaving(false);
+    setSaveMessage(error ?? (language === 'da' ? 'Gemt!' : 'Saved!'));
+    if (!error) {
+      setTimeout(() => setSaveMessage(''), 2000);
+    }
+  };
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    const { error } = await uploadAvatar(file);
+    setIsUploadingPhoto(false);
+
+    if (error) {
+      setSaveMessage(t.myProfile.photoError);
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordMessage('');
+    setPasswordError(false);
+
+    if (newPassword.length < 6) {
+      setPasswordMessage(t.myProfile.settings.passwordTooShort);
+      setPasswordError(true);
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordMessage(t.myProfile.settings.passwordsMismatch);
+      setPasswordError(true);
+      return;
+    }
+
+    setIsChangingPassword(true);
+    const { error } = await changePassword(currentPassword, newPassword);
+    setIsChangingPassword(false);
+
+    if (error) {
+      const translatedError = error.includes('Invalid login credentials')
+        ? t.myProfile.settings.wrongCurrentPassword
+        : t.myProfile.settings.passwordChangeError;
+      setPasswordMessage(translatedError);
+      setPasswordError(true);
+    } else {
+      setPasswordMessage(t.myProfile.settings.passwordChanged);
+      setPasswordError(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setTimeout(() => setPasswordMessage(''), 3000);
+    }
+  };
+
+  // Redirect to login if not authenticated
+  if (!loading && !user) {
+    return (
+      <div className="min-h-screen bg-background text-white">
+        <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
+        <div className="pt-24 pb-16 flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="glass border border-white/20 rounded-2xl p-12 text-center max-w-md">
+            <User className="w-16 h-16 text-primary mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-white mb-3">{t.auth.loginTitle}</h2>
+            <p className="text-gray-400 mb-6">{t.auth.loginSubtitle}</p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={openLogin}
+                className="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all"
+              >
+                {t.auth.loginButton}
+              </button>
+              <button
+                onClick={openRegister}
+                className="glass border border-white/20 text-white font-bold py-3 px-6 rounded-lg hover:bg-white/10 transition-all"
+              >
+                {t.auth.submitButton}
+              </button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+        <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+        <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-white">
-      <Navbar onOpenRegister={openRegister} />
+      <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
@@ -101,255 +176,240 @@ export default function MyProfile() {
           {/* Profile Header */}
           <div className="glass border border-white/20 rounded-2xl p-8 mb-8">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-              <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
-                alt={t.myProfile.userName}
-                className="w-28 h-28 rounded-full object-cover border-2 border-primary/50 shadow-lg shadow-primary/20"
-              />
-              <div className="text-center sm:text-left">
-                <h1 className="text-3xl font-bold text-white mb-1">{t.myProfile.userName}</h1>
-                <p className="text-gray-400 mb-3">{t.myProfile.userEmail}</p>
-                <p className="text-gray-300 leading-relaxed max-w-xl">{t.myProfile.bio}</p>
+              <div className="relative group">
+                <img
+                  src={profile?.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.full_name || 'U')}&size=200&background=f97316&color=fff&bold=true`}
+                  alt={profile?.full_name ?? ''}
+                  className="w-28 h-28 rounded-full object-cover border-2 border-primary/50 shadow-lg shadow-primary/20"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingPhoto}
+                  className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  {isUploadingPhoto ? (
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-white" />
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                />
+              </div>
+              <div className="text-center sm:text-left flex-1">
+                <h1 className="text-3xl font-bold text-white mb-1">{profile?.full_name}</h1>
+                <p className="text-gray-400 mb-1">{profile?.email}</p>
+                {profile?.created_at && (
+                  <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-3">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{t.myProfile.memberSince} {new Date(profile.created_at).toLocaleDateString(language === 'da' ? 'da-DK' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  </div>
+                )}
+                {profile?.bio && (
+                  <p className="text-gray-300 leading-relaxed max-w-xl mb-3">{profile.bio}</p>
+                )}
+                <Link
+                  to={`/profile/${user?.id}`}
+                  className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  {t.myProfile.viewPublicProfile}
+                </Link>
               </div>
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-3 mb-8 overflow-x-auto pb-2">
-            {tabs.map((tab) => (
+          {/* Settings */}
+          <div className="space-y-6">
+            {/* Account Settings */}
+            <div className="glass border border-white/20 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-white mb-5">{t.myProfile.settings.accountTitle}</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1 block">{t.myProfile.settings.nameLabel}</label>
+                  <div className="relative group">
+                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="text"
+                      value={settingsName}
+                      onChange={(e) => setSettingsName(e.target.value)}
+                      className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1 block">{t.myProfile.settings.emailLabel}</label>
+                  <div className="relative group">
+                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="email"
+                      readOnly
+                      value={profile?.email ?? ''}
+                      className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white/60 placeholder:text-gray-400 focus:outline-none cursor-not-allowed"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1 block">Bio</label>
+                  <textarea
+                    value={settingsBio}
+                    onChange={(e) => setSettingsBio(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                    className="w-full glass border border-white/20 rounded-lg py-3 px-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="glass border border-white/20 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-white mb-5">{t.myProfile.settings.passwordTitle}</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1 block">{t.myProfile.settings.currentPassword}</label>
+                  <div className="relative group">
+                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1 block">{t.myProfile.settings.newPassword}</label>
+                  <div className="relative group">
+                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1 block">{t.myProfile.settings.confirmPassword}</label>
+                  <div className="relative group">
+                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="password"
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+              {passwordMessage && (
+                <div className={`mt-4 p-3 rounded-lg text-sm ${
+                  passwordError ? 'bg-red-500/20 border border-red-500/30 text-red-300' : 'bg-green-500/20 border border-green-500/30 text-green-300'
+                }`}>
+                  {passwordMessage}
+                </div>
+              )}
               <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? 'bg-primary/20 border border-primary/50 text-primary'
-                    : 'glass border border-white/10 text-gray-400 hover:text-white'
-                }`}
+                onClick={handleChangePassword}
+                disabled={isChangingPassword || !currentPassword || !newPassword || !confirmNewPassword}
+                className="mt-4 w-full glass border border-white/20 text-white font-bold py-3 rounded-lg hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {tab.label}
+                {isChangingPassword ? '...' : t.myProfile.settings.changePasswordButton}
               </button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          {activeTab === 'videos' && (
-            <div>
-              <h2 className="text-xl font-bold text-white mb-6">{t.myProfile.videos.purchased}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {purchasedVideos.map((video, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-300 group overflow-hidden hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1"
-                  >
-                    <div className="relative aspect-video overflow-hidden">
-                      <img
-                        src={video.image}
-                        alt={video.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <PlayCircle className="w-12 h-12 text-primary drop-shadow-lg" />
-                      </div>
-                    </div>
-                    <div className="p-4 glass">
-                      <h3 className="text-sm font-bold text-white mb-1 group-hover:text-primary transition-colors leading-tight">
-                        {video.title}
-                      </h3>
-                      <p className="text-xs text-gray-400 mb-3">{video.instructor} · {video.duration}</p>
-                      {/* Progress Bar */}
-                      <div className="mb-3">
-                        <div className="flex justify-between text-xs text-gray-400 mb-1">
-                          <span>{video.progress}% {t.myProfile.videos.progress}</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full transition-all"
-                            style={{ width: `${video.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                      <button className="w-full text-center text-xs font-medium py-2 rounded-lg bg-primary/20 border border-primary/40 text-primary hover:bg-primary/30 transition-colors">
-                        {t.myProfile.videos.continueWatching}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
-          )}
 
-          {activeTab === 'favorites' && (
-            <div>
-              <h2 className="text-xl font-bold text-white mb-6">{t.myProfile.favorites.title}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {favoriteCourses.map((course, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-300 group overflow-hidden hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1"
-                  >
-                    <div className="relative aspect-video overflow-hidden">
-                      <img
-                        src={course.image}
-                        alt={course.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="absolute top-3 right-3">
-                        <Heart className="w-5 h-5 text-red-400 fill-red-400 drop-shadow-lg" />
-                      </div>
-                    </div>
-                    <div className="p-5 glass">
-                      <h3 className="text-base font-bold text-white mb-1 group-hover:text-primary transition-colors">
-                        {course.title}
-                      </h3>
-                      <p className="text-sm text-gray-400 mb-3">{course.instructor}</p>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center text-gray-300">
-                          <PlayCircle className="w-4 h-4 mr-1.5 text-primary" />
-                          {course.duration}
-                        </span>
-                        <span className="flex items-center text-white font-medium">
-                          <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                          {course.rating}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            {/* Notifications */}
+            <div className="glass border border-white/20 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Bell className="w-5 h-5 text-primary" />
+                <h3 className="text-lg font-bold text-white">{t.myProfile.settings.notificationsTitle}</h3>
               </div>
-            </div>
-          )}
-
-          {activeTab === 'settings' && (
-            <div className="max-w-2xl space-y-6">
-              {/* Account Settings */}
-              <div className="glass border border-white/20 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-5">{t.myProfile.settings.accountTitle}</h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300 ml-1 block">{t.myProfile.settings.nameLabel}</label>
-                    <div className="relative group">
-                      <User className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                      <input
-                        type="text"
-                        readOnly
-                        defaultValue={t.myProfile.userName}
-                        className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300 ml-1 block">{t.myProfile.settings.emailLabel}</label>
-                    <div className="relative group">
-                      <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                      <input
-                        type="email"
-                        readOnly
-                        defaultValue={t.myProfile.userEmail}
-                        className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Password */}
-              <div className="glass border border-white/20 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-5">{t.myProfile.settings.passwordTitle}</h3>
-                <div className="space-y-4">
-                  {[
-                    { label: t.myProfile.settings.currentPassword, placeholder: '••••••••' },
-                    { label: t.myProfile.settings.newPassword, placeholder: '••••••••' },
-                    { label: t.myProfile.settings.confirmPassword, placeholder: '••••••••' },
-                  ].map((field) => (
-                    <div key={field.label} className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300 ml-1 block">{field.label}</label>
-                      <div className="relative group">
-                        <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                        <input
-                          type="password"
-                          placeholder={field.placeholder}
-                          className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30 transition-all"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Notifications */}
-              <div className="glass border border-white/20 rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-5">
-                  <Bell className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-bold text-white">{t.myProfile.settings.notificationsTitle}</h3>
-                </div>
-                <div className="space-y-4">
-                  {([
-                    { key: 'email' as const, label: t.myProfile.settings.emailNotifications },
-                    { key: 'courseUpdates' as const, label: t.myProfile.settings.courseUpdates },
-                    { key: 'newsletter' as const, label: t.myProfile.settings.newsletter },
-                  ]).map((item) => (
-                    <div key={item.key} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-300">{item.label}</span>
-                      <button
-                        onClick={() => setNotifications((prev) => ({ ...prev, [item.key]: !prev[item.key] }))}
-                        className={`relative w-11 h-6 rounded-full transition-colors ${
-                          notifications[item.key] ? 'bg-primary' : 'bg-white/20'
+              <div className="space-y-4">
+                {([
+                  { key: 'email' as const, label: t.myProfile.settings.emailNotifications },
+                  { key: 'courseUpdates' as const, label: t.myProfile.settings.courseUpdates },
+                  { key: 'newsletter' as const, label: t.myProfile.settings.newsletter },
+                ]).map((item) => (
+                  <div key={item.key} className="flex items-center justify-between">
+                    <span className="text-sm text-gray-300">{item.label}</span>
+                    <button
+                      onClick={() => setNotifications((prev) => ({ ...prev, [item.key]: !prev[item.key] }))}
+                      className={`relative w-11 h-6 rounded-full transition-colors ${
+                        notifications[item.key] ? 'bg-primary' : 'bg-white/20'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                          notifications[item.key] ? 'translate-x-5' : 'translate-x-0'
                         }`}
-                      >
-                        <span
-                          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
-                            notifications[item.key] ? 'translate-x-5' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                      />
+                    </button>
+                  </div>
+                ))}
               </div>
-
-              {/* Language */}
-              <div className="glass border border-white/20 rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-5">
-                  <Globe className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-bold text-white">{t.myProfile.settings.languageTitle}</h3>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => { if (language !== 'da') toggleLanguage(); }}
-                    className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                      language === 'da'
-                        ? 'bg-primary/20 border border-primary/50 text-primary'
-                        : 'glass border border-white/10 text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    Dansk
-                  </button>
-                  <button
-                    onClick={() => { if (language !== 'en') toggleLanguage(); }}
-                    className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                      language === 'en'
-                        ? 'bg-primary/20 border border-primary/50 text-primary'
-                        : 'glass border border-white/10 text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    English
-                  </button>
-                </div>
-              </div>
-
-              {/* Save Button */}
-              <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-200">
-                {t.myProfile.settings.saveChanges}
-              </button>
             </div>
-          )}
+
+            {/* Language */}
+            <div className="glass border border-white/20 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Globe className="w-5 h-5 text-primary" />
+                <h3 className="text-lg font-bold text-white">{t.myProfile.settings.languageTitle}</h3>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { if (language !== 'da') toggleLanguage(); }}
+                  className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    language === 'da'
+                      ? 'bg-primary/20 border border-primary/50 text-primary'
+                      : 'glass border border-white/10 text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Dansk
+                </button>
+                <button
+                  onClick={() => { if (language !== 'en') toggleLanguage(); }}
+                  className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    language === 'en'
+                      ? 'bg-primary/20 border border-primary/50 text-primary'
+                      : 'glass border border-white/10 text-gray-400 hover:text-white'
+                  }`}
+                >
+                  English
+                </button>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            {saveMessage && (
+              <div className={`p-3 rounded-lg text-sm ${
+                saveMessage.includes('!') ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/20 border border-red-500/30 text-red-300'
+              }`}>
+                {saveMessage}
+              </div>
+            )}
+            <button
+              onClick={handleSaveSettings}
+              disabled={isSaving}
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? '...' : t.myProfile.settings.saveChanges}
+            </button>
+          </div>
         </div>
       </div>
 
       <Footer />
-      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+      <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
     </div>
   );
 }

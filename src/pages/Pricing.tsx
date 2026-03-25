@@ -10,18 +10,17 @@ import {
   Music,
 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
+import LoginModal from "../components/LoginModal";
 
 export default function Pricing() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
-
-  const openRegister = () => setIsRegisterOpen(true);
-  const closeRegister = () => setIsRegisterOpen(false);
 
   const pt = t.pricingPage;
 
@@ -77,7 +76,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background text-white">
-      <Navbar onOpenRegister={openRegister} />
+      <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -279,7 +278,8 @@ export default function Pricing() {
       </div>
 
       <Footer />
-      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
+      <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
     </div>
   );
 }

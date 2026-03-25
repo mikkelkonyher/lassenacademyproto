@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Globe, User } from 'lucide-react';
+import { Menu, X, Globe, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
   onOpenRegister: () => void;
+  onOpenLogin: () => void;
 }
 
-export default function Navbar({ onOpenRegister }: NavbarProps) {
+export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { t, language, toggleLanguage } = useLanguage();
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/10" style={{ position: 'fixed' }}>
@@ -47,38 +50,61 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
               <Link to="/contact" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.contact}</Link>
             </div>
           </div>
-          
+
           {/* Right: Action Buttons */}
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
-              <button 
+              <button
                 onClick={toggleLanguage}
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-xs font-medium transition-colors flex items-center gap-1"
+                title={t.navbar.switchLanguageTooltip}
+                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <Globe className="w-4 h-4" />
                 {language === 'da' ? 'EN' : 'DA'}
               </button>
-              <Link
-                to="/profile"
-                className="text-gray-300 hover:text-white p-2 rounded-full transition-colors hover:bg-white/10"
-              >
-                <User className="w-5 h-5" />
-              </Link>
-              <button className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                {t.navbar.login}
-              </button>
-              <button 
-                onClick={onOpenRegister}
-                className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-primary/30 hover:scale-105"
-              >
-                {t.navbar.freeTrial}
-              </button>
+
+              {user ? (
+                <>
+                  <Link
+                    to="/profile"
+                    title={t.navbar.profileTooltip}
+                    className="text-gray-300 hover:text-white p-2 rounded-full transition-colors hover:bg-white/10"
+                  >
+                    <User className="w-5 h-5" />
+                  </Link>
+                  <button
+                    onClick={signOut}
+                    title={t.navbar.logoutTooltip}
+                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {t.auth.logOut}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={onOpenLogin}
+                    title={t.navbar.loginTooltip}
+                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
+                  >
+                    {t.navbar.login}
+                  </button>
+                  <button
+                    onClick={onOpenRegister}
+                    title={t.navbar.freeTrialTooltip}
+                    className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-primary/30 hover:scale-105 cursor-pointer"
+                  >
+                    {t.navbar.freeTrial}
+                  </button>
+                </>
+              )}
             </div>
           </div>
-          
+
           {/* Mobile Menu Button */}
           <div className="-mr-2 flex md:hidden gap-2">
-            <button 
+            <button
                 onClick={toggleLanguage}
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
               >
@@ -105,19 +131,36 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
             <Link to="/about" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.about}</Link>
             <Link to="/contact" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.contact}</Link>
             <div className="pt-4 border-t border-gray-700">
-              <Link to="/profile" className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">
-                <User className="w-5 h-5" />
-                {t.myProfile.pageTitle}
-              </Link>
-               <button className="w-full text-left text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-                {t.navbar.login}
-              </button>
-              <button 
-                onClick={onOpenRegister}
-                className="w-full mt-2 bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-md text-base font-medium transition-colors"
-              >
-                {t.navbar.freeTrial}
-              </button>
+              {user ? (
+                <>
+                  <Link to="/profile" className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                    <User className="w-5 h-5" />
+                    {t.myProfile.pageTitle}
+                  </Link>
+                  <button
+                    onClick={signOut}
+                    className="flex items-center gap-2 w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    {t.auth.logOut}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={onOpenLogin}
+                    className="w-full text-left text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                  >
+                    {t.navbar.login}
+                  </button>
+                  <button
+                    onClick={onOpenRegister}
+                    className="w-full mt-2 bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-md text-base font-medium transition-colors"
+                  >
+                    {t.navbar.freeTrial}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
