@@ -1,5 +1,7 @@
 import { Play, ArrowRight, CheckCircle, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 
 interface HeroProps {
   onOpenRegister: () => void;
@@ -8,6 +10,8 @@ interface HeroProps {
 
 export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const scrollToNext = () => {
     window.scrollTo({
@@ -64,10 +68,10 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <button
-              onClick={onOpenRegister}
-              className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-full text-white bg-primary hover:bg-primary/90 transition-all hover:scale-105 shadow-[0_0_20px_rgba(225,29,72,0.4)] tracking-wide min-w-[200px]"
+              onClick={user ? () => navigate('/courses') : onOpenRegister}
+              className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-full text-white bg-primary hover:bg-primary/90 transition-all hover:scale-105 shadow-[0_0_20px_rgba(225,29,72,0.4)] tracking-wide min-w-[200px] cursor-pointer"
             >
-              {t.hero.ctaMain}
+              {user ? t.hero.ctaMainLoggedIn : t.hero.ctaMain}
               <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
             </button>
             <button

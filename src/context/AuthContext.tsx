@@ -16,6 +16,8 @@ interface AuthContextType {
   updateProfile: (updates: Database['public']['Tables']['profiles']['Update']) => Promise<{ error: string | null }>;
   uploadAvatar: (file: File) => Promise<{ error: string | null; url: string | null }>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ error: string | null }>;
+  resetPasswordRequest: (email: string) => Promise<{ error: string | null }>;
+  resetPassword: (newPassword: string) => Promise<{ error: string | null }>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -55,13 +57,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
         fetchProfile(newSession.user.id);
       } else {
         setProfile(null);
+      }
+      if (event === 'PASSWORD_RECOVERY') {
+        window.location.href = '/reset-password';
       }
     });
 
@@ -164,8 +169,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: updateError?.message ?? null };
   };
 
+  const resetPasswordRequest = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error: error?.message ?? null };
+  };
+
+  const resetPassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    return { error: error?.message ?? null };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, resetPasswordRequest, resetPassword, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

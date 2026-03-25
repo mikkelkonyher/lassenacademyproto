@@ -20,6 +20,7 @@ import Pricing from './pages/Pricing';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import PublicProfile from './pages/PublicProfile';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -63,6 +64,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile" element={<MyProfile />} />
         <Route path="/profile/:userId" element={<PublicProfile />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </>
   )
