@@ -51,7 +51,11 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     setForgotLoading(false);
 
     if (resetError) {
-      setForgotError(resetError);
+      setForgotError(
+        resetError === 'EMAIL_NOT_FOUND'
+          ? t.auth.forgotPasswordNotFound
+          : resetError
+      );
     } else {
       setForgotSent(true);
     }

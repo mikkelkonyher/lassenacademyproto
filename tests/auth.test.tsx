@@ -343,6 +343,14 @@ describe('LoginModal', () => {
   });
 
   it('sends reset email on forgot password submit', async () => {
+    // Mock profiles lookup returning a match
+    mockFrom.mockReturnValueOnce({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: { id: '123' }, error: null }),
+        }),
+      }),
+    });
     mockResetPasswordForEmail.mockResolvedValueOnce({ error: null });
     const user = userEvent.setup();
 
@@ -367,9 +375,14 @@ describe('LoginModal', () => {
     });
   });
 
-  it('shows error on forgot password failure', async () => {
-    mockResetPasswordForEmail.mockResolvedValueOnce({
-      error: { message: 'User not found' },
+  it('shows error when email not found on forgot password', async () => {
+    // Mock profiles lookup returning no match
+    mockFrom.mockReturnValueOnce({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } }),
+        }),
+      }),
     });
     const user = userEvent.setup();
 
@@ -384,7 +397,7 @@ describe('LoginModal', () => {
     await user.click(submitBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('User not found')).toBeInTheDocument();
+      expect(screen.getByText('Der findes ingen bruger med denne email.')).toBeInTheDocument();
     });
   });
 
