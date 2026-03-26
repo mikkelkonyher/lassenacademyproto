@@ -280,25 +280,64 @@ export default function Community() {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
+  // Map edge function error codes to translated messages
+  const getValidationError = (code?: string, fallback?: string): string => {
+    switch (code) {
+      case "TITLE_LENGTH": return ct.validationTitleLength;
+      case "BODY_LENGTH": return ct.validationBodyLength;
+      case "SPAM_DETECTED": return ct.validationSpam;
+      case "RATE_LIMITED": return ct.validationRateLimited;
+      default: return fallback || ct.errorLoading;
+    }
+  };
+
+  // Helper to call edge functions
+  const callEdgeFunction = async (
+    fnName: string,
+    payload: Record<string, unknown>
+  ): Promise<{ success: boolean; error?: string; code?: string; data?: Record<string, unknown> }> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { success: false, error: "Not authenticated", code: "UNAUTHORIZED" };
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const res = await fetch(`${supabaseUrl}/functions/v1/${fnName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      return { success: false, error: result.error, code: result.code };
+    }
+    return { success: true, data: result };
+  };
+
   // Create post
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !newTitle.trim() || !newBody.trim()) return;
 
     setCreating(true);
-    const { error: insertError } = await supabase.from("forum_posts").insert({
-      user_id: user.id,
+    setError("");
+    const result = await callEdgeFunction("create-forum-post", {
+      title: newTitle,
+      body: newBody,
       category: newCategory,
-      title: newTitle.trim(),
-      body: newBody.trim(),
     });
 
-    if (!insertError) {
+    if (result.success) {
       setNewTitle("");
       setNewBody("");
       setNewCategory("general");
       setShowCreateForm(false);
       await fetchPosts();
+    } else {
+      setError(getValidationError(result.code, result.error));
     }
     setCreating(false);
   };
@@ -308,18 +347,19 @@ export default function Community() {
     if (!editTitle.trim() || !editBody.trim()) return;
 
     setSavingPost(true);
-    const { error: updateError } = await supabase
-      .from("forum_posts")
-      .update({
-        title: editTitle.trim(),
-        body: editBody.trim(),
-        category: editCategory,
-      })
-      .eq("id", postId);
+    setError("");
+    const result = await callEdgeFunction("update-forum-post", {
+      post_id: postId,
+      title: editTitle,
+      body: editBody,
+      category: editCategory,
+    });
 
-    if (!updateError) {
+    if (result.success) {
       setEditingPostId(null);
       await fetchPosts();
+    } else {
+      setError(getValidationError(result.code, result.error));
     }
     setSavingPost(false);
   };
@@ -347,17 +387,17 @@ export default function Community() {
     if (!user || !text) return;
 
     setSubmittingComment(postId);
-    const { error: insertError } = await supabase
-      .from("forum_comments")
-      .insert({
-        post_id: postId,
-        user_id: user.id,
-        body: text,
-      });
+    setError("");
+    const result = await callEdgeFunction("create-forum-comment", {
+      post_id: postId,
+      body: text,
+    });
 
-    if (!insertError) {
+    if (result.success) {
       setCommentText((prev) => ({ ...prev, [postId]: "" }));
       await fetchPosts();
+    } else {
+      setError(getValidationError(result.code, result.error));
     }
     setSubmittingComment(null);
   };
@@ -367,14 +407,17 @@ export default function Community() {
     if (!editCommentText.trim()) return;
 
     setSavingComment(true);
-    const { error: updateError } = await supabase
-      .from("forum_comments")
-      .update({ body: editCommentText.trim() })
-      .eq("id", commentId);
+    setError("");
+    const result = await callEdgeFunction("update-forum-comment", {
+      comment_id: commentId,
+      body: editCommentText,
+    });
 
-    if (!updateError) {
+    if (result.success) {
       setEditingCommentId(null);
       await fetchPosts();
+    } else {
+      setError(getValidationError(result.code, result.error));
     }
     setSavingComment(false);
   };

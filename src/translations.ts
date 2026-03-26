@@ -339,6 +339,11 @@ export const translations = {
       commentedOnYourPost: "kommenterede dit opslag",
       markAllRead: "Markér alle som læst",
       newComment: "Ny kommentar",
+      validationTitleLength: "Titlen skal være mellem 3 og 150 tegn",
+      validationBodyLength: "Indholdet er for kort eller for langt",
+      validationSpam: "Indholdet blev markeret som spam. Venligst ret det til.",
+      validationRateLimited: "For mange handlinger. Vent venligst lidt før du prøver igen.",
+      validationCommentLength: "Kommentaren skal være mellem 1 og 2000 tegn",
     },
     aboutPage: {
       tagline: "Lassen Music Academy",
@@ -781,6 +786,11 @@ export const translations = {
       commentedOnYourPost: "commented on your post",
       markAllRead: "Mark all as read",
       newComment: "New comment",
+      validationTitleLength: "Title must be between 3 and 150 characters",
+      validationBodyLength: "Content is too short or too long",
+      validationSpam: "Content flagged as spam. Please revise.",
+      validationRateLimited: "Too many actions. Please wait before trying again.",
+      validationCommentLength: "Comment must be between 1 and 2000 characters",
     },
     aboutPage: {
       tagline: "Lassen Music Academy",
