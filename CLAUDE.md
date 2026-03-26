@@ -44,8 +44,10 @@ Supabase Edge Functions live in `supabase/functions/<function-name>/index.ts`. T
 **Community forum functions** (all require JWT auth, sanitize input, detect spam, enforce rate limits):
 - `create-forum-post` — Creates a new post (max 5/hour)
 - `update-forum-post` — Updates a post with ownership check (max 20 edits/hour)
+- `delete-forum-post` — Deletes a post + comments + notifications with ownership check (max 10/hour)
 - `create-forum-comment` — Creates a comment + notifies post author (max 15/hour)
 - `update-forum-comment` — Updates a comment with ownership check (max 20 edits/hour)
+- `delete-forum-comment` — Deletes a comment + notifications with ownership check (max 15/hour)
 
 Database safety net: `forum_rate_limits` table tracks actions, `CHECK` constraints enforce text limits, RLS policies enforce ownership.
 

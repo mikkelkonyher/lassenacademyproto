@@ -106,7 +106,7 @@ export default function MyProfile() {
     setPasswordMessage('');
     setPasswordError(false);
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setPasswordMessage(t.myProfile.settings.passwordTooShort);
       setPasswordError(true);
       return;

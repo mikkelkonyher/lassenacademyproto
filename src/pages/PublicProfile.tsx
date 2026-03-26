@@ -48,7 +48,7 @@ export default function PublicProfile() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, image_url, bio, created_at')
         .eq('id', userId)
         .single();
 

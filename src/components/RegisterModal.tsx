@@ -47,7 +47,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
       return;
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       setError(t.auth.passwordTooShort);
       setIsLoading(false);
       return;

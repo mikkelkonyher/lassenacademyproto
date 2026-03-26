@@ -14,13 +14,23 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-// CORS headers — required on ALL responses (including errors) to avoid browser blocking
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+// Allowed origins for CORS — restrict to known frontends only
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "https://lassenacademyproto.vercel.app",
+];
+
+// Returns CORS headers scoped to the requesting origin (if allowed)
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[1];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 // Validation limits for comment body
 const BODY_MIN = 1;
@@ -90,28 +100,30 @@ function isSpammy(text: string): boolean {
 }
 
 /** Returns a JSON error response with CORS headers */
-function jsonError(message: string, code: string, status: number) {
+function jsonError(message: string, code: string, status: number, cors: Record<string, string>) {
   return new Response(JSON.stringify({ error: message, code }), {
     status,
-    headers: { "Content-Type": "application/json", ...corsHeaders },
+    headers: { "Content-Type": "application/json", ...cors },
   });
 }
 
 Deno.serve(async (req: Request) => {
+  const corsHeaders = getCorsHeaders(req);
+
   // Handle CORS preflight request from browser
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   if (req.method !== "POST") {
-    return jsonError("Method not allowed", "METHOD_NOT_ALLOWED", 405);
+    return jsonError("Method not allowed", "METHOD_NOT_ALLOWED", 405, corsHeaders);
   }
 
   try {
     // --- Authentication: verify JWT token from request header ---
     const authHeader = req.headers.get("Authorization");
     if (!authHeader)
-      return jsonError("Missing authorization", "UNAUTHORIZED", 401);
+      return jsonError("Missing authorization", "UNAUTHORIZED", 401, corsHeaders);
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const token = authHeader.replace("Bearer ", "");
@@ -120,17 +132,17 @@ Deno.serve(async (req: Request) => {
       error: authError,
     } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user)
-      return jsonError("Unauthorized", "UNAUTHORIZED", 401);
+      return jsonError("Unauthorized", "UNAUTHORIZED", 401, corsHeaders);
 
     // --- Parse and validate input ---
     const reqBody = await req.json();
     let { post_id, body: commentBody } = reqBody;
 
     if (!post_id || typeof post_id !== "string") {
-      return jsonError("Missing post_id", "INVALID_INPUT", 400);
+      return jsonError("Missing post_id", "INVALID_INPUT", 400, corsHeaders);
     }
     if (typeof commentBody !== "string") {
-      return jsonError("Invalid input type", "INVALID_INPUT", 400);
+      return jsonError("Invalid input type", "INVALID_INPUT", 400, corsHeaders);
     }
 
     // Sanitize: strip HTML tags and trim whitespace
@@ -142,6 +154,7 @@ Deno.serve(async (req: Request) => {
         `Comment must be between ${BODY_MIN} and ${BODY_MAX} characters`,
         "BODY_LENGTH",
         400,
+        corsHeaders,
       );
     }
 
@@ -151,6 +164,7 @@ Deno.serve(async (req: Request) => {
         "Content flagged as spam. Please revise.",
         "SPAM_DETECTED",
         400,
+        corsHeaders,
       );
     }
 
@@ -162,7 +176,7 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (postError || !post) {
-      return jsonError("Post not found", "NOT_FOUND", 404);
+      return jsonError("Post not found", "NOT_FOUND", 404, corsHeaders);
     }
 
     // --- Rate limiting: check how many comments the user posted recently ---
@@ -181,6 +195,7 @@ Deno.serve(async (req: Request) => {
         "Too many comments. Please wait before commenting again.",
         "RATE_LIMITED",
         429,
+        corsHeaders,
       );
     }
 
@@ -193,7 +208,7 @@ Deno.serve(async (req: Request) => {
 
     if (insertError) {
       console.error("Insert error:", insertError);
-      return jsonError("Failed to create comment", "INSERT_FAILED", 500);
+      return jsonError("Failed to create comment", "INSERT_FAILED", 500, corsHeaders);
     }
 
     // Notify the post author (skip if the commenter IS the author)
@@ -222,6 +237,6 @@ Deno.serve(async (req: Request) => {
     );
   } catch (err) {
     console.error("Unexpected error:", err);
-    return jsonError("Internal server error", "INTERNAL_ERROR", 500);
+    return jsonError("Internal server error", "INTERNAL_ERROR", 500, corsHeaders);
   }
 });

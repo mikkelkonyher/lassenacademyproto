@@ -381,17 +381,14 @@ export default function Community() {
     setSavingPost(false);
   };
 
-  // Delete post directly via Supabase (RLS enforces ownership)
+  // Delete post via edge function (ownership verified server-side)
   const handleDeletePost = async (postId: string) => {
     if (!confirm(ct.confirmDeletePost)) return;
 
     setDeletingPostId(postId);
-    const { error: deleteError } = await supabase
-      .from("forum_posts")
-      .delete()
-      .eq("id", postId);
+    const result = await callEdgeFunction("delete-forum-post", { post_id: postId });
 
-    if (!deleteError) {
+    if (result.success) {
       setExpandedPost(null);
       await fetchPosts();
     }
@@ -439,17 +436,14 @@ export default function Community() {
     setSavingComment(false);
   };
 
-  // Delete comment directly via Supabase (RLS enforces ownership)
+  // Delete comment via edge function (ownership verified server-side)
   const handleDeleteComment = async (commentId: string) => {
     if (!confirm(ct.confirmDeleteComment)) return;
 
     setDeletingCommentId(commentId);
-    const { error: deleteError } = await supabase
-      .from("forum_comments")
-      .delete()
-      .eq("id", commentId);
+    const result = await callEdgeFunction("delete-forum-comment", { comment_id: commentId });
 
-    if (!deleteError) {
+    if (result.success) {
       await fetchPosts();
     }
     setDeletingCommentId(null);

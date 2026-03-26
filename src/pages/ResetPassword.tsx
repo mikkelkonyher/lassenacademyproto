@@ -27,7 +27,7 @@ export default function ResetPassword() {
     e.preventDefault();
     setError('');
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setError(t.auth.passwordTooShort);
       return;
     }
