@@ -1,3 +1,9 @@
+/**
+ * ResetPassword.tsx — Password reset form shown after the user clicks
+ * the magic link from a "forgot password" email. Uses the Supabase
+ * session token embedded in the URL to authorize the password update
+ * via AuthContext.resetPassword().
+ */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Sparkles, CheckCircle } from 'lucide-react';
@@ -9,12 +15,14 @@ export default function ResetPassword() {
   const { t } = useLanguage();
   const { resetPassword } = useAuth();
   const navigate = useNavigate();
+  // Form fields and submission feedback
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false); // flips to true after a successful reset
   const [isLoading, setIsLoading] = useState(false);
 
+  // Validate inputs client-side, then call Supabase auth to update the password
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');

@@ -1,3 +1,12 @@
+/**
+ * Contact.tsx — Contact page with a message form and company info sidebar.
+ *
+ * Left column: a contact form (name, email, subject, message) — currently
+ * client-side only with no backend submission wired up.
+ * Right column: email, phone, physical address, and social media links.
+ * All labels come from i18n translations.
+ */
+
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -21,7 +30,7 @@ export default function Contact() {
   const { t } = useLanguage();
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
-  const ct = t.contactPage;
+  const ct = t.contactPage; // shorthand alias for contact page translations
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -52,6 +61,7 @@ export default function Contact() {
               <h2 className="text-lg font-bold text-white mb-6">
                 {ct.formTitle}
               </h2>
+              {/* Form submit is a no-op placeholder — backend integration pending */}
               <form
                 onSubmit={(e) => e.preventDefault()}
                 className="space-y-5"

@@ -1,3 +1,8 @@
+/**
+ * Footer — Site-wide footer with four columns: branding, explore links,
+ * community links, and contact/social icons. Includes a legal reference
+ * to the parent company (Kristian Lassen Musik ApS) and a copyright line.
+ */
 import { Facebook, Instagram, Youtube, Mail } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -14,7 +19,9 @@ export default function Footer() {
       <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[80px] pointer-events-none"></div>
       <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[80px] pointer-events-none"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Four-column grid: brand | explore | community | contact */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          {/* Brand column — logo, tagline, and parent company link */}
           <div className="col-span-1 md:col-span-1">
              <div className="flex items-center gap-0 mb-4">
                 <div className="w-1 h-9 rounded-full bg-gradient-to-b from-accent to-primary mr-3" />
@@ -64,6 +71,7 @@ export default function Footer() {
              </ul>
           </div>
         </div>
+        {/* Copyright bar — year is dynamically generated */}
         <div className="border-t border-white/10 pt-8 text-center text-gray-400 text-sm">
           <p>&copy; {new Date().getFullYear()} Lassen Music Academy. {t.footer.rights}</p>
         </div>

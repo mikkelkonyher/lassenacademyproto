@@ -1,3 +1,9 @@
+/**
+ * PublicProfile.tsx — Read-only public profile page for any user.
+ * Fetches the profile by userId from the URL param via Supabase.
+ * Shows avatar, name, join date, and bio. If the viewer is looking
+ * at their own profile, a link back to the editable settings is shown.
+ */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
@@ -10,6 +16,7 @@ import RegisterModal from '../components/RegisterModal';
 import LoginModal from '../components/LoginModal';
 import type { Database } from '../types/database.types';
 
+// Re-use the auto-generated Supabase row type for type safety
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export default function PublicProfile() {
@@ -19,7 +26,9 @@ export default function PublicProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [notFound, setNotFound] = useState(false); // true when userId doesn't match any profile
+
+  // Auth modal state (needed by Navbar)
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -28,6 +37,7 @@ export default function PublicProfile() {
   const openLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
   const closeLogin = () => setIsLoginOpen(false);
 
+  // Fetch the profile row from Supabase on mount or when userId changes
   useEffect(() => {
     const fetchProfile = async () => {
       if (!userId) {
@@ -53,6 +63,7 @@ export default function PublicProfile() {
     fetchProfile();
   }, [userId]);
 
+  // Detect if the logged-in user is viewing their own public profile
   const isOwnProfile = user?.id === userId;
 
   if (loading) {

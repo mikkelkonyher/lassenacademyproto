@@ -1,3 +1,8 @@
+/**
+ * VideoSection — Introduces the academy founder with an embedded YouTube video.
+ * Displays the founder's name, role, and a short description around a
+ * prominently styled video player. Animated background glows add visual depth.
+ */
 import { useLanguage } from '../context/LanguageContext';
 
 export default function VideoSection() {
@@ -5,7 +10,7 @@ export default function VideoSection() {
 
   return (
     <section className="py-24 bg-background relative overflow-hidden">
-      {/* Enhanced colorful glows - more dominant */}
+      {/* Animated background glows for ambient lighting effect */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/15 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
       <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-accent/12 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '1.5s' }}></div>
       <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[80px] pointer-events-none"></div>
@@ -27,6 +32,7 @@ export default function VideoSection() {
             </p>
         </div>
         
+        {/* Embedded YouTube video with orange glow border; intensifies on hover */}
         <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.4)] border border-primary/30 group hover:shadow-[0_0_100px_rgba(251,146,60,0.6)] hover:border-primary/50 transition-all duration-500">
           <iframe 
             src="https://www.youtube.com/embed/WXmv63UQ5og?si=aC5sCjv_u4B7U_a2" 

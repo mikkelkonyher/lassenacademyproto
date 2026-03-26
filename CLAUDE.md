@@ -37,6 +37,18 @@ No test runner is configured.
 - Custom CSS classes in `index.css`: `.glass` / `.glass-strong` (glassmorphism), custom keyframe animations (`gradient-x`, `shimmer`, `float`, `pulse-glow`, `scroll`)
 - Tailwind config extends with custom colors, Inter font, and 0.75rem border radius
 
+## Edge Functions
+
+Supabase Edge Functions live in `supabase/functions/<function-name>/index.ts`. These are Deno runtime files (not compiled by the project's TypeScript config). Local copies mirror what is deployed to Supabase.
+
+**Community forum functions** (all require JWT auth, sanitize input, detect spam, enforce rate limits):
+- `create-forum-post` — Creates a new post (max 5/hour)
+- `update-forum-post` — Updates a post with ownership check (max 20 edits/hour)
+- `create-forum-comment` — Creates a comment + notifies post author (max 15/hour)
+- `update-forum-comment` — Updates a comment with ownership check (max 20 edits/hour)
+
+Database safety net: `forum_rate_limits` table tracks actions, `CHECK` constraints enforce text limits, RLS policies enforce ownership.
+
 ## Key Conventions
 
 - All components are functional with typed props interfaces
@@ -44,3 +56,4 @@ No test runner is configured.
 - `clsx` + `tailwind-merge` available for conditional/merged class names
 - ES modules throughout (`"type": "module"`)
 - Strict TypeScript (`noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`)
+- **Always add clear, concise English comments** to all code — functions, logic blocks, constants, and non-obvious sections should have comments explaining their purpose. This keeps the codebase clean and easy to navigate.

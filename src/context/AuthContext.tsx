@@ -1,8 +1,16 @@
+/**
+ * Authentication context provider and hook.
+ * Wraps all Supabase auth operations (sign-up, sign-in, sign-out,
+ * password change/reset) and profile management (fetch, update, avatar upload).
+ * Listens to Supabase auth state changes so the UI stays in sync across tabs.
+ */
+
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase/client';
 import type { Database } from '../types/database.types';
 
+/** Row type for the public.profiles table, auto-generated from Supabase schema */
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
 interface AuthContextType {
@@ -27,8 +35,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  // True until the initial session check completes; prevents flash of unauthenticated UI
   const [loading, setLoading] = useState(true);
 
+  /** Fetch the user's profile row from the profiles table */
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
       .from('profiles')
@@ -47,7 +57,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // On mount: restore any existing session, then subscribe to future auth changes
   useEffect(() => {
+    // Check for an existing session (e.g. persisted in localStorage by Supabase)
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -57,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
+    // Listen for sign-in, sign-out, token refresh, and password recovery events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
@@ -65,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
       }
+      // Supabase fires PASSWORD_RECOVERY when the user clicks the reset link in their email
       if (event === 'PASSWORD_RECOVERY') {
         window.location.href = '/reset-password';
       }
@@ -73,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  /** Register a new user; full_name is stored in Supabase user metadata */
   const signUp = async (email: string, password: string, fullName: string) => {
     const { error } = await supabase.auth.signUp({
       email,
@@ -94,6 +109,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   };
 
+  /**
+   * Update profile via a Supabase Edge Function (not the client SDK directly)
+   * to allow server-side validation and avoid exposing RLS bypass logic.
+   */
   const updateProfile = async (updates: Database['public']['Tables']['profiles']['Update']) => {
     // Get a fresh session to avoid using an expired token
     const { data: { session: freshSession } } = await supabase.auth.getSession();
@@ -122,6 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  /** Upload an avatar image to Supabase Storage and update the profile with its public URL */
   const uploadAvatar = async (file: File): Promise<{ error: string | null; url: string | null }> => {
     if (!user) return { error: 'Not authenticated', url: null };
 
@@ -148,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: updateError, url };
   };
 
+  /** Change password for an already-authenticated user (requires current password verification) */
   const changePassword = async (currentPassword: string, newPassword: string) => {
     if (!user?.email) return { error: 'Not authenticated' };
 
@@ -169,6 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: updateError?.message ?? null };
   };
 
+  /** Send a password reset email with a link that redirects to /reset-password */
   const resetPasswordRequest = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
@@ -176,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null };
   };
 
+  /** Set a new password after the user has followed the reset link (session comes from the link token) */
   const resetPassword = async (newPassword: string) => {
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
@@ -190,6 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/** Convenience hook — throws if used outside AuthProvider to catch wiring mistakes early */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

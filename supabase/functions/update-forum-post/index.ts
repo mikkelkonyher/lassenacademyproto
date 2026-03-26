@@ -1,10 +1,20 @@
 // @ts-nocheck — Deno edge function, not compiled by project TypeScript
+/**
+ * Edge Function: update-forum-post
+ *
+ * Updates an existing forum post with server-side validation.
+ * Security: JWT auth, ownership verification, input sanitization,
+ * spam detection, rate limiting.
+ * Rate limit: max 20 edits per hour per user.
+ */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+// Supabase connection via service role (bypasses RLS for admin operations)
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+// CORS headers — required on ALL responses (including errors) to avoid browser blocking
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -12,6 +22,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// Allowed forum categories (must match database CHECK constraint)
 const VALID_CATEGORIES = [
   "general",
   "guitar",
@@ -20,25 +31,41 @@ const VALID_CATEGORIES = [
   "vocals",
   "theory",
 ];
+
+// Validation limits for post title and body
 const TITLE_MIN = 1;
 const TITLE_MAX = 150;
 const BODY_MIN = 1;
 const BODY_MAX = 5000;
+
+// Rate limiting: max edits allowed within the time window
 const RATE_LIMIT_UPDATES = 20;
 const RATE_LIMIT_WINDOW_MIN = 60;
 
+/** Strips HTML tags to prevent XSS injection */
 function stripHtml(str: string): string {
   return str.replace(/<[^>]*>/g, "");
 }
 
+/**
+ * Detects spam patterns in user-submitted text.
+ * Checks for: excessive caps, repeated characters, known spam phrases,
+ * too many URLs, and repeated words.
+ */
 function isSpammy(text: string): boolean {
   const lower = text.toLowerCase();
+
+  // Flag if more than 70% uppercase (only for text longer than 20 chars)
   if (text.length > 20) {
     const upperCount = (text.match(/[A-Z]/g) || []).length;
     const letterCount = (text.match(/[a-zA-Z]/g) || []).length;
     if (letterCount > 0 && upperCount / letterCount > 0.7) return true;
   }
+
+  // Flag repeated characters like "aaaaaaaaa"
   if (/(.)\\1{9,}/.test(text)) return true;
+
+  // Flag common spam phrases
   const spamPhrases = [
     "buy now",
     "click here",
@@ -56,8 +83,12 @@ function isSpammy(text: string): boolean {
     "send btc",
   ];
   if (spamPhrases.some((phrase) => lower.includes(phrase))) return true;
+
+  // Flag excessive URLs (more than 3)
   const urlCount = (text.match(/https?:\/\//g) || []).length;
   if (urlCount > 3) return true;
+
+  // Flag if a single word is repeated excessively
   const words = lower.split(/\s+/);
   if (words.length > 5) {
     const wordCounts: Record<string, number> = {};
@@ -66,9 +97,11 @@ function isSpammy(text: string): boolean {
       if (wordCounts[w] > Math.max(5, words.length * 0.5)) return true;
     }
   }
+
   return false;
 }
 
+/** Returns a JSON error response with CORS headers */
 function jsonError(message: string, code: string, status: number) {
   return new Response(JSON.stringify({ error: message, code }), {
     status,
@@ -77,6 +110,7 @@ function jsonError(message: string, code: string, status: number) {
 }
 
 Deno.serve(async (req: Request) => {
+  // Handle CORS preflight request from browser
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -86,6 +120,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // --- Authentication: verify JWT token from request header ---
     const authHeader = req.headers.get("Authorization");
     if (!authHeader)
       return jsonError("Missing authorization", "UNAUTHORIZED", 401);
@@ -99,6 +134,7 @@ Deno.serve(async (req: Request) => {
     if (authError || !user)
       return jsonError("Unauthorized", "UNAUTHORIZED", 401);
 
+    // --- Parse and validate input ---
     const body = await req.json();
     let { post_id, title, body: postBody, category } = body;
 
@@ -113,6 +149,7 @@ Deno.serve(async (req: Request) => {
       return jsonError("Invalid input types", "INVALID_INPUT", 400);
     }
 
+    // --- Ownership check: only the post author can edit ---
     const { data: existingPost, error: fetchError } = await supabaseAdmin
       .from("forum_posts")
       .select("user_id")
@@ -126,37 +163,46 @@ Deno.serve(async (req: Request) => {
       return jsonError("You can only edit your own posts", "FORBIDDEN", 403);
     }
 
+    // Sanitize: strip HTML tags and trim whitespace
     title = stripHtml(title).trim();
     postBody = stripHtml(postBody).trim();
     category = category.trim().toLowerCase();
 
+    // Validate title length
     if (title.length < TITLE_MIN || title.length > TITLE_MAX) {
       return jsonError(
         `Title must be between ${TITLE_MIN} and ${TITLE_MAX} characters`,
         "TITLE_LENGTH",
-        400
+        400,
       );
     }
+
+    // Validate body length
     if (postBody.length < BODY_MIN || postBody.length > BODY_MAX) {
       return jsonError(
         `Post body must be between ${BODY_MIN} and ${BODY_MAX} characters`,
         "BODY_LENGTH",
-        400
+        400,
       );
     }
+
+    // Validate category against allowed list
     if (!VALID_CATEGORIES.includes(category)) {
       return jsonError("Invalid category", "INVALID_CATEGORY", 400);
     }
+
+    // Check for spam content
     if (isSpammy(title) || isSpammy(postBody)) {
       return jsonError(
         "Content flagged as spam. Please revise.",
         "SPAM_DETECTED",
-        400
+        400,
       );
     }
 
+    // --- Rate limiting: check how many edits the user made recently ---
     const windowStart = new Date(
-      Date.now() - RATE_LIMIT_WINDOW_MIN * 60 * 1000
+      Date.now() - RATE_LIMIT_WINDOW_MIN * 60 * 1000,
     ).toISOString();
     const { count } = await supabaseAdmin
       .from("forum_rate_limits")
@@ -169,10 +215,11 @@ Deno.serve(async (req: Request) => {
       return jsonError(
         "Too many edits. Please wait before editing again.",
         "RATE_LIMITED",
-        429
+        429,
       );
     }
 
+    // --- Update the post in the database ---
     const { error: updateError } = await supabaseAdmin
       .from("forum_posts")
       .update({ title, body: postBody, category })
@@ -183,6 +230,7 @@ Deno.serve(async (req: Request) => {
       return jsonError("Failed to update post", "UPDATE_FAILED", 500);
     }
 
+    // Log this action for rate limiting tracking
     await supabaseAdmin.from("forum_rate_limits").insert({
       user_id: user.id,
       action_type: "update_post",

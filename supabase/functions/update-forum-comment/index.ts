@@ -1,10 +1,20 @@
 // @ts-nocheck — Deno edge function, not compiled by project TypeScript
+/**
+ * Edge Function: update-forum-comment
+ *
+ * Updates an existing forum comment with server-side validation.
+ * Security: JWT auth, ownership verification, input sanitization,
+ * spam detection, rate limiting.
+ * Rate limit: max 20 edits per hour per user.
+ */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+// Supabase connection via service role (bypasses RLS for admin operations)
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+// CORS headers — required on ALL responses (including errors) to avoid browser blocking
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -12,23 +22,38 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// Validation limits for comment body
 const BODY_MIN = 1;
 const BODY_MAX = 2000;
+
+// Rate limiting: max edits allowed within the time window
 const RATE_LIMIT_UPDATES = 20;
 const RATE_LIMIT_WINDOW_MIN = 60;
 
+/** Strips HTML tags to prevent XSS injection */
 function stripHtml(str: string): string {
   return str.replace(/<[^>]*>/g, "");
 }
 
+/**
+ * Detects spam patterns in user-submitted text.
+ * Checks for: excessive caps, repeated characters, known spam phrases,
+ * too many URLs, and repeated words.
+ */
 function isSpammy(text: string): boolean {
   const lower = text.toLowerCase();
+
+  // Flag if more than 70% uppercase (only for text longer than 20 chars)
   if (text.length > 20) {
     const upperCount = (text.match(/[A-Z]/g) || []).length;
     const letterCount = (text.match(/[a-zA-Z]/g) || []).length;
     if (letterCount > 0 && upperCount / letterCount > 0.7) return true;
   }
+
+  // Flag repeated characters like "aaaaaaaaa"
   if (/(.)\\1{9,}/.test(text)) return true;
+
+  // Flag common spam phrases
   const spamPhrases = [
     "buy now",
     "click here",
@@ -46,8 +71,12 @@ function isSpammy(text: string): boolean {
     "send btc",
   ];
   if (spamPhrases.some((phrase) => lower.includes(phrase))) return true;
+
+  // Flag excessive URLs (more than 3)
   const urlCount = (text.match(/https?:\/\//g) || []).length;
   if (urlCount > 3) return true;
+
+  // Flag if a single word is repeated excessively
   const words = lower.split(/\s+/);
   if (words.length > 5) {
     const wordCounts: Record<string, number> = {};
@@ -56,9 +85,11 @@ function isSpammy(text: string): boolean {
       if (wordCounts[w] > Math.max(5, words.length * 0.5)) return true;
     }
   }
+
   return false;
 }
 
+/** Returns a JSON error response with CORS headers */
 function jsonError(message: string, code: string, status: number) {
   return new Response(JSON.stringify({ error: message, code }), {
     status,
@@ -67,6 +98,7 @@ function jsonError(message: string, code: string, status: number) {
 }
 
 Deno.serve(async (req: Request) => {
+  // Handle CORS preflight request from browser
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -76,6 +108,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // --- Authentication: verify JWT token from request header ---
     const authHeader = req.headers.get("Authorization");
     if (!authHeader)
       return jsonError("Missing authorization", "UNAUTHORIZED", 401);
@@ -89,6 +122,7 @@ Deno.serve(async (req: Request) => {
     if (authError || !user)
       return jsonError("Unauthorized", "UNAUTHORIZED", 401);
 
+    // --- Parse and validate input ---
     const reqBody = await req.json();
     let { comment_id, body: commentBody } = reqBody;
 
@@ -99,6 +133,7 @@ Deno.serve(async (req: Request) => {
       return jsonError("Invalid input type", "INVALID_INPUT", 400);
     }
 
+    // --- Ownership check: only the comment author can edit ---
     const { data: existingComment, error: fetchError } = await supabaseAdmin
       .from("forum_comments")
       .select("user_id")
@@ -112,30 +147,34 @@ Deno.serve(async (req: Request) => {
       return jsonError(
         "You can only edit your own comments",
         "FORBIDDEN",
-        403
+        403,
       );
     }
 
+    // Sanitize: strip HTML tags and trim whitespace
     commentBody = stripHtml(commentBody).trim();
 
+    // Validate comment length
     if (commentBody.length < BODY_MIN || commentBody.length > BODY_MAX) {
       return jsonError(
         `Comment must be between ${BODY_MIN} and ${BODY_MAX} characters`,
         "BODY_LENGTH",
-        400
+        400,
       );
     }
 
+    // Check for spam content
     if (isSpammy(commentBody)) {
       return jsonError(
         "Content flagged as spam. Please revise.",
         "SPAM_DETECTED",
-        400
+        400,
       );
     }
 
+    // --- Rate limiting: check how many edits the user made recently ---
     const windowStart = new Date(
-      Date.now() - RATE_LIMIT_WINDOW_MIN * 60 * 1000
+      Date.now() - RATE_LIMIT_WINDOW_MIN * 60 * 1000,
     ).toISOString();
     const { count } = await supabaseAdmin
       .from("forum_rate_limits")
@@ -148,10 +187,11 @@ Deno.serve(async (req: Request) => {
       return jsonError(
         "Too many edits. Please wait before editing again.",
         "RATE_LIMITED",
-        429
+        429,
       );
     }
 
+    // --- Update the comment in the database ---
     const { error: updateError } = await supabaseAdmin
       .from("forum_comments")
       .update({ body: commentBody })
@@ -162,6 +202,7 @@ Deno.serve(async (req: Request) => {
       return jsonError("Failed to update comment", "UPDATE_FAILED", 500);
     }
 
+    // Log this action for rate limiting tracking
     await supabaseAdmin.from("forum_rate_limits").insert({
       user_id: user.id,
       action_type: "update_comment",

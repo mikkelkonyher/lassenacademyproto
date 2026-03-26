@@ -1,3 +1,12 @@
+/**
+ * Pricing.tsx — Subscription pricing page.
+ *
+ * Displays three plan tiers (Free, Monthly, Pro) with a monthly/yearly
+ * billing toggle. Prices adapt to the active language (DKK for Danish,
+ * USD for English). Also includes a store-discount banner and an FAQ section.
+ * All plan details and FAQ content are sourced from i18n translations.
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,18 +29,22 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
+  // Billing cycle toggle — controls which price is shown on paid plans
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   const pt = t.pricingPage;
 
+  // Locale-aware currency formatting
   const isDa = language === "da";
   const currency = isDa ? "kr" : "$";
 
+  // Hardcoded prices per plan and billing cycle, localized by language
   const subMonthly = isDa ? 149 : 20;
   const subYearly = isDa ? 119 : 16;
   const proMonthly = isDa ? 289 : 39;
   const proYearly = isDa ? 229 : 32;
 
+  // Plan definitions — each references translated strings for name, description, features, and CTA
   const plans = [
     {
       key: "free",

@@ -1,6 +1,13 @@
+/**
+ * SocialProof — Auto-scrolling testimonials carousel.
+ * Testimonials are hardcoded in Danish. The carousel duplicates the array
+ * to create a seamless infinite-scroll loop using CSS animation.
+ * Hovering over a card pauses the animation so the user can read it.
+ */
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 
+// Hardcoded student testimonials (Danish). Each entry includes a quote, author, role, and avatar.
 const testimonials = [
   {
     content:
@@ -72,12 +79,14 @@ export default function SocialProof() {
   const { t } = useLanguage();
   const [isPaused, setIsPaused] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [moveDistance, setMoveDistance] = useState("50%"); // Default to 50% (one set out of two)
+  // moveDistance is a CSS custom property that tells the scroll animation how far to translate
+  const [moveDistance, setMoveDistance] = useState("50%");
 
-  // Duplicate testimonials - 2 copies for seamless loop
+  // Two copies placed side by side allow the CSS animation to loop seamlessly
   const duplicatedTestimonials = [...testimonials, ...testimonials];
 
-  // Calculate exact distance to move by one full set (8 cards)
+  // Measure actual card widths after render to compute the exact scroll distance.
+  // Recalculates on window resize to stay accurate across breakpoints.
   useEffect(() => {
     const calculateDistance = () => {
       if (carouselRef.current) {
@@ -142,10 +151,11 @@ export default function SocialProof() {
 
           {/* Carousel Container */}
           <div className="relative overflow-hidden pt-4">
+            {/* Flex row animated via CSS @keyframes scroll; pauses on hover */}
             <div
               ref={carouselRef}
               className="flex animate-scroll"
-              style={{ 
+              style={{
                 animationPlayState: isPaused ? "paused" : "running",
                 '--move-distance': moveDistance
               } as React.CSSProperties & { '--move-distance': string }}

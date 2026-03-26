@@ -1,3 +1,12 @@
+/**
+ * TeacherDetail.tsx — Individual teacher profile page.
+ *
+ * Renders a full bio page for a single instructor. The teacher is resolved
+ * from a URL slug (e.g. /teacher/kristian-lassen). All teacher metadata
+ * (name, image, studio) is hardcoded here; translatable fields (bio,
+ * specialties, experience, achievements) come from the i18n translations object.
+ */
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Music2, Award, BookOpen, Users } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -7,7 +16,7 @@ import Footer from '../components/Footer';
 import RegisterModal from '../components/RegisterModal';
 import LoginModal from '../components/LoginModal';
 
-// Teacher data - should match FeaturedSection
+// Hardcoded teacher roster — kept in sync with FeaturedSection's instructor list
 const teachers = [
   {
     name: "Kristian Lassen",
@@ -27,12 +36,13 @@ const teachers = [
 ];
 
 export default function TeacherDetail() {
+  // Extract the slug from the URL param (e.g. "kristian-lassen")
   const { teacherSlug } = useParams<{ teacherSlug: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
-  // Find teacher by slug (name converted to URL-friendly format)
+  // Match URL slug against teacher names by lowercasing and hyphenating
   const teacher = teachers.find(
     (t) => t.name.toLowerCase().replace(/[\s-]+/g, '-') === teacherSlug
   );
@@ -57,13 +67,13 @@ export default function TeacherDetail() {
     );
   }
 
-  // Get teacher role from translations
+  // Map the teacher's full name to a short key used in the translations object
   const teacherKey = teacher.name.toLowerCase().replace(/[\s-]+/g, '') as keyof typeof t.teachers;
-  const roleKey = teacherKey === 'kristianlassen' ? 'kristian' : 
+  const roleKey = teacherKey === 'kristianlassen' ? 'kristian' :
                   teacherKey === 'ludwighamiltonwittendorff' ? 'ludwig' : 'elena';
   const role = t.featured.instructorRoles[roleKey as keyof typeof t.featured.instructorRoles];
 
-  // Get teacher details from translations
+  // Pull localized bio, specialties, experience, and achievements; fallback to empty defaults
   const teacherDetails = (t.teachers[teacherKey] as any) || {
     bio: '',
     specialties: [],

@@ -1,3 +1,12 @@
+/**
+ * AllCourses.tsx — Full course catalogue with tag-based filtering.
+ *
+ * Renders all available courses in a responsive grid. Users can filter
+ * by one or more tags (instrument, skill area). When no tags are selected,
+ * all courses are shown. Course metadata is hardcoded; translatable fields
+ * (titles, levels, tag labels) come from the i18n translations object.
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, PlayCircle, Star } from "lucide-react";
@@ -12,8 +21,10 @@ export default function AllCourses() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
+  // Tracks which filter tags the user has toggled on; empty means "show all"
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
+  // All available filter tags, pulled from translations so they match the active language
   const allTags = [
     t.featured.tags.guitar,
     t.featured.tags.bas,
@@ -26,6 +37,7 @@ export default function AllCourses() {
     t.featured.tags.impro,
   ];
 
+  // Hardcoded course catalogue — each course has tags used for client-side filtering
   const courses = [
     {
       title: t.featured.courseData.guitarTitle,
@@ -110,12 +122,14 @@ export default function AllCourses() {
     },
   ];
 
+  // Toggle a tag on/off in the active filter set
   const toggleTag = (tag: string) => {
     setActiveTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
 
+  // Show all courses when no tags selected; otherwise keep courses matching ANY active tag
   const filteredCourses =
     activeTags.length === 0
       ? courses
@@ -123,6 +137,7 @@ export default function AllCourses() {
           course.tags.some((tag) => activeTags.includes(tag))
         );
 
+  // Rotating gradient backgrounds for visual variety across course cards
   const gradients = [
     "from-primary/20 via-accent/15 to-primary/10",
     "from-accent/20 via-primary/15 to-accent/10",
@@ -135,6 +150,7 @@ export default function AllCourses() {
     "from-primary/20 via-accent/25 to-primary/20",
   ];
 
+  // Build a human-readable result count string, handling singular vs plural
   const resultCount = filteredCourses.length;
   const resultText =
     resultCount === 1

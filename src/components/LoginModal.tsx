@@ -1,3 +1,10 @@
+/**
+ * LoginModal.tsx
+ * Full-screen overlay modal with two views: the standard email/password login form,
+ * and a "forgot password" sub-view that sends a reset link via Supabase.
+ * The `showForgot` flag toggles between the two views without unmounting.
+ */
+
 import { useState } from 'react';
 import { X, Mail, Lock, Sparkles, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -13,10 +20,14 @@ interface LoginModalProps {
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
   const { t } = useLanguage();
   const { signIn, resetPasswordRequest } = useAuth();
+
+  // Login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Forgot-password sub-view state — toggled by `showForgot`
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
@@ -25,6 +36,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
   if (!isOpen) return null;
 
+  // Authenticate via Supabase; on success, clear fields and close the modal
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -42,6 +54,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     }
   };
 
+  // Request a password-reset email from Supabase
   const handleForgotSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setForgotError('');
@@ -57,6 +70,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     }
   };
 
+  // Return to the login view and reset all forgot-password state
   const handleBackToLogin = () => {
     setShowForgot(false);
     setForgotEmail('');
@@ -64,6 +78,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     setForgotError('');
   };
 
+  // Full cleanup so the modal opens fresh next time
   const handleClose = () => {
     handleBackToLogin();
     setError('');

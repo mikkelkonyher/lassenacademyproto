@@ -1,3 +1,10 @@
+/**
+ * Hero.tsx
+ * Full-viewport landing hero section with background image, animated headline,
+ * two CTA buttons (register or browse courses depending on auth), benefit pills,
+ * and a scroll-down indicator.
+ */
+
 import { Play, ArrowRight, CheckCircle, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
@@ -13,6 +20,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Smooth-scroll one full viewport height to reveal the next section
   const scrollToNext = () => {
     window.scrollTo({
       top: window.innerHeight,
@@ -66,6 +74,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
             </div>
           </div>
 
+          {/* CTA buttons: logged-in users go to courses, guests open the register modal */}
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <button
               onClick={user ? () => navigate('/courses') : onOpenRegister}
@@ -83,6 +92,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
             </button>
           </div>
 
+          {/* Benefit pills rendered from translated strings */}
           <div className="mt-16 flex flex-wrap justify-center gap-6 sm:gap-8">
             {t.hero.benefits.map((benefit, idx) => (
               <div

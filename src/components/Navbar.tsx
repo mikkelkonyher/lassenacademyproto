@@ -1,3 +1,9 @@
+/**
+ * Navbar.tsx
+ * Fixed top navigation bar for the site. Handles desktop and mobile layouts,
+ * DA/EN language toggle, and auth-aware rendering (login/register vs profile/logout).
+ */
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Globe, User, LogOut } from 'lucide-react';
@@ -10,8 +16,10 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
+  // Controls the mobile hamburger menu open/close state
   const [isOpen, setIsOpen] = useState(false);
   const { t, language, toggleLanguage } = useLanguage();
+  // Auth state determines which action buttons to show (login/register vs profile/logout)
   const { user, signOut } = useAuth();
 
   return (
@@ -63,6 +71,7 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
                 {language === 'da' ? 'EN' : 'DA'}
               </button>
 
+              {/* Conditionally render profile/logout for authenticated users, or login/register for guests */}
               {user ? (
                 <>
                   <Link
@@ -121,6 +130,7 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
         </div>
       </div>
 
+      {/* Mobile dropdown menu — only rendered when hamburger is toggled open */}
       {isOpen && (
         <div className="md:hidden bg-background border-b border-white/10">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">

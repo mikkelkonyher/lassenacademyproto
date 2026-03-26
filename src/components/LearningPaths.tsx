@@ -1,9 +1,16 @@
+/**
+ * LearningPaths — Displays three skill-level tiers (beginner, intermediate, advanced).
+ * Each card shows a description, duration, course count, and a CTA button.
+ * The middle card (intermediate) uses the accent color to stand out visually.
+ * All text is i18n-driven via the translation context.
+ */
 import { BookOpen, ArrowRight, CheckCircle, Sparkles, GraduationCap, TrendingUp, Award } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 
 export default function LearningPaths() {
   const { t } = useLanguage();
 
+  // Each path maps to a skill tier with its own icon and color scheme
   const learningPaths = [
     {
       title: t.learningPaths.beginner.title,
@@ -119,7 +126,7 @@ export default function LearningPaths() {
                 </button>
               </div>
 
-              {/* Hover glow effect */}
+              {/* Hover glow effect — accent color for the middle card, primary for others */}
               {idx === 1 ? (
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/0 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
               ) : (

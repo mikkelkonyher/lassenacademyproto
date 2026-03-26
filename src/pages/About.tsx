@@ -1,3 +1,12 @@
+/**
+ * About.tsx — About page for Lassen Music Academy.
+ *
+ * Sections: hero tagline, origin story, key stats (students, courses, etc.),
+ * core values grid, team member cards, and a closing mission banner.
+ * All text content is sourced from i18n translations; team and stats data
+ * are hardcoded arrays populated with translated strings.
+ */
+
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -20,8 +29,9 @@ export default function About() {
   const { t } = useLanguage();
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
-  const at = t.aboutPage;
+  const at = t.aboutPage; // shorthand alias for about page translations
 
+  // Core values displayed in a 2-column grid
   const values = [
     { icon: <Heart className="w-6 h-6" />, title: at.values.passion.title, description: at.values.passion.description },
     { icon: <Users className="w-6 h-6" />, title: at.values.community.title, description: at.values.community.description },
@@ -29,6 +39,7 @@ export default function About() {
     { icon: <GraduationCap className="w-6 h-6" />, title: at.values.growth.title, description: at.values.growth.description },
   ];
 
+  // Highlight metrics shown in a 4-column stat bar
   const stats = [
     { value: "500+", label: at.stats.students },
     { value: "50+", label: at.stats.courses },
@@ -36,6 +47,7 @@ export default function About() {
     { value: "2024", label: at.stats.founded },
   ];
 
+  // Team member cards — image URLs are Unsplash placeholders; initials kept for potential avatar fallback
   const team = [
     {
       name: "Kristian Lassen",

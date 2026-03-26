@@ -1,3 +1,9 @@
+/**
+ * Community.tsx — Forum page for the music academy community.
+ * Supports browsing, filtering, searching posts by category; creating,
+ * editing, and deleting posts and comments via Supabase edge functions;
+ * and a notification bell for comment replies on the user's posts.
+ */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -31,11 +37,13 @@ import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
 
+// Subset of profile fields joined onto posts/comments via Supabase relations
 interface ProfileInfo {
   full_name: string;
   image_url: string | null;
 }
 
+// Shape returned by the forum_comments join (includes nested author profile)
 interface ForumComment {
   id: string;
   post_id: string;
@@ -46,6 +54,7 @@ interface ForumComment {
   profiles: ProfileInfo | null;
 }
 
+// Shape returned by the forum_posts query (includes nested comments and author)
 interface ForumPost {
   id: string;
   user_id: string;
@@ -58,6 +67,7 @@ interface ForumPost {
   forum_comments: ForumComment[];
 }
 
+// Shape for the notification dropdown; includes commenter info and post title
 interface ForumNotification {
   id: string;
   user_id: string;
@@ -70,6 +80,7 @@ interface ForumNotification {
   forum_posts: { title: string } | null;
 }
 
+// Map each forum category to its Lucide icon for use in tags and filters
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   general: <Users className="w-4 h-4" />,
   guitar: <Guitar className="w-4 h-4" />,
@@ -79,6 +90,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   theory: <BookOpen className="w-4 h-4" />,
 };
 
+// Extract up to 2 initials from a full name for avatar fallbacks
 function getInitials(name: string): string {
   return name
     .split(" ")
@@ -88,6 +100,7 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
+// Format a timestamp as a human-readable relative string (supports DA/EN)
 function timeAgo(dateStr: string, language: string): string {
   const now = Date.now();
   const date = new Date(dateStr).getTime();
@@ -121,51 +134,52 @@ export default function Community() {
     closeLogin,
   } = useAuthModals();
 
+  // Filter and UI state
   const [activeCategory, setActiveCategory] = useState("all");
-  const [expandedPost, setExpandedPost] = useState<string | null>(null);
+  const [expandedPost, setExpandedPost] = useState<string | null>(null); // which post is open
   const [searchQuery, setSearchQuery] = useState("");
-  const [showMyPosts, setShowMyPosts] = useState(false);
+  const [showMyPosts, setShowMyPosts] = useState(false); // "My Posts" filter toggle
 
-  // Data state
+  // Posts fetched from Supabase
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Create post state
+  // New post form state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newBody, setNewBody] = useState("");
   const [newCategory, setNewCategory] = useState("general");
   const [creating, setCreating] = useState(false);
 
-  // Edit post state
+  // Inline edit post state
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
   const [editCategory, setEditCategory] = useState("general");
   const [savingPost, setSavingPost] = useState(false);
 
-  // Comment state
+  // Comment input per post (keyed by post id) and submission tracking
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [submittingComment, setSubmittingComment] = useState<string | null>(
     null
   );
 
-  // Edit comment state
+  // Inline edit comment state
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentText, setEditCommentText] = useState("");
   const [savingComment, setSavingComment] = useState(false);
 
-  // Delete state
+  // Tracks which post/comment is currently being deleted (shows spinner)
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
     null
   );
 
-  // Notifications state
+  // Notification bell dropdown state
   const [notifications, setNotifications] = useState<ForumNotification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const notifRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null); // ref for outside-click detection
 
   const ct = t.communityPage;
 
@@ -179,7 +193,8 @@ export default function Community() {
     { key: "theory", label: ct.categories.theory },
   ];
 
-  // Fetch posts
+  // Fetch all posts with nested comments and author profiles from Supabase.
+  // Comments are sorted oldest-first so the conversation reads chronologically.
   const fetchPosts = useCallback(async () => {
     const { data, error: fetchError } = await supabase
       .from("forum_posts")
@@ -204,7 +219,8 @@ export default function Community() {
     setLoading(false);
   }, [ct.errorLoading]);
 
-  // Fetch notifications
+  // Fetch the 20 most recent notifications for the current user.
+  // Joins commenter profile and post title for display in the dropdown.
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
 
@@ -241,7 +257,7 @@ export default function Community() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Mark all notifications as read
+  // Batch-update all unread notifications to read in Supabase
   const markAllRead = async () => {
     if (!user) return;
     await supabase
@@ -253,7 +269,7 @@ export default function Community() {
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
   };
 
-  // Navigate to a post from notification
+  // Mark a single notification as read, expand its post, and scroll into view
   const handleNotificationClick = async (notif: ForumNotification) => {
     // Mark as read
     if (!notif.is_read) {
@@ -278,9 +294,10 @@ export default function Community() {
     }, 100);
   };
 
+  // Derive unread count for the notification badge
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
-  // Map edge function error codes to translated messages
+  // Maps error codes from edge functions to user-facing translated messages
   const getValidationError = (code?: string, fallback?: string): string => {
     switch (code) {
       case "TITLE_LENGTH": return ct.validationTitleLength;
@@ -291,7 +308,7 @@ export default function Community() {
     }
   };
 
-  // Helper to call edge functions
+  // Calls a Supabase edge function with JWT auth and returns parsed result
   const callEdgeFunction = async (
     fnName: string,
     payload: Record<string, unknown>
@@ -317,7 +334,7 @@ export default function Community() {
     return { success: true, data: result };
   };
 
-  // Create post
+  // Creates a new post via edge function (validates, sanitizes, rate-limits server-side)
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !newTitle.trim() || !newBody.trim()) return;
@@ -342,7 +359,7 @@ export default function Community() {
     setCreating(false);
   };
 
-  // Update post
+  // Updates an existing post via edge function (ownership verified server-side)
   const handleUpdatePost = async (postId: string) => {
     if (!editTitle.trim() || !editBody.trim()) return;
 
@@ -364,7 +381,7 @@ export default function Community() {
     setSavingPost(false);
   };
 
-  // Delete post
+  // Delete post directly via Supabase (RLS enforces ownership)
   const handleDeletePost = async (postId: string) => {
     if (!confirm(ct.confirmDeletePost)) return;
 
@@ -381,7 +398,7 @@ export default function Community() {
     setDeletingPostId(null);
   };
 
-  // Create comment
+  // Creates a comment via edge function (also triggers notification for post author)
   const handleCreateComment = async (postId: string) => {
     const text = commentText[postId]?.trim();
     if (!user || !text) return;
@@ -402,7 +419,7 @@ export default function Community() {
     setSubmittingComment(null);
   };
 
-  // Update comment
+  // Updates an existing comment via edge function (ownership verified server-side)
   const handleUpdateComment = async (commentId: string) => {
     if (!editCommentText.trim()) return;
 
@@ -422,7 +439,7 @@ export default function Community() {
     setSavingComment(false);
   };
 
-  // Delete comment
+  // Delete comment directly via Supabase (RLS enforces ownership)
   const handleDeleteComment = async (commentId: string) => {
     if (!confirm(ct.confirmDeleteComment)) return;
 
@@ -438,6 +455,7 @@ export default function Community() {
     setDeletingCommentId(null);
   };
 
+  // Client-side filtering: combines "My Posts" toggle, category, and search query
   const filteredPosts = posts.filter((post) => {
     if (showMyPosts && user) {
       if (post.user_id !== user.id) return false;

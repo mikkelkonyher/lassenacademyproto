@@ -1,3 +1,10 @@
+/**
+ * Root application component.
+ * Defines all client-side routes and manages modal visibility state
+ * (register, login, video) for the landing page. The landing page ("/')
+ * is assembled from section components; other routes render full pages.
+ */
+
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -23,10 +30,12 @@ import PublicProfile from './pages/PublicProfile';
 import ResetPassword from './pages/ResetPassword';
 
 function App() {
+  // Modal visibility flags — only one auth modal can be open at a time
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
+  // Switching between login/register closes the other to prevent stacking
   const openRegister = () => { setIsLoginOpen(false); setIsRegisterOpen(true); };
   const closeRegister = () => setIsRegisterOpen(false);
   const openLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
@@ -36,6 +45,7 @@ function App() {
 
   return (
     <>
+      {/* Scrolls to top on every route change so users don't land mid-page */}
       <ScrollToTop />
       <Routes>
         <Route

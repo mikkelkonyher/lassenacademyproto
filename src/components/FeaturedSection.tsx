@@ -1,3 +1,10 @@
+/**
+ * FeaturedSection.tsx
+ * Two-part landing page section: a horizontally scrollable course card carousel
+ * followed by a responsive instructor grid. All data is hardcoded inline
+ * with translated labels — will eventually be replaced by Supabase queries.
+ */
+
 import { PlayCircle, Star, Music2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
@@ -6,6 +13,7 @@ export default function FeaturedSection() {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
+  // Hardcoded instructor profiles — roles are translated via i18n keys
   const tutors = [
     {
       name: "Kristian Lassen",
@@ -29,6 +37,7 @@ export default function FeaturedSection() {
     },
   ];
 
+  // Hardcoded course catalog — titles, levels, and tags are translated where possible
   const courses = [
     {
       title: t.featured.courseData.guitarTitle,
@@ -155,7 +164,7 @@ export default function FeaturedSection() {
             <div className="overflow-x-auto scrollbar-thumb-only pb-4 pt-6 -mx-4 px-4">
               <div className="flex gap-8 min-w-max">
                 {courses.map((course, idx) => {
-                  // Create dynamic gradient colors for each card
+                  // Cycle through gradient presets so each card has a unique color treatment
                   const gradients = [
                     "from-primary/20 via-accent/15 to-primary/10",
                     "from-accent/20 via-primary/15 to-accent/10",
@@ -258,6 +267,7 @@ export default function FeaturedSection() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {tutors.map((tutor, idx) => {
+              // Derive a URL-safe slug from the tutor name for the detail page route
               const teacherSlug = tutor.name
                 .toLowerCase()
                 .replace(/[\s-]+/g, "-");

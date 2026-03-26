@@ -1,3 +1,10 @@
+/**
+ * RegisterModal.tsx
+ * Full-screen overlay modal for new user registration. Validates passwords
+ * client-side, delegates sign-up to Supabase via AuthContext, and shows a
+ * confirmation message on success prompting the user to verify their email.
+ */
+
 import { useState } from 'react';
 import { X, User, Mail, Lock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -13,16 +20,22 @@ interface RegisterModalProps {
 export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps) {
   const { t } = useLanguage();
   const { signUp } = useAuth();
+
+  // Form field state
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // UI feedback state
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Render nothing when modal is not active
   if (!isOpen) return null;
 
+  // Client-side validation then Supabase sign-up; on success, show email confirmation prompt
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -54,6 +67,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
     }
   };
 
+  // Reset all transient state so the modal is clean on next open
   const handleClose = () => {
     setError('');
     setSuccess(false);

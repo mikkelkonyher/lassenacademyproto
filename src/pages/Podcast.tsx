@@ -1,3 +1,11 @@
+/**
+ * Podcast.tsx — Podcast episodes listing page.
+ *
+ * Displays a grid of podcast episodes with hardcoded content that switches
+ * between Danish and English based on the active language. Each card shows
+ * a thumbnail, guest name, duration, formatted date, and a play button.
+ */
+
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, Clock, Mic } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
@@ -7,12 +15,13 @@ import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
 
+// Shape of a single podcast episode entry
 interface Episode {
   title: string;
   description: string;
   guest: string;
   date: string;
-  duration: number;
+  duration: number; // minutes
   image: string;
 }
 
@@ -21,6 +30,7 @@ export default function Podcast() {
   const { t, language } = useLanguage();
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
+  // Hardcoded episode data — title and description switch on language
   const episodes: Episode[] = [
     {
       title:
@@ -114,6 +124,7 @@ export default function Podcast() {
     },
   ];
 
+  // Format ISO date string to locale-aware long date (e.g. "1. december 2025")
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString(language === "da" ? "da-DK" : "en-US", {
@@ -123,6 +134,7 @@ export default function Podcast() {
     });
   };
 
+  // Rotating gradient backgrounds applied to episode cards by index
   const gradients = [
     "from-primary/20 via-accent/15 to-primary/10",
     "from-accent/20 via-primary/15 to-accent/10",

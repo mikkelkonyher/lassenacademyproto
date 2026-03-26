@@ -1,3 +1,10 @@
+/**
+ * database.types.ts — Auto-generated Supabase TypeScript types.
+ * DO NOT edit manually. Regenerate with `supabase gen types typescript`
+ * whenever the database schema changes. These types are used across the
+ * app for type-safe queries against the profiles, forum_posts,
+ * forum_comments, and forum_notifications tables.
+ */
 export type Json =
   | string
   | number

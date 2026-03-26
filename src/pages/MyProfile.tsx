@@ -1,3 +1,9 @@
+/**
+ * MyProfile.tsx — Authenticated user's profile settings page.
+ * Allows editing display name, bio, avatar, password, notification
+ * preferences, and language. All mutations go through AuthContext helpers
+ * that call Supabase under the hood.
+ */
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar } from 'lucide-react';
@@ -12,26 +18,38 @@ export default function MyProfile() {
   const navigate = useNavigate();
   const { t, language, toggleLanguage } = useLanguage();
   const { user, profile, loading, updateProfile, uploadAvatar, changePassword } = useAuth();
+  // Auth modal state
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  // Local copies of notification prefs (synced from profile on load)
   const [notifications, setNotifications] = useState({
     email: true,
     courseUpdates: true,
     newsletter: false,
   });
+
+  // Editable settings fields
   const [settingsName, setSettingsName] = useState('');
   const [settingsBio, setSettingsBio] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+
+  // Avatar upload
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  // Password change fields and feedback
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState('');
   const [passwordError, setPasswordError] = useState(false);
+
+  // Hidden file input triggered by the avatar overlay button
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Seed local form state from the Supabase profile whenever it loads/changes
   useEffect(() => {
     if (profile) {
       setSettingsName(profile.full_name);
@@ -49,6 +67,7 @@ export default function MyProfile() {
   const openLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
   const closeLogin = () => setIsLoginOpen(false);
 
+  // Persist name, bio, notification prefs, and language to Supabase profiles table
   const handleSaveSettings = async () => {
     setIsSaving(true);
     setSaveMessage('');
@@ -67,6 +86,7 @@ export default function MyProfile() {
     }
   };
 
+  // Upload selected image file to Supabase Storage and update the profile avatar URL
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -81,6 +101,7 @@ export default function MyProfile() {
     }
   };
 
+  // Validate and change password via Supabase Auth (requires current password)
   const handleChangePassword = async () => {
     setPasswordMessage('');
     setPasswordError(false);
@@ -102,6 +123,7 @@ export default function MyProfile() {
     setIsChangingPassword(false);
 
     if (error) {
+      // Map Supabase auth error to a user-friendly translated message
       const translatedError = error.includes('Invalid login credentials')
         ? t.myProfile.settings.wrongCurrentPassword
         : t.myProfile.settings.passwordChangeError;
