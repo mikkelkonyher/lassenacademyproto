@@ -134,10 +134,10 @@ export default function Contact() {
                   </h3>
                 </div>
                 <a
-                  href="mailto:kontakt@lassenacademy.dk"
+                  href="mailto:info@lassenmusik.com"
                   className="text-sm text-gray-400 hover:text-primary transition-colors"
                 >
-                  kontakt@lassenacademy.dk
+                  info@lassenmusik.com
                 </a>
               </div>
 

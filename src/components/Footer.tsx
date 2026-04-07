@@ -3,7 +3,7 @@
  * community links, and contact/social icons. Includes a legal reference
  * to the parent company (Kristian Lassen Musik ApS) and a copyright line.
  */
-import { Facebook, Instagram, Youtube, Mail } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail, Music } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
@@ -21,24 +21,27 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Four-column grid: brand | explore | community | contact */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Brand column — logo, tagline, and parent company link */}
+          {/* Brand column — logo, tagline, and parent company info */}
           <div className="col-span-1 md:col-span-1">
              <div className="flex items-center gap-0 mb-4">
-                <div className="w-1 h-9 rounded-full bg-gradient-to-b from-accent to-primary mr-3" />
+                <Music className="w-6 h-6 text-primary" />
+                <div className="w-0.5 h-8 bg-primary mx-2.5 rounded-full" />
                 <div className="flex flex-col">
-                  <span className="text-[13px] font-extrabold tracking-[0.25em] uppercase text-white leading-none">
+                  <span className="text-base font-extrabold tracking-[0.2em] uppercase text-white leading-none">
                     Lassen
                   </span>
-                  <span className="text-[9px] font-medium tracking-[0.3em] uppercase text-accent/70 leading-none mt-1">
-                    Music Academy
+                  <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-primary leading-none mt-1">
+                    Music Academy ApS
                   </span>
                 </div>
               </div>
               <p className="text-gray-300 text-sm mb-4 leading-relaxed">
                 {t.footer.description}
               </p>
-              <div className="text-xs text-gray-400 border-t border-white/15 pt-4">
-                  {t.footer.partOf} <a href="https://www.lassenmusik.com/" target="_blank" rel="noreferrer" className="text-primary hover:text-white transition-colors">KRISTIAN LASSEN MUSIK APS</a>
+              <div className="text-xs text-gray-400 border-t border-white/15 pt-4 space-y-1">
+                  <p className="font-semibold text-white/80">Kristian Lassen Musik ApS</p>
+                  <p>Møllergade 42A, 5700 Svendborg</p>
+                  <a href="https://www.lassenmusik.com/" target="_blank" rel="noreferrer" className="text-primary hover:text-white transition-colors inline-block mt-1">lassenmusik.com</a>
               </div>
           </div>
           <div>
@@ -62,7 +65,7 @@ export default function Footer() {
           <div>
              <h3 className="text-white font-semibold mb-4">{t.footer.contact}</h3>
              <ul className="space-y-2 text-gray-300 text-sm">
-                <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary/70" /> kontakt@lassenacademy.dk</li>
+                <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary/70" /> info@lassenmusik.com</li>
                 <li className="flex gap-4 mt-4">
                   <a href="#" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Facebook className="h-5 w-5" /></a>
                   <a href="#" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Instagram className="h-5 w-5" /></a>

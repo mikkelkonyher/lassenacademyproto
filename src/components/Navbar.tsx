@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Globe, User, LogOut } from 'lucide-react';
+import { Menu, X, Globe, User, LogOut, Music } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -27,24 +27,23 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
       {/* Subtle colorful accent at top */}
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Left: Logo */}
-          <div className="flex-shrink-0 flex flex-col">
+        <div className="flex items-center justify-between h-20">
+          {/* Left: Logo with eighth-note icons and orange divider */}
+          <div className="flex-shrink-0">
             <Link to="/" className="group flex items-center gap-0 leading-none hover:opacity-90 transition-opacity">
-              {/* Accent bar */}
-              <div className="w-1 h-9 rounded-full bg-gradient-to-b from-accent to-primary mr-3 group-hover:from-primary group-hover:to-primary/40 transition-all duration-500" />
+              {/* Eighth-note icon */}
+              <Music className="w-8 h-8 text-primary" />
+              {/* Orange vertical divider */}
+              <div className="w-0.5 h-10 bg-primary mx-3 rounded-full" />
               <div className="flex flex-col">
-                <span className="text-[13px] font-extrabold tracking-[0.25em] uppercase text-white leading-none">
+                <span className="text-xl font-extrabold tracking-[0.2em] uppercase text-white leading-none">
                   Lassen
                 </span>
-                <span className="text-[9px] font-medium tracking-[0.3em] uppercase text-accent/70 group-hover:text-white/50 leading-none mt-1 transition-colors duration-500">
-                  Music Academy
+                <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-primary leading-none mt-1.5">
+                  Music Academy ApS
                 </span>
               </div>
             </Link>
-            <a href="https://www.lassenmusik.com/" target="_blank" rel="noopener noreferrer" className="text-[8px] text-primary/60 hover:text-primary transition-colors mt-0.5 ml-4 font-medium tracking-[0.2em] uppercase leading-none">
-              {t.navbar.subtitle}
-            </a>
           </div>
 
           {/* Center: Navigation Links */}

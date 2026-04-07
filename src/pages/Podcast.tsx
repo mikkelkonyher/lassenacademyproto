@@ -164,7 +164,7 @@ export default function Podcast() {
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">
               {t.podcastPage.pageTitle}
             </h1>
-            <p className="text-lg text-gray-400">
+            <p className="text-lg text-gray-400 mb-4">
               {t.podcastPage.pageSubtitle}
             </p>
           </div>
