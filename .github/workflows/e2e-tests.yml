@@ -28,7 +28,7 @@ jobs:
         working-directory: ./bruno
         run: |
           bru run e2e-flow \
-            --env production \
+            --env ci \
             --env-var supabase_url=${{ secrets.SUPABASE_URL }} \
             --env-var supabase_anon_key=${{ secrets.SUPABASE_ANON_KEY }} \
             --env-var test_email=${{ secrets.TEST_EMAIL }} \
