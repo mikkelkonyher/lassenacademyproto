@@ -25,8 +25,9 @@ jobs:
         run: npm install -g @usebruno/cli
 
       - name: Run E2E tests
+        working-directory: ./bruno
         run: |
-          bru run bruno/e2e-flow \
+          bru run e2e-flow \
             --env production \
             --env-var supabase_url=${{ secrets.SUPABASE_URL }} \
             --env-var supabase_anon_key=${{ secrets.SUPABASE_ANON_KEY }} \
