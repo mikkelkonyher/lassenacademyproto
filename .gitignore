@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 .env
 .mcp.json
+
+# Bruno environment files (contain credentials)
+bruno/environments/

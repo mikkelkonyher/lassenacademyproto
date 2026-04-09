@@ -1,0 +1,28 @@
+meta {
+  name: Delete Forum Comment
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/delete-forum-comment
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "comment_id": "{{test_comment_id}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+}

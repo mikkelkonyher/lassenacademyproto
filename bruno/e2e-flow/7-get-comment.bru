@@ -1,0 +1,32 @@
+meta {
+  name: GET - Verify Comment Created
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/forum_comments?id=eq.{{test_comment_id}}&select=id,body,post_id,user_id
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // Verify post_id and user_id match (can't use variables in assert)
+  const postId = bru.getVar("test_post_id");
+  const userId = bru.getVar("user_id");
+  if (res.body[0].post_id !== postId) {
+    throw new Error(`post_id mismatch: expected ${postId}, got ${res.body[0].post_id}`);
+  }
+  if (res.body[0].user_id !== userId) {
+    throw new Error(`user_id mismatch: expected ${userId}, got ${res.body[0].user_id}`);
+  }
+}

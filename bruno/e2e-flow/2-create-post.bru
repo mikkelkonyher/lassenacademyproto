@@ -1,0 +1,36 @@
+meta {
+  name: Create Forum Post
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-forum-post
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "title": "E2E Test Post - Bruno",
+    "body": "This is an automated end-to-end test post created by Bruno API client. Testing the full forum flow.",
+    "category": "general"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.success: eq true
+  res.body.post_id: isString
+}
+
+script:post-response {
+  // Store the post ID for update, comment, and delete tests
+  bru.setVar("test_post_id", res.body.post_id);
+}

@@ -1,0 +1,22 @@
+meta {
+  name: GET - Verify Post Updated
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/forum_posts?id=eq.{{test_post_id}}&select=id,title,body,category
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body[0].title: eq E2E Test Post - Updated by Bruno
+  res.body[0].category: eq guitar
+}
