@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { LanguageProvider } from '../src/context/LanguageContext';
@@ -41,16 +41,21 @@ vi.mock('../src/supabase/client', () => ({
   },
 }));
 
-function renderWithProviders(ui: ReactNode) {
-  return render(
-    <BrowserRouter>
-      <LanguageProvider>
-        <AuthProvider>
-          {ui}
-        </AuthProvider>
-      </LanguageProvider>
-    </BrowserRouter>
-  );
+// Wraps render in act() to flush AuthProvider's async state updates (getSession, onAuthStateChange)
+async function renderWithProviders(ui: ReactNode) {
+  let result: ReturnType<typeof render>;
+  await act(async () => {
+    result = render(
+      <BrowserRouter>
+        <LanguageProvider>
+          <AuthProvider>
+            {ui}
+          </AuthProvider>
+        </LanguageProvider>
+      </BrowserRouter>
+    );
+  });
+  return result!;
 }
 
 describe('RegisterModal', () => {
@@ -61,15 +66,15 @@ describe('RegisterModal', () => {
     vi.clearAllMocks();
   });
 
-  it('renders nothing when isOpen is false', () => {
-    renderWithProviders(
+  it('renders nothing when isOpen is false', async () => {
+    await renderWithProviders(
       <RegisterModal isOpen={false} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
     expect(screen.queryByText('Opret profil')).not.toBeInTheDocument();
   });
 
-  it('renders register form when isOpen is true', () => {
-    renderWithProviders(
+  it('renders register form when isOpen is true', async () => {
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
     expect(screen.getAllByText('Opret profil').length).toBeGreaterThanOrEqual(1);
@@ -79,7 +84,7 @@ describe('RegisterModal', () => {
 
   it('shows error when password is too short', async () => {
     const user = userEvent.setup();
-    renderWithProviders(
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
 
@@ -100,7 +105,7 @@ describe('RegisterModal', () => {
 
   it('shows error when passwords do not match', async () => {
     const user = userEvent.setup();
-    renderWithProviders(
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
 
@@ -123,7 +128,7 @@ describe('RegisterModal', () => {
     mockSignUp.mockResolvedValueOnce({ error: null });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
 
@@ -149,7 +154,7 @@ describe('RegisterModal', () => {
     mockSignUp.mockResolvedValueOnce({ error: null });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
 
@@ -173,7 +178,7 @@ describe('RegisterModal', () => {
     });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
 
@@ -193,7 +198,7 @@ describe('RegisterModal', () => {
 
   it('calls onSwitchToLogin when login link is clicked', async () => {
     const user = userEvent.setup();
-    renderWithProviders(
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
 
@@ -201,8 +206,8 @@ describe('RegisterModal', () => {
     expect(onSwitchToLogin).toHaveBeenCalled();
   });
 
-  it('closes modal when backdrop is clicked', () => {
-    renderWithProviders(
+  it('closes modal when backdrop is clicked', async () => {
+    await renderWithProviders(
       <RegisterModal isOpen={true} onClose={onClose} onSwitchToLogin={onSwitchToLogin} />
     );
 
@@ -221,15 +226,15 @@ describe('LoginModal', () => {
     vi.clearAllMocks();
   });
 
-  it('renders nothing when isOpen is false', () => {
-    renderWithProviders(
+  it('renders nothing when isOpen is false', async () => {
+    await renderWithProviders(
       <LoginModal isOpen={false} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
     expect(screen.queryByText('Log ind')).not.toBeInTheDocument();
   });
 
-  it('renders login form when isOpen is true', () => {
-    renderWithProviders(
+  it('renders login form when isOpen is true', async () => {
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
     expect(screen.getAllByText('Log ind').length).toBeGreaterThanOrEqual(1);
@@ -241,7 +246,7 @@ describe('LoginModal', () => {
     mockSignInWithPassword.mockResolvedValueOnce({ error: null });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -263,7 +268,7 @@ describe('LoginModal', () => {
     mockSignInWithPassword.mockResolvedValueOnce({ error: null });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -284,7 +289,7 @@ describe('LoginModal', () => {
     });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -301,7 +306,7 @@ describe('LoginModal', () => {
 
   it('calls onSwitchToRegister when register link is clicked', async () => {
     const user = userEvent.setup();
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -314,7 +319,7 @@ describe('LoginModal', () => {
     mockSignInWithPassword.mockImplementation(() => new Promise(() => {}));
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -331,7 +336,7 @@ describe('LoginModal', () => {
 
   it('shows forgot password form when link is clicked', async () => {
     const user = userEvent.setup();
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -354,7 +359,7 @@ describe('LoginModal', () => {
     mockResetPasswordForEmail.mockResolvedValueOnce({ error: null });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -388,7 +393,7 @@ describe('LoginModal', () => {
     mockResetPasswordForEmail.mockResolvedValueOnce({ error: { message: 'Der findes ingen bruger med denne email.' } });
     const user = userEvent.setup();
 
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
@@ -405,7 +410,7 @@ describe('LoginModal', () => {
 
   it('returns to login form when back to login is clicked', async () => {
     const user = userEvent.setup();
-    renderWithProviders(
+    await renderWithProviders(
       <LoginModal isOpen={true} onClose={onClose} onSwitchToRegister={onSwitchToRegister} />
     );
 
