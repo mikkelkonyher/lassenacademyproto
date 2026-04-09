@@ -93,7 +93,7 @@ describe('RegisterModal', () => {
     await user.click(submitBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('Adgangskoden skal være mindst 6 tegn.')).toBeInTheDocument();
+      expect(screen.getByText('Adgangskoden skal være mindst 8 tegn.')).toBeInTheDocument();
     });
     expect(mockSignUp).not.toHaveBeenCalled();
   });
@@ -384,6 +384,8 @@ describe('LoginModal', () => {
         }),
       }),
     });
+    // resetPasswordRequest still calls resetPasswordForEmail, so mock it to prevent crash
+    mockResetPasswordForEmail.mockResolvedValueOnce({ error: { message: 'Der findes ingen bruger med denne email.' } });
     const user = userEvent.setup();
 
     renderWithProviders(

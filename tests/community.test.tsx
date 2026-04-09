@@ -62,12 +62,15 @@ const mockOnAuthStateChange = vi.fn().mockReturnValue({
 });
 
 function buildChain(resolvedData: unknown = [], resolvedError: unknown = null) {
-  const eqFn = vi
+  const limitFn = vi
     .fn()
     .mockReturnValue({ data: resolvedData, error: resolvedError });
   const orderFn = vi
     .fn()
-    .mockReturnValue({ data: resolvedData, error: resolvedError });
+    .mockReturnValue({ data: resolvedData, error: resolvedError, limit: limitFn });
+  const eqFn = vi
+    .fn()
+    .mockReturnValue({ data: resolvedData, error: resolvedError, order: orderFn });
 
   const selectFn = vi.fn().mockReturnValue({
     order: orderFn,
@@ -122,6 +125,16 @@ vi.mock("../src/supabase/client", () => ({
           delete: chain.deleteFn,
         };
       }
+      if (table === "forum_notifications") {
+        // Notifications query chains: .select().eq().order().limit()
+        const limitFn = vi.fn().mockReturnValue({ data: [], error: null });
+        const orderFn = vi.fn().mockReturnValue({ data: [], error: null, limit: limitFn });
+        const eqFn = vi.fn().mockReturnValue({ order: orderFn });
+        return {
+          select: vi.fn().mockReturnValue({ eq: eqFn }),
+          delete: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: null, error: null }) }),
+        };
+      }
       return {
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
@@ -136,6 +149,10 @@ vi.mock("../src/supabase/client", () => ({
 // ── Auth context mock ────────────────────────────────────────
 
 let mockCurrentUser: typeof MOCK_USER | null = null;
+
+// Mock fetch for edge function calls (mutations go through fetch, not supabase client)
+const mockFetch = vi.fn();
+vi.stubGlobal("fetch", mockFetch);
 
 vi.mock("../src/context/AuthContext", () => ({
   useAuth: () => ({
@@ -188,6 +205,15 @@ describe("Community Page", () => {
     chain = buildChain([MOCK_POST, MOCK_OTHER_POST]);
     // happy-dom doesn't define window.confirm
     window.confirm = vi.fn();
+    // Default fetch mock for edge function calls (returns success)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true, post_id: "new-post-1", comment_id: "new-comment-1" }),
+    });
+    // Default getSession mock for authenticated calls
+    mockGetSession.mockResolvedValue({
+      data: { session: null },
+    });
   });
 
   // ── Rendering ──
@@ -418,6 +444,10 @@ describe("Community Page", () => {
   describe("Logged-in User - Posts", () => {
     beforeEach(() => {
       mockCurrentUser = MOCK_USER;
+      // Edge functions need an active session for auth
+      mockGetSession.mockResolvedValue({
+        data: { session: { access_token: "test-token", user: MOCK_USER } },
+      });
     });
 
     it("shows new post button when logged in", async () => {
@@ -474,12 +504,17 @@ describe("Community Page", () => {
       await user.click(screen.getByText("Opret opslag"));
 
       await waitFor(() => {
-        expect(chain.insertFn).toHaveBeenCalledWith({
-          user_id: MOCK_USER.id,
-          category: "general",
-          title: "My New Post",
-          body: "This is the body of my new post",
-        });
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining("/functions/v1/create-forum-post"),
+          expect.objectContaining({
+            method: "POST",
+            body: JSON.stringify({
+              title: "My New Post",
+              body: "This is the body of my new post",
+              category: "general",
+            }),
+          }),
+        );
       });
     });
 
@@ -537,8 +572,12 @@ describe("Community Page", () => {
       await user.click(screen.getByText("Gem ændringer"));
 
       await waitFor(() => {
-        expect(chain.updateFn).toHaveBeenCalledWith(
-          expect.objectContaining({ title: "Updated Title" }),
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining("/functions/v1/update-forum-post"),
+          expect.objectContaining({
+            method: "POST",
+            body: expect.stringContaining("Updated Title"),
+          }),
         );
       });
     });
@@ -559,7 +598,10 @@ describe("Community Page", () => {
         "Er du sikker på, at du vil slette dette opslag?",
       );
       await waitFor(() => {
-        expect(chain.deleteFn).toHaveBeenCalled();
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining("/functions/v1/delete-forum-post"),
+          expect.objectContaining({ method: "POST" }),
+        );
       });
 
       vi.mocked(window.confirm).mockReset();
@@ -577,7 +619,10 @@ describe("Community Page", () => {
       await user.click(screen.getByText("Test Post Title"));
       await user.click(screen.getByText("Slet opslag"));
 
-      expect(chain.deleteFn).not.toHaveBeenCalled();
+      expect(mockFetch).not.toHaveBeenCalledWith(
+        expect.stringContaining("/functions/v1/delete-forum-post"),
+        expect.anything(),
+      );
       vi.mocked(window.confirm).mockReset();
     });
   });
@@ -587,6 +632,10 @@ describe("Community Page", () => {
   describe("Logged-in User - Comments", () => {
     beforeEach(() => {
       mockCurrentUser = MOCK_USER;
+      // Edge functions need an active session for auth
+      mockGetSession.mockResolvedValue({
+        data: { session: { access_token: "test-token", user: MOCK_USER } },
+      });
     });
 
     it("shows reply input when logged in", async () => {
@@ -622,11 +671,13 @@ describe("Community Page", () => {
       await user.click(replyButton);
 
       await waitFor(() => {
-        expect(chain.insertFn).toHaveBeenCalledWith({
-          post_id: "post-1",
-          user_id: MOCK_USER.id,
-          body: "My new comment",
-        });
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining("/functions/v1/create-forum-comment"),
+          expect.objectContaining({
+            method: "POST",
+            body: expect.stringContaining("My new comment"),
+          }),
+        );
       });
     });
 
@@ -682,9 +733,13 @@ describe("Community Page", () => {
       await user.click(screen.getByText("Gem"));
 
       await waitFor(() => {
-        expect(chain.updateFn).toHaveBeenCalledWith({
-          body: "Updated comment",
-        });
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining("/functions/v1/update-forum-comment"),
+          expect.objectContaining({
+            method: "POST",
+            body: expect.stringContaining("Updated comment"),
+          }),
+        );
       });
     });
 
@@ -725,7 +780,10 @@ describe("Community Page", () => {
         "Er du sikker på, at du vil slette denne kommentar?",
       );
       await waitFor(() => {
-        expect(chain.deleteFn).toHaveBeenCalled();
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining("/functions/v1/delete-forum-comment"),
+          expect.objectContaining({ method: "POST" }),
+        );
       });
 
       vi.mocked(window.confirm).mockReset();
