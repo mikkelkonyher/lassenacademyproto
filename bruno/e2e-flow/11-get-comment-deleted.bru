@@ -1,0 +1,21 @@
+meta {
+  name: GET - Verify Comment Deleted
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/forum_comments?id=eq.{{test_comment_id}}&select=id
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: length 0
+}

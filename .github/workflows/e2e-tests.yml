@@ -1,0 +1,34 @@
+# Runs Bruno E2E tests against Supabase Edge Functions on push to main
+name: E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    name: Bruno E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Bruno CLI
+        run: npm install -g @usebruno/cli
+
+      - name: Run E2E tests
+        run: |
+          bru run bruno/e2e-flow \
+            --env production \
+            --env-var supabase_url=${{ secrets.SUPABASE_URL }} \
+            --env-var supabase_anon_key=${{ secrets.SUPABASE_ANON_KEY }} \
+            --env-var test_email=${{ secrets.TEST_EMAIL }} \
+            --env-var test_password=${{ secrets.TEST_PASSWORD }}

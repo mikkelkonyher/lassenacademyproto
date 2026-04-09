@@ -1,0 +1,35 @@
+meta {
+  name: Create Forum Comment
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-forum-comment
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "post_id": "{{test_post_id}}",
+    "body": "This is an automated E2E test comment created by Bruno. Testing comment creation on the forum post."
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.success: eq true
+  res.body.comment_id: isString
+}
+
+script:post-response {
+  // Store the comment ID for subsequent requests
+  bru.setVar("test_comment_id", res.body.comment_id);
+}

@@ -1,0 +1,30 @@
+meta {
+  name: GET - Verify Post Created
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/forum_posts?id=eq.{{test_post_id}}&select=id,title,body,category,user_id
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body[0].title: eq E2E Test Post - Bruno
+  res.body[0].category: eq general
+}
+
+script:post-response {
+  // Verify user_id matches the logged-in user (can't use variables in assert)
+  const userId = bru.getVar("user_id");
+  if (res.body[0].user_id !== userId) {
+    throw new Error(`user_id mismatch: expected ${userId}, got ${res.body[0].user_id}`);
+  }
+}
