@@ -5,8 +5,6 @@
  * is assembled from section components; other routes render full pages.
  */
 
-// Trigger CI
-
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
