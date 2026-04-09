@@ -5,6 +5,7 @@
  * Listens to Supabase auth state changes so the UI stays in sync across tabs.
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase/client';

@@ -74,12 +74,11 @@ export default function TeacherDetail() {
   const role = t.featured.instructorRoles[roleKey as keyof typeof t.featured.instructorRoles];
 
   // Pull localized bio, specialties, experience, and achievements; fallback to empty defaults
-  const teacherDetails = (t.teachers[teacherKey] as any) || {
-    bio: '',
-    specialties: [],
-    experience: '',
-    achievements: [],
-  };
+  // Teacher detail shape used for bio, specialties, experience, and achievements
+  const teacherValue = t.teachers[teacherKey];
+  const teacherDetails = (typeof teacherValue === 'object' && teacherValue !== null && 'bio' in teacherValue)
+    ? teacherValue as { bio: string; specialties: string[]; experience: string; achievements: string[] }
+    : { bio: '', specialties: [] as string[], experience: '', achievements: [] as string[] };
 
   return (
     <div className="min-h-screen bg-background text-white">

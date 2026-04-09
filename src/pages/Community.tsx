@@ -238,6 +238,7 @@ export default function Community() {
     }
   }, [user]);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- data fetching on mount is a valid effect pattern */
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
@@ -245,6 +246,7 @@ export default function Community() {
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Close notifications dropdown on outside click
   useEffect(() => {

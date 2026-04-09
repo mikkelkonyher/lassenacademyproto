@@ -22,16 +22,16 @@ export default function MyProfile() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  // Local copies of notification prefs (synced from profile on load)
-  const [notifications, setNotifications] = useState({
-    email: true,
-    courseUpdates: true,
-    newsletter: false,
-  });
+  // Local copies of notification prefs (initialized from profile)
+  const [notifications, setNotifications] = useState(() => ({
+    email: profile?.notify_email ?? true,
+    courseUpdates: profile?.notify_course_updates ?? true,
+    newsletter: profile?.notify_newsletter ?? false,
+  }));
 
-  // Editable settings fields
-  const [settingsName, setSettingsName] = useState('');
-  const [settingsBio, setSettingsBio] = useState('');
+  // Editable settings fields (initialized from profile)
+  const [settingsName, setSettingsName] = useState(() => profile?.full_name ?? '');
+  const [settingsBio, setSettingsBio] = useState(() => profile?.bio ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
@@ -49,9 +49,12 @@ export default function MyProfile() {
   // Hidden file input triggered by the avatar overlay button
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Seed local form state from the Supabase profile whenever it loads/changes
+  // Sync local form state when profile loads asynchronously (e.g. after auth resolves)
+  const lastProfileId = useRef(profile?.id);
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing form state from async profile load */
   useEffect(() => {
-    if (profile) {
+    if (profile && profile.id !== lastProfileId.current) {
+      lastProfileId.current = profile.id;
       setSettingsName(profile.full_name);
       setSettingsBio(profile.bio ?? '');
       setNotifications({
@@ -61,6 +64,7 @@ export default function MyProfile() {
       });
     }
   }, [profile]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const openRegister = () => { setIsLoginOpen(false); setIsRegisterOpen(true); };
   const closeRegister = () => setIsRegisterOpen(false);

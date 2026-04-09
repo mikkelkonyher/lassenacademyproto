@@ -5,6 +5,7 @@
  * Components access translations via: const { t } = useLanguage();
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { translations, type Language } from '../translations';
 
