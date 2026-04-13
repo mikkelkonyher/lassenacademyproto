@@ -13,6 +13,7 @@ import App from './App.tsx'
 
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
+import { Analytics } from '@vercel/analytics/react';
 
 // Provider order matters: BrowserRouter must wrap everything that uses routing,
 // LanguageProvider supplies translations, AuthProvider depends on Supabase client.
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
       <LanguageProvider>
         <AuthProvider>
           <App />
+          <Analytics />
         </AuthProvider>
       </LanguageProvider>
     </BrowserRouter>
