@@ -5,10 +5,15 @@
  * and a scroll-down indicator.
  */
 
+import { useState, useEffect } from "react";
 import { Play, ArrowRight, CheckCircle, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../supabase/client";
+import type { Database } from "../types/database.types";
+
+type NewsRow = Database["public"]["Tables"]["news"]["Row"];
 
 interface HeroProps {
   onOpenRegister: () => void;
@@ -16,9 +21,32 @@ interface HeroProps {
 }
 
 export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [latestNews, setLatestNews] = useState<NewsRow | null>(null);
+
+  // Fetch the most recent published news article for the banner
+  useEffect(() => {
+    const fetchLatest = async () => {
+      const { data } = await supabase
+        .from("news")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (data && data.length > 0) {
+        setLatestNews(data[0] as NewsRow);
+      }
+    };
+    fetchLatest();
+  }, []);
+
+  /** Get the localized title for the latest news */
+  const latestNewsTitle = latestNews
+    ? language === "da" ? latestNews.title_da : latestNews.title_en
+    : null;
 
   // Smooth-scroll one full viewport height to reveal the next section
   const scrollToNext = () => {
@@ -47,10 +75,18 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center rounded-full border border-primary/60 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg shadow-primary/30 animate-pulse-glow">
+          {/* Dynamic news banner — shows latest published article, links to /nyheder */}
+          <button
+            onClick={() => navigate("/nyheder")}
+            className="inline-flex items-center rounded-full border border-primary/60 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg shadow-primary/30 animate-pulse-glow hover:scale-105 transition-transform cursor-pointer"
+          >
             <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor] animate-pulse"></span>
-            <span className="text-white">{t.hero.newMasterclass}</span>
-          </div>
+            <span className="text-white">
+              {latestNewsTitle
+                ? `${t.newsPage.navLabel}: ${latestNewsTitle}`
+                : t.hero.newMasterclass}
+            </span>
+          </button>
 
           {/* Artistic Headline Layout */}
           <div className="mb-12 space-y-8">
