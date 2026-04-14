@@ -77,7 +77,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
           {/* Dynamic news banner — shows latest published article, links to /nyheder */}
           <button
-            onClick={() => navigate("/nyheder")}
+            onClick={() => navigate(latestNews ? `/nyheder/${latestNews.id}` : "/nyheder")}
             className="inline-flex items-center rounded-full border border-primary/60 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg shadow-primary/30 animate-pulse-glow hover:scale-105 transition-transform cursor-pointer"
           >
             <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor] animate-pulse"></span>
