@@ -1,0 +1,23 @@
+meta {
+  name: GET - Verify News Updated
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/news?id=eq.{{test_news_id}}&select=id,title_da,title_en,published
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body[0].title_da: eq E2E Test Nyhed - Opdateret af Bruno
+  res.body[0].title_en: eq E2E Test News - Updated by Bruno
+  res.body[0].published: eq false
+}

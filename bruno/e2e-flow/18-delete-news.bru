@@ -1,0 +1,28 @@
+meta {
+  name: Delete News Article
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/delete-news
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "id": "{{test_news_id}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+}

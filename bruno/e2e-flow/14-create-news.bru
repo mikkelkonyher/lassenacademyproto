@@ -1,0 +1,42 @@
+meta {
+  name: Create News Article
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-news
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "title_da": "E2E Test Nyhed - Bruno",
+    "title_en": "E2E Test News - Bruno",
+    "body_da": "Dette er en automatiseret e2e test nyhed oprettet af Bruno.",
+    "body_en": "This is an automated e2e test news article created by Bruno.",
+    "image_url": null,
+    "published": true
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.success: eq true
+  res.body.article.id: isString
+  res.body.article.title_da: eq E2E Test Nyhed - Bruno
+  res.body.article.title_en: eq E2E Test News - Bruno
+  res.body.article.published: eq true
+}
+
+script:post-response {
+  // Store the news article ID for update, verify, and delete tests
+  bru.setVar("test_news_id", res.body.article.id);
+}

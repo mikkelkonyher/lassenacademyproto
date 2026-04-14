@@ -1,0 +1,31 @@
+meta {
+  name: GET - Verify News Created
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/news?id=eq.{{test_news_id}}&select=id,title_da,title_en,body_da,body_en,published,author_id
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body[0].title_da: eq E2E Test Nyhed - Bruno
+  res.body[0].title_en: eq E2E Test News - Bruno
+  res.body[0].published: eq true
+}
+
+script:post-response {
+  // Verify author_id matches the logged-in user
+  const userId = bru.getVar("user_id");
+  if (res.body[0].author_id !== userId) {
+    throw new Error(`author_id mismatch: expected ${userId}, got ${res.body[0].author_id}`);
+  }
+}
