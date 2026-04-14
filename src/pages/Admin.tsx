@@ -7,7 +7,7 @@
  * with edit/delete actions.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -76,7 +76,7 @@ export default function Admin() {
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
 
   /** Fetch all news articles (admins can see drafts too) */
-  const fetchNews = useCallback(async () => {
+  const fetchNews = async () => {
     const { data, error } = await supabase
       .from("news")
       .select("*")
@@ -86,13 +86,28 @@ export default function Admin() {
       setNews(data as NewsRow[]);
     }
     setLoadingNews(false);
-  }, []);
+  };
 
+  // Load news on mount when the user is an admin
   useEffect(() => {
-    if (isAdmin) {
-      fetchNews();
-    }
-  }, [isAdmin, fetchNews]);
+    if (!isAdmin) return;
+    let cancelled = false;
+
+    const load = async () => {
+      const { data, error } = await supabase
+        .from("news")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!cancelled) {
+        if (!error && data) setNews(data as NewsRow[]);
+        setLoadingNews(false);
+      }
+    };
+    load();
+
+    return () => { cancelled = true; };
+  }, [isAdmin]);
 
   /** Show temporary feedback message */
   const showFeedback = (msg: string) => {
