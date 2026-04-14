@@ -28,6 +28,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import PublicProfile from "./pages/PublicProfile";
 import ResetPassword from "./pages/ResetPassword";
+import News from "./pages/News";
+import Admin from "./pages/Admin";
 
 function App() {
   // Modal visibility flags — only one auth modal can be open at a time
@@ -93,6 +95,8 @@ function App() {
         <Route path="/profile" element={<MyProfile />} />
         <Route path="/profile/:userId" element={<PublicProfile />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/nyheder" element={<News />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </>
   );

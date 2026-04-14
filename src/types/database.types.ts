@@ -85,6 +85,40 @@ export interface Database {
           body?: string
         }
       }
+      news: {
+        Row: {
+          id: string
+          author_id: string
+          title_da: string
+          title_en: string
+          body_da: string
+          body_en: string
+          image_url: string | null
+          published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          author_id: string
+          title_da: string
+          title_en: string
+          body_da: string
+          body_en: string
+          image_url?: string | null
+          published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          title_da?: string
+          title_en?: string
+          body_da?: string
+          body_en?: string
+          image_url?: string | null
+          published?: boolean
+        }
+      }
       profiles: {
         Row: {
           id: string
@@ -94,6 +128,7 @@ export interface Database {
           image_url: string | null
           instrument: string | null
           skill_level: 'beginner' | 'intermediate' | 'advanced'
+          role: 'user' | 'admin'
           notify_email: boolean
           notify_course_updates: boolean
           notify_newsletter: boolean
@@ -109,6 +144,7 @@ export interface Database {
           image_url?: string | null
           instrument?: string | null
           skill_level?: 'beginner' | 'intermediate' | 'advanced'
+          role?: 'user' | 'admin'
           notify_email?: boolean
           notify_course_updates?: boolean
           notify_newsletter?: boolean

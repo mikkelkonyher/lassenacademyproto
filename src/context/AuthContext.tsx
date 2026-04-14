@@ -18,7 +18,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  /** True while the initial session check is running */
   loading: boolean;
+  /** Convenience flag: true when the logged-in user has admin role */
+  isAdmin: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -43,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, email, bio, image_url, notify_email, notify_course_updates, notify_newsletter, created_at')
+      .select('id, full_name, email, bio, image_url, role, notify_email, notify_course_updates, notify_newsletter, created_at')
       .eq('id', userId)
       .single();
 
@@ -87,6 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  /** Derived flag: true when the current user has the admin role */
+  const isAdmin = profile?.role === 'admin';
 
   /** Register a new user; full_name is stored in Supabase user metadata */
   const signUp = async (email: string, password: string, fullName: string) => {
@@ -208,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, resetPasswordRequest, resetPassword, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, resetPasswordRequest, resetPassword, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
