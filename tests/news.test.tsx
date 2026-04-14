@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import { LanguageProvider } from "../src/context/LanguageContext";
 import { AuthProvider } from "../src/context/AuthContext";
@@ -182,19 +181,23 @@ describe("News Page", () => {
     });
   });
 
-  it("shows 'Læs mere' button for long articles and expands on click", async () => {
+  it("shows 'Gå til artikel' links for each article", async () => {
     render(<News />, { wrapper: Wrapper });
 
-    // Second article has 500 chars which exceeds the 400 char preview limit
     await waitFor(() => {
-      expect(screen.getByText("Læs mere")).toBeInTheDocument();
+      const links = screen.getAllByText("Gå til artikel");
+      expect(links.length).toBe(2);
     });
+  });
 
-    const user = userEvent.setup();
-    await user.click(screen.getByText("Læs mere"));
+  it("links each article to its unique page", async () => {
+    render(<News />, { wrapper: Wrapper });
 
-    // After expanding, button text changes to "Læs mindre"
-    expect(screen.getByText("Læs mindre")).toBeInTheDocument();
+    await waitFor(() => {
+      // Each article card is a link to /nyheder/:id
+      const link = screen.getByText("Test Nyhed Titel").closest("a");
+      expect(link).toHaveAttribute("href", "/nyheder/news-1");
+    });
   });
 
   it("formats dates in Danish locale", async () => {

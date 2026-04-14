@@ -29,6 +29,7 @@ import Contact from "./pages/Contact";
 import PublicProfile from "./pages/PublicProfile";
 import ResetPassword from "./pages/ResetPassword";
 import News from "./pages/News";
+import NewsArticle from "./pages/NewsArticle";
 import Admin from "./pages/Admin";
 
 function App() {
@@ -96,6 +97,7 @@ function App() {
         <Route path="/profile/:userId" element={<PublicProfile />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/nyheder" element={<News />} />
+        <Route path="/nyheder/:newsId" element={<NewsArticle />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </>

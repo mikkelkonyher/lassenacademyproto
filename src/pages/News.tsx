@@ -1,18 +1,17 @@
 /**
- * News.tsx — Public news page (/nyheder).
+ * News.tsx — Public news listing page (/nyheder).
  *
  * Fetches published news articles from Supabase and displays them
- * in a card layout. Titles and body text are shown in the active
- * language (DA/EN). Each card supports expand/collapse for long articles.
+ * in a blog-style card layout. Each card links to the full article
+ * at /nyheder/:newsId for reading and sharing.
  */
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
   Newspaper,
-  ChevronDown,
-  ChevronUp,
+  ArrowRight,
   Loader2,
 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
@@ -26,8 +25,8 @@ import LoginModal from "../components/LoginModal";
 
 type NewsRow = Database["public"]["Tables"]["news"]["Row"];
 
-/** Character limit before a "Read more" toggle is shown */
-const BODY_PREVIEW_LENGTH = 400;
+/** Character limit for the body preview on the listing page */
+const BODY_PREVIEW_LENGTH = 250;
 
 export default function News() {
   const navigate = useNavigate();
@@ -38,8 +37,6 @@ export default function News() {
 
   const [articles, setArticles] = useState<NewsRow[]>([]);
   const [loading, setLoading] = useState(true);
-  // Tracks which article IDs have been expanded by the user
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   // Fetch published news on mount
   useEffect(() => {
@@ -58,19 +55,6 @@ export default function News() {
 
     fetchNews();
   }, []);
-
-  /** Toggle expand/collapse for a specific article */
-  const toggleExpanded = (id: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
 
   /** Get the localized title for an article */
   const getTitle = (article: NewsRow) =>
@@ -127,66 +111,55 @@ export default function News() {
             <div className="space-y-6">
               {articles.map((article) => {
                 const body = getBody(article);
-                const isLong = body.length > BODY_PREVIEW_LENGTH;
-                const isExpanded = expanded.has(article.id);
+                const preview =
+                  body.length > BODY_PREVIEW_LENGTH
+                    ? body.substring(0, BODY_PREVIEW_LENGTH) + "..."
+                    : body;
 
                 return (
-                  <article
+                  <Link
                     key={article.id}
-                    className="mb-12 last:mb-0"
+                    to={`/nyheder/${article.id}`}
+                    className="block group"
                   >
-                    {/* Large hero image */}
-                    {article.image_url && (
-                      <img
-                        src={article.image_url}
-                        alt={getTitle(article)}
-                        className="w-full aspect-[16/9] object-cover rounded-2xl mb-6"
-                      />
-                    )}
-
-                    {/* Date */}
-                    <p className="text-sm text-gray-500 mb-3">
-                      {new Date(article.created_at).toLocaleDateString(
-                        language === "da" ? "da-DK" : "en-US",
-                        { year: "numeric", month: "long", day: "numeric" }
+                    <article className="mb-12 last:mb-0">
+                      {/* Large hero image */}
+                      {article.image_url && (
+                        <img
+                          src={article.image_url}
+                          alt={getTitle(article)}
+                          className="w-full aspect-[16/9] object-cover rounded-2xl mb-6 group-hover:opacity-90 transition-opacity"
+                        />
                       )}
-                    </p>
 
-                    {/* Title */}
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 leading-tight">
-                      {getTitle(article)}
-                    </h2>
-
-                    {/* Body */}
-                    <div className="text-gray-400 leading-relaxed whitespace-pre-line">
-                      {isLong && !isExpanded
-                        ? body.substring(0, BODY_PREVIEW_LENGTH) + "..."
-                        : body}
-                    </div>
-
-                    {/* Read more / less */}
-                    {isLong && (
-                      <button
-                        onClick={() => toggleExpanded(article.id)}
-                        className="mt-4 flex items-center gap-1.5 text-primary hover:text-primary/80 text-sm font-medium transition-colors"
-                      >
-                        {isExpanded ? (
-                          <>
-                            {nt.readLess}
-                            <ChevronUp className="w-4 h-4" />
-                          </>
-                        ) : (
-                          <>
-                            {nt.readMore}
-                            <ChevronDown className="w-4 h-4" />
-                          </>
+                      {/* Date */}
+                      <p className="text-sm text-gray-500 mb-3">
+                        {new Date(article.created_at).toLocaleDateString(
+                          language === "da" ? "da-DK" : "en-US",
+                          { year: "numeric", month: "long", day: "numeric" }
                         )}
-                      </button>
-                    )}
+                      </p>
 
-                    {/* Divider between posts */}
-                    <div className="mt-12 border-b border-white/10" />
-                  </article>
+                      {/* Title */}
+                      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 leading-tight group-hover:text-primary transition-colors">
+                        {getTitle(article)}
+                      </h2>
+
+                      {/* Body preview */}
+                      <p className="text-gray-400 leading-relaxed">
+                        {preview}
+                      </p>
+
+                      {/* Go to article link */}
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-primary group-hover:text-primary/80 text-sm font-medium transition-colors">
+                        {nt.goToArticle}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </span>
+
+                      {/* Divider between posts */}
+                      <div className="mt-12 border-b border-white/10" />
+                    </article>
+                  </Link>
                 );
               })}
             </div>
