@@ -57,7 +57,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
   };
 
   return (
-    <div className="relative pt-24 pb-20 sm:pt-28 sm:pb-32 overflow-hidden h-screen flex flex-col justify-center">
+    <div className="relative pt-28 pb-24 sm:pt-28 sm:pb-32 overflow-hidden min-h-screen flex flex-col justify-center">
       {/* Full Color Background Image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -78,10 +78,10 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
           {/* Dynamic news banner — shows latest published article, links to /nyheder */}
           <button
             onClick={() => navigate(latestNews ? `/nyheder/${latestNews.id}` : "/nyheder")}
-            className="inline-flex items-center rounded-full border border-primary/60 glass-strong px-5 py-2 text-sm font-medium text-white mb-8 shadow-lg shadow-primary/30 animate-pulse-glow hover:scale-105 transition-transform cursor-pointer"
+            className="inline-flex items-center rounded-full border border-primary/60 glass-strong px-4 py-2 text-xs sm:text-sm font-medium text-white mb-6 sm:mb-8 shadow-lg shadow-primary/30 animate-pulse-glow hover:scale-105 transition-transform cursor-pointer max-w-[90vw]"
           >
             <span className="flex h-2 w-2 rounded-full bg-primary mr-2 shadow-[0_0_10px_currentColor] animate-pulse"></span>
-            <span className="text-white">
+            <span className="text-white line-clamp-1">
               {latestNewsTitle
                 ? `${t.newsPage.navLabel}: ${latestNewsTitle}`
                 : t.hero.newMasterclass}
@@ -89,24 +89,24 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
           </button>
 
           {/* Artistic Headline Layout */}
-          <div className="mb-12 space-y-8">
+          <div className="mb-8 sm:mb-12 space-y-4 sm:space-y-8">
             {/* Main Headline - Large and Bold */}
             <div className="relative">
               {/* Decorative accent line */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-px h-10 bg-gradient-to-b from-transparent via-primary/60 to-transparent"></div>
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-px h-10 bg-gradient-to-b from-transparent via-primary/60 to-transparent hidden sm:block"></div>
 
-              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-[-0.02em] font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-50 via-orange-300 to-orange-50 drop-shadow-2xl animate-gradient-x bg-300% [text-shadow:0_0_50px_rgba(251,146,60,0.7)] animate-shimmer leading-[0.95]">
+              <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl tracking-[-0.02em] font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-50 via-orange-300 to-orange-50 drop-shadow-2xl animate-gradient-x bg-300% [text-shadow:0_0_50px_rgba(251,146,60,0.7)] animate-shimmer leading-[0.95]">
                 {t.hero.headline}
               </h1>
             </div>
 
             {/* Subheadline - Elegant and Connected */}
-            <div className="relative flex items-center justify-center gap-6 mt-6">
-              <div className="h-px w-20 sm:w-24 bg-gradient-to-r from-transparent via-primary/80 to-primary/60"></div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-[0.15em] uppercase drop-shadow-lg whitespace-nowrap">
+            <div className="relative flex items-center justify-center gap-3 sm:gap-6 mt-4 sm:mt-6">
+              <div className="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent via-primary/80 to-primary/60"></div>
+              <h2 className="text-lg sm:text-3xl md:text-4xl font-light text-white tracking-[0.1em] sm:tracking-[0.15em] uppercase drop-shadow-lg whitespace-nowrap">
                 {t.hero.subheadline}
               </h2>
-              <div className="h-px w-20 sm:w-24 bg-gradient-to-l from-transparent via-primary/80 to-primary/60"></div>
+              <div className="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent via-primary/80 to-primary/60"></div>
             </div>
           </div>
 
@@ -129,11 +129,11 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
           </div>
 
           {/* Benefit pills rendered from translated strings */}
-          <div className="mt-16 flex flex-wrap justify-center gap-6 sm:gap-8">
+          <div className="mt-8 sm:mt-16 flex flex-wrap justify-center gap-3 sm:gap-6 mb-8 sm:mb-0">
             {t.hero.benefits.map((benefit, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 text-gray-100 glass px-5 py-2.5 rounded-full border border-white/20 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/30 transition-all hover:scale-105"
+                className="flex items-center gap-2 text-gray-100 glass px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/20 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/30 transition-all hover:scale-105 text-sm sm:text-base"
               >
                 <CheckCircle className="w-5 h-5 text-primary" />
                 <span className="font-medium">{benefit}</span>
