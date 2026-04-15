@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { X, User, Mail, Lock, Sparkles } from 'lucide-react';
+import { X, User, Mail, Lock, Sparkles, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import type { FormEvent } from 'react';
@@ -26,6 +26,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   // UI feedback state
   const [error, setError] = useState('');
@@ -40,6 +42,12 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
     e.preventDefault();
     setError('');
     setIsLoading(true);
+
+    if (!acceptedTerms) {
+      setError(t.auth.mustAcceptTerms);
+      setIsLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError(t.auth.passwordsMismatch);
@@ -64,6 +72,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
       setEmail('');
       setPassword('');
       setConfirmPassword('');
+      setAcceptedTerms(false);
     }
   };
 
@@ -193,6 +202,26 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
                 </div>
               </div>
 
+              {/* Terms and conditions checkbox */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-white/30 bg-white/10 text-primary focus:ring-primary/50 accent-primary cursor-pointer"
+                />
+                <span className="text-sm text-gray-300">
+                  {t.auth.agreeToTerms}{" "}
+                  <button
+                    type="button"
+                    className="text-primary hover:text-primary/80 underline transition-colors"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }}
+                  >
+                    {t.auth.termsLink}
+                  </button>
+                </span>
+              </label>
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -213,6 +242,39 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
           </>
         )}
       </div>
+
+      {/* Terms and conditions modal overlay — renders on top of the register modal */}
+      {showTerms && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowTerms(false)}
+          ></div>
+          <div className="relative w-full max-w-lg max-h-[80vh] glass-strong border border-white/20 rounded-2xl p-6 sm:p-8 shadow-[0_0_60px_rgba(251,146,60,0.2)] flex flex-col">
+            {/* Header with back button */}
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                onClick={() => setShowTerms(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h2 className="text-2xl font-bold text-white">{t.termsPage.title}</h2>
+            </div>
+            <p className="text-gray-400 text-xs mb-4">{t.termsPage.lastUpdated}</p>
+
+            {/* Scrollable terms content */}
+            <div className="overflow-y-auto flex-1 space-y-6 pr-2">
+              {t.termsPage.sections.map((section, idx) => (
+                <div key={idx}>
+                  <h3 className="text-base font-semibold text-white mb-2">{section.heading}</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">{section.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

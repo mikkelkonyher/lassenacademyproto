@@ -116,6 +116,7 @@ describe("RegisterModal", () => {
     );
     await user.type(passwordFields[0], "12345");
     await user.type(passwordFields[1], "12345");
+    await user.click(screen.getByRole("checkbox"));
 
     const submitBtn = screen.getByRole("button", { name: "Opret profil" });
     await user.click(submitBtn);
@@ -146,6 +147,7 @@ describe("RegisterModal", () => {
     );
     await user.type(passwordFields[0], "password123");
     await user.type(passwordFields[1], "differentpassword");
+    await user.click(screen.getByRole("checkbox"));
 
     const submitBtn = screen.getByRole("button", { name: "Opret profil" });
     await user.click(submitBtn);
@@ -178,6 +180,7 @@ describe("RegisterModal", () => {
     );
     await user.type(passwordFields[0], "password123");
     await user.type(passwordFields[1], "password123");
+    await user.click(screen.getByRole("checkbox"));
 
     const submitBtn = screen.getByRole("button", { name: "Opret profil" });
     await user.click(submitBtn);
@@ -211,6 +214,7 @@ describe("RegisterModal", () => {
     );
     await user.type(passwordFields[0], "password123");
     await user.type(passwordFields[1], "password123");
+    await user.click(screen.getByRole("checkbox"));
 
     const submitBtn = screen.getByRole("button", { name: "Opret profil" });
     await user.click(submitBtn);
@@ -244,6 +248,7 @@ describe("RegisterModal", () => {
     );
     await user.type(passwordFields[0], "password123");
     await user.type(passwordFields[1], "password123");
+    await user.click(screen.getByRole("checkbox"));
 
     const submitBtn = screen.getByRole("button", { name: "Opret profil" });
     await user.click(submitBtn);

@@ -31,6 +31,7 @@ import ResetPassword from "./pages/ResetPassword";
 import News from "./pages/News";
 import NewsArticle from "./pages/NewsArticle";
 import Admin from "./pages/Admin";
+import Terms from "./pages/Terms";
 
 function App() {
   // Modal visibility flags — only one auth modal can be open at a time
@@ -99,6 +100,7 @@ function App() {
         <Route path="/nyheder" element={<News />} />
         <Route path="/nyheder/:newsId" element={<NewsArticle />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/terms" element={<Terms />} />
       </Routes>
     </>
   );

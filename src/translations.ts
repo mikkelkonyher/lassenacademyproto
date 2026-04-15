@@ -136,6 +136,55 @@ export const translations = {
       resetPasswordError: "Kunne ikke ændre adgangskode. Linket er muligvis udløbet.",
       newPasswordLabel: "Ny adgangskode",
       confirmNewPasswordLabel: "Bekræft ny adgangskode",
+      agreeToTerms: "Jeg accepterer",
+      termsLink: "vilkår og betingelser",
+      mustAcceptTerms: "Du skal acceptere vilkår og betingelser.",
+    },
+    termsPage: {
+      title: "Vilkår og betingelser",
+      lastUpdated: "Sidst opdateret: 15. april 2026",
+      sections: [
+        {
+          heading: "1. Generelt",
+          body: "Disse vilkår og betingelser gælder for din brug af Lassen Music Academy's hjemmeside og tjenester. Ved at oprette en konto accepterer du at være bundet af disse vilkår. Lassen Music Academy drives af Kristian Lassen Musik ApS (herefter \"vi\", \"os\" eller \"akademiet\").",
+        },
+        {
+          heading: "2. Konto og registrering",
+          body: "Du skal være mindst 13 år for at oprette en konto. Er du under 18 år, kræves samtykke fra en forælder eller værge. Du er ansvarlig for at holde dine loginoplysninger fortrolige og for al aktivitet, der sker via din konto. Du må ikke dele din konto med andre.",
+        },
+        {
+          heading: "3. Abonnementer og betaling",
+          body: "Betalte abonnementer fornyes automatisk ved periodens udløb, medmindre du opsiger inden fornyelsesdatoen. Priserne er angivet i DKK og inkluderer dansk moms. Vi forbeholder os retten til at ændre priser med mindst 30 dages varsel. Refusioner følger dansk forbrugerlovgivning, herunder 14 dages fortrydelsesret på digitalt indhold, forudsat indholdet ikke er tilgået.",
+        },
+        {
+          heading: "4. Brugsrettigheder og indhold",
+          body: "Dit abonnement giver dig en personlig, ikke-overdragelig licens til at streame kursusindhold. Du må ikke downloade, kopiere, distribuere, sælge eller dele indhold fra platformen uden skriftlig tilladelse. Alt kursusindhold, videoer, noter og materialer er beskyttet af ophavsret og tilhører Lassen Music Academy eller vores undervisere.",
+        },
+        {
+          heading: "5. Community-regler",
+          body: "Vores community er et respektfuldt og konstruktivt rum for alle musikere. Du må ikke poste stødende, diskriminerende eller chikanerende indhold. Spam, reklamer og selvpromovering uden tilladelse er ikke tilladt. Vi forbeholder os retten til at fjerne indhold og suspendere konti, der overtræder disse regler, uden forudgående varsel.",
+        },
+        {
+          heading: "6. Ansvarsfraskrivelse",
+          body: "Vores kurser og materialer er udelukkende til uddannelsesformål. Vi garanterer ikke specifikke læringsresultater. Platformen stilles til rådighed \"som den er\", og vi påtager os intet ansvar for tekniske fejl, nedetid eller datatab ud over, hvad der kræves i henhold til dansk lovgivning.",
+        },
+        {
+          heading: "7. Privatlivspolitik og data",
+          body: "Vi indsamler og behandler persondata i overensstemmelse med EU's databeskyttelsesforordning (GDPR) og dansk databeskyttelseslovgivning. Vi opbevarer dit navn, e-mail og brugsdata for at levere vores tjenester. Du kan til enhver tid anmode om indsigt i, rettelse eller sletning af dine persondata ved at kontakte os.",
+        },
+        {
+          heading: "8. Opsigelse",
+          body: "Du kan til enhver tid opsige dit abonnement via din profilside. Ved opsigelse bevarer du adgang til udgangen af den betalte periode. Vi forbeholder os retten til at suspendere eller permanent opsige din konto uden varsel, hvis du overtræder disse vilkår, community-reglerne eller på anden vis misbruger platformen. Ved suspension eller opsigelse grundet overtrædelser ydes der ingen refusion for resterende abonnementsperiode.",
+        },
+        {
+          heading: "9. Ændringer af vilkår",
+          body: "Vi kan opdatere disse vilkår fra tid til anden. Væsentlige ændringer varsles via e-mail eller på platformen med mindst 30 dages varsel. Fortsat brug af platformen efter ændringerne træder i kraft udgør din accept af de opdaterede vilkår.",
+        },
+        {
+          heading: "10. Kontakt",
+          body: "Har du spørgsmål til disse vilkår, er du velkommen til at kontakte os via kontaktsiden på vores hjemmeside.",
+        },
+      ],
     },
     teachers: {
       specialties: "Specialer",
@@ -636,6 +685,55 @@ export const translations = {
       resetPasswordError: "Could not change password. The link may have expired.",
       newPasswordLabel: "New password",
       confirmNewPasswordLabel: "Confirm new password",
+      agreeToTerms: "I agree to the",
+      termsLink: "terms and conditions",
+      mustAcceptTerms: "You must accept the terms and conditions.",
+    },
+    termsPage: {
+      title: "Terms and Conditions",
+      lastUpdated: "Last updated: April 15, 2026",
+      sections: [
+        {
+          heading: "1. General",
+          body: "These terms and conditions apply to your use of Lassen Music Academy's website and services. By creating an account, you agree to be bound by these terms. Lassen Music Academy is operated by Kristian Lassen Musik ApS (hereinafter \"we\", \"us\", or \"the academy\").",
+        },
+        {
+          heading: "2. Account and Registration",
+          body: "You must be at least 13 years old to create an account. If you are under 18, parental or guardian consent is required. You are responsible for keeping your login credentials confidential and for all activity that occurs under your account. You may not share your account with others.",
+        },
+        {
+          heading: "3. Subscriptions and Payment",
+          body: "Paid subscriptions renew automatically at the end of each period unless you cancel before the renewal date. Prices are listed in DKK and include Danish VAT. We reserve the right to change prices with at least 30 days' notice. Refunds follow Danish consumer protection laws, including a 14-day right of withdrawal for digital content, provided the content has not been accessed.",
+        },
+        {
+          heading: "4. Usage Rights and Content",
+          body: "Your subscription grants you a personal, non-transferable license to stream course content. You may not download, copy, distribute, sell, or share content from the platform without written permission. All course content, videos, notes, and materials are protected by copyright and belong to Lassen Music Academy or our instructors.",
+        },
+        {
+          heading: "5. Community Guidelines",
+          body: "Our community is a respectful and constructive space for all musicians. You may not post offensive, discriminatory, or harassing content. Spam, advertisements, and self-promotion without permission are not allowed. We reserve the right to remove content and suspend accounts that violate these rules without prior notice.",
+        },
+        {
+          heading: "6. Disclaimer",
+          body: "Our courses and materials are for educational purposes only. We do not guarantee specific learning outcomes. The platform is provided \"as is\", and we assume no liability for technical errors, downtime, or data loss beyond what is required under Danish law.",
+        },
+        {
+          heading: "7. Privacy and Data",
+          body: "We collect and process personal data in accordance with the EU General Data Protection Regulation (GDPR) and Danish data protection legislation. We store your name, email, and usage data to provide our services. You may request access to, correction of, or deletion of your personal data at any time by contacting us.",
+        },
+        {
+          heading: "8. Cancellation",
+          body: "You may cancel your subscription at any time via your profile page. Upon cancellation, you retain access until the end of the paid period. We reserve the right to suspend or permanently terminate your account without notice if you violate these terms, community guidelines, or otherwise misuse the platform. No refunds will be issued for any remaining subscription period in the event of suspension or termination due to violations.",
+        },
+        {
+          heading: "9. Changes to Terms",
+          body: "We may update these terms from time to time. Material changes will be communicated via email or on the platform with at least 30 days' notice. Continued use of the platform after changes take effect constitutes your acceptance of the updated terms.",
+        },
+        {
+          heading: "10. Contact",
+          body: "If you have questions about these terms, please reach out via the contact page on our website.",
+        },
+      ],
     },
     teachers: {
       specialties: "Specialties",
