@@ -30,7 +30,7 @@ export const translations = {
       ctaSecondary: "Se Trailer",
       benefits: [
         "Ubegrænset adgang",
-        "Personlig feedback",
+        "Lær i dit eget tempo",
         "Eksklusivt community",
       ],
     },
@@ -530,7 +530,7 @@ export const translations = {
       ctaSecondary: "Watch Trailer",
       benefits: [
         "Unlimited access",
-        "Personal feedback",
+        "Learn at your own pace",
         "Exclusive community",
       ],
     },
