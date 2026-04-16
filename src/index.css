@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Dark Tech Blue Theme — inspired by GitHub, Linear, Vercel */
+  /* Dark Tech Blue Theme */
   --color-background: hsl(216 28% 7%); /* Deep navy-black */
   --color-foreground: hsl(210 20% 96%); /* Soft blue-white */
 
@@ -97,7 +97,8 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   /* Subtle colorful gradient overlay */
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       ellipse at 0% 0%,
       hsl(215 60% 30% / 0.15) 0px,
       transparent 50%
