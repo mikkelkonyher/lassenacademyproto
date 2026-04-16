@@ -22,7 +22,7 @@ export const translations = {
     },
     hero: {
       newMasterclass: "Nyhed: Masterclass med Kristian Lassen",
-      headline: "Mestrer dit instrument.",
+      headline: "Mestre dit instrument.",
       subheadline: "Find din lyd.",
       description: "It's all about the music we love",
       ctaMain: "Kom i gang",
@@ -124,16 +124,20 @@ export const translations = {
       goBackHome: "Gå tilbage til forsiden",
       forgotPassword: "Glemt adgangskode?",
       forgotPasswordTitle: "Nulstil adgangskode",
-      forgotPasswordSubtitle: "Indtast din email, så sender vi et link til at nulstille din adgangskode.",
-      forgotPasswordSent: "Vi har sendt et link til din email. Tjek din indbakke.",
+      forgotPasswordSubtitle:
+        "Indtast din email, så sender vi et link til at nulstille din adgangskode.",
+      forgotPasswordSent:
+        "Vi har sendt et link til din email. Tjek din indbakke.",
       forgotPasswordNotFound: "Der findes ingen bruger med denne email.",
       sendResetLink: "Send nulstillingslink",
       backToLogin: "Tilbage til log ind",
       resetPasswordTitle: "Ny adgangskode",
       resetPasswordSubtitle: "Indtast din nye adgangskode herunder.",
       resetPasswordButton: "Gem ny adgangskode",
-      resetPasswordSuccess: "Din adgangskode er blevet ændret! Du kan nu logge ind.",
-      resetPasswordError: "Kunne ikke ændre adgangskode. Linket er muligvis udløbet.",
+      resetPasswordSuccess:
+        "Din adgangskode er blevet ændret! Du kan nu logge ind.",
+      resetPasswordError:
+        "Kunne ikke ændre adgangskode. Linket er muligvis udløbet.",
       newPasswordLabel: "Ny adgangskode",
       confirmNewPasswordLabel: "Bekræft ny adgangskode",
       agreeToTerms: "Jeg accepterer",
@@ -146,7 +150,7 @@ export const translations = {
       sections: [
         {
           heading: "1. Generelt",
-          body: "Disse vilkår og betingelser gælder for din brug af Lassen Music Academy's hjemmeside og tjenester. Ved at oprette en konto accepterer du at være bundet af disse vilkår. Lassen Music Academy drives af Kristian Lassen Musik ApS (herefter \"vi\", \"os\" eller \"akademiet\").",
+          body: 'Disse vilkår og betingelser gælder for din brug af Lassen Music Academy\'s hjemmeside og tjenester. Ved at oprette en konto accepterer du at være bundet af disse vilkår. Lassen Music Academy drives af Kristian Lassen Musik ApS (herefter "vi", "os" eller "akademiet").',
         },
         {
           heading: "2. Konto og registrering",
@@ -166,7 +170,7 @@ export const translations = {
         },
         {
           heading: "6. Ansvarsfraskrivelse",
-          body: "Vores kurser og materialer er udelukkende til uddannelsesformål. Vi garanterer ikke specifikke læringsresultater. Platformen stilles til rådighed \"som den er\", og vi påtager os intet ansvar for tekniske fejl, nedetid eller datatab ud over, hvad der kræves i henhold til dansk lovgivning.",
+          body: 'Vores kurser og materialer er udelukkende til uddannelsesformål. Vi garanterer ikke specifikke læringsresultater. Platformen stilles til rådighed "som den er", og vi påtager os intet ansvar for tekniske fejl, nedetid eller datatab ud over, hvad der kræves i henhold til dansk lovgivning.',
         },
         {
           heading: "7. Privatlivspolitik og data",
@@ -265,7 +269,8 @@ export const translations = {
     },
     allCourses: {
       pageTitle: "Alle Kurser",
-      pageSubtitle: "Udforsk vores komplette kursusbibliotek og find det perfekte kursus til dig",
+      pageSubtitle:
+        "Udforsk vores komplette kursusbibliotek og find det perfekte kursus til dig",
       filterAll: "Alle",
       filterLabel: "Filtrer efter emne",
       showingResults: "Viser {count} kurser",
@@ -289,7 +294,8 @@ export const translations = {
     },
     pricingPage: {
       pageTitle: "Priser",
-      pageSubtitle: "Alle abonnementer inkluderer 14 dages gratis prøveperiode. Årlig betaling — spar 20%.",
+      pageSubtitle:
+        "Alle abonnementer inkluderer 14 dages gratis prøveperiode. Årlig betaling — spar 20%.",
       perMonth: "/ md",
       billedAnnually: "Faktureres årligt",
       popular: "Mest populær",
@@ -344,17 +350,33 @@ export const translations = {
       },
       starterPack: {
         title: "Startpakker + Abonnement = Ekstra fordele",
-        description: "Køb en af vores startpakker (3 guitar-begynderpakker + 1 bas-begynderpakke) sammen med et abonnement, og få en gratis tuner og rem med i købet.",
+        description:
+          "Køb en af vores startpakker (3 guitar-begynderpakker + 1 bas-begynderpakke) sammen med et abonnement, og få en gratis tuner og rem med i købet.",
         cta: "Se startpakker",
       },
       faq: {
         title: "Ofte stillede spørgsmål",
         items: [
-          { q: "Hvad sker der efter min gratis prøveperiode?", a: "Efter 14 dage begynder dit abonnement automatisk. Du kan annullere når som helst inden — ingen binding." },
-          { q: "Kan jeg skifte abonnement?", a: "Ja, du kan opgradere eller nedgradere dit abonnement når som helst. Ændringen træder i kraft ved næste faktureringsperiode." },
-          { q: "Hvordan fungerer startpakke-tilbuddet?", a: "Når du køber en startpakke fra Kristian Lassen Musik ApS og har et aktivt abonnement, får du automatisk en gratis tuner og rem med." },
-          { q: "Er der bindingsperiode?", a: "Abonnementet faktureres årligt, men du kan annullere når som helst. Ingen skjulte gebyrer." },
-          { q: "Hvad er lanceringstilbuddet?", a: "BASIC LMA og PRO LMA fås til 50% rabat de første 3 måneder. PREMIUM LMA er fuld pris fra dag ét." },
+          {
+            q: "Hvad sker der efter min gratis prøveperiode?",
+            a: "Efter 14 dage begynder dit abonnement automatisk. Du kan annullere når som helst inden — ingen binding.",
+          },
+          {
+            q: "Kan jeg skifte abonnement?",
+            a: "Ja, du kan opgradere eller nedgradere dit abonnement når som helst. Ændringen træder i kraft ved næste faktureringsperiode.",
+          },
+          {
+            q: "Hvordan fungerer startpakke-tilbuddet?",
+            a: "Når du køber en startpakke fra Kristian Lassen Musik ApS og har et aktivt abonnement, får du automatisk en gratis tuner og rem med.",
+          },
+          {
+            q: "Er der bindingsperiode?",
+            a: "Abonnementet faktureres årligt, men du kan annullere når som helst. Ingen skjulte gebyrer.",
+          },
+          {
+            q: "Hvad er lanceringstilbuddet?",
+            a: "BASIC LMA og PRO LMA fås til 50% rabat de første 3 måneder. PREMIUM LMA er fuld pris fra dag ét.",
+          },
         ],
       },
     },
@@ -391,7 +413,8 @@ export const translations = {
       loginToPost: "Log ind for at skrive opslag",
       loginToComment: "Log ind for at kommentere",
       confirmDeletePost: "Er du sikker på, at du vil slette dette opslag?",
-      confirmDeleteComment: "Er du sikker på, at du vil slette denne kommentar?",
+      confirmDeleteComment:
+        "Er du sikker på, at du vil slette denne kommentar?",
       posting: "Opretter...",
       saving: "Gemmer...",
       deleting: "Sletter...",
@@ -408,22 +431,42 @@ export const translations = {
       validationTitleLength: "Titlen skal være mellem 3 og 150 tegn",
       validationBodyLength: "Indholdet er for kort eller for langt",
       validationSpam: "Indholdet blev markeret som spam. Venligst ret det til.",
-      validationRateLimited: "For mange handlinger. Vent venligst lidt før du prøver igen.",
+      validationRateLimited:
+        "For mange handlinger. Vent venligst lidt før du prøver igen.",
       validationCommentLength: "Kommentaren skal være mellem 1 og 2000 tegn",
     },
     aboutPage: {
       tagline: "Lassen Music Academy",
       pageTitle: "Om os",
-      pageSubtitle: "Vi er et dansk musikakademi, der gør det muligt for alle at lære musik — uanset niveau eller baggrund.",
+      pageSubtitle:
+        "Vi er et dansk musikakademi, der gør det muligt for alle at lære musik — uanset niveau eller baggrund.",
       storyTitle: "Vores historie",
-      storyP1: "Lassen Music Academy blev grundlagt af Kristian Lassen, professionel bassist med en mastergrad fra SDMK. Efter mange års erfaring som musiker og underviser drømte Kristian om at skabe et digitalt læringsmiljø, hvor kvalitetsundervisning er tilgængelig for alle — ikke kun dem der bor i de store byer.",
-      storyP2: "I dag er akademiet vokset til et fællesskab af passionerede musikere og undervisere, der alle deler den samme kærlighed til musik. Vi tilbyder kurser i guitar, bas, klaver, sang og musikteori, undervist af erfarne professionelle med rødder i det danske musikmiljø.",
+      storyP1:
+        "Lassen Music Academy blev grundlagt af Kristian Lassen, professionel bassist med en mastergrad fra SDMK. Efter mange års erfaring som musiker og underviser drømte Kristian om at skabe et digitalt læringsmiljø, hvor kvalitetsundervisning er tilgængelig for alle — ikke kun dem der bor i de store byer.",
+      storyP2:
+        "I dag er akademiet vokset til et fællesskab af passionerede musikere og undervisere, der alle deler den samme kærlighed til musik. Vi tilbyder kurser i guitar, bas, klaver, sang og musikteori, undervist af erfarne professionelle med rødder i det danske musikmiljø.",
       valuesTitle: "Vores værdier",
       values: {
-        passion: { title: "Passion for musik", description: "Alt hvad vi gør udspringer af en ægte kærlighed til musik og ønsket om at dele den med andre." },
-        community: { title: "Stærkt fællesskab", description: "Vi tror på at musik læres bedst sammen. Vores community forbinder elever og undervisere på tværs af landet." },
-        quality: { title: "Høj kvalitet", description: "Vores kurser er skabt af professionelle musikere og pædagoger, der går op i hvert eneste detalje." },
-        growth: { title: "Personlig udvikling", description: "Vi møder dig der, hvor du er, og hjælper dig med at nå dine musikalske mål — trin for trin." },
+        passion: {
+          title: "Passion for musik",
+          description:
+            "Alt hvad vi gør udspringer af en ægte kærlighed til musik og ønsket om at dele den med andre.",
+        },
+        community: {
+          title: "Stærkt fællesskab",
+          description:
+            "Vi tror på at musik læres bedst sammen. Vores community forbinder elever og undervisere på tværs af landet.",
+        },
+        quality: {
+          title: "Høj kvalitet",
+          description:
+            "Vores kurser er skabt af professionelle musikere og pædagoger, der går op i hvert eneste detalje.",
+        },
+        growth: {
+          title: "Personlig udvikling",
+          description:
+            "Vi møder dig der, hvor du er, og hjælper dig med at nå dine musikalske mål — trin for trin.",
+        },
       },
       stats: {
         students: "Elever",
@@ -433,12 +476,22 @@ export const translations = {
       },
       teamTitle: "Mød holdet",
       team: {
-        kristian: { role: "Grundlægger & Basinstruktør", bio: "Bassist med master fra SDMK. Grundlægger af akademiet og indehaver af Kristian Lassen Musik ApS." },
-        ludwig: { role: "Guitar & Teoriinstruktør", bio: "Dedikeret guitarinstruktør med stærk passion for musikteori og teknik." },
-        elena: { role: "Piano & Kompositionsinstruktør", bio: "Talentfuld pianist og komponist med en unik tilgang til jazz og improvisation." },
+        kristian: {
+          role: "Grundlægger & Basinstruktør",
+          bio: "Bassist med master fra SDMK. Grundlægger af akademiet og indehaver af Kristian Lassen Musik ApS.",
+        },
+        ludwig: {
+          role: "Guitar & Teoriinstruktør",
+          bio: "Dedikeret guitarinstruktør med stærk passion for musikteori og teknik.",
+        },
+        elena: {
+          role: "Piano & Kompositionsinstruktør",
+          bio: "Talentfuld pianist og komponist med en unik tilgang til jazz og improvisation.",
+        },
       },
       missionTitle: "Vores mission",
-      missionText: "At gøre musikundervisning i verdensklasse tilgængelig for alle — uanset hvor du bor, hvad dit niveau er, eller hvilket instrument du spiller.",
+      missionText:
+        "At gøre musikundervisning i verdensklasse tilgængelig for alle — uanset hvor du bor, hvad dit niveau er, eller hvilket instrument du spiller.",
     },
     contactPage: {
       pageTitle: "Kontakt",
@@ -527,7 +580,8 @@ export const translations = {
       pageTitle: "Admin Dashboard",
       pageSubtitle: "Administrer nyheder og indhold",
       accessDenied: "Adgang nægtet",
-      accessDeniedText: "Du skal være logget ind som administrator for at se denne side.",
+      accessDeniedText:
+        "Du skal være logget ind som administrator for at se denne side.",
       goHome: "Gå til forsiden",
       newsSection: "Nyheder",
       createNews: "Opret nyhed",
@@ -673,7 +727,8 @@ export const translations = {
       goBackHome: "Go back home",
       forgotPassword: "Forgot password?",
       forgotPasswordTitle: "Reset Password",
-      forgotPasswordSubtitle: "Enter your email and we'll send you a link to reset your password.",
+      forgotPasswordSubtitle:
+        "Enter your email and we'll send you a link to reset your password.",
       forgotPasswordSent: "We've sent a link to your email. Check your inbox.",
       forgotPasswordNotFound: "No account found with this email.",
       sendResetLink: "Send reset link",
@@ -681,8 +736,10 @@ export const translations = {
       resetPasswordTitle: "New Password",
       resetPasswordSubtitle: "Enter your new password below.",
       resetPasswordButton: "Save new password",
-      resetPasswordSuccess: "Your password has been changed! You can now log in.",
-      resetPasswordError: "Could not change password. The link may have expired.",
+      resetPasswordSuccess:
+        "Your password has been changed! You can now log in.",
+      resetPasswordError:
+        "Could not change password. The link may have expired.",
       newPasswordLabel: "New password",
       confirmNewPasswordLabel: "Confirm new password",
       agreeToTerms: "I agree to the",
@@ -695,7 +752,7 @@ export const translations = {
       sections: [
         {
           heading: "1. General",
-          body: "These terms and conditions apply to your use of Lassen Music Academy's website and services. By creating an account, you agree to be bound by these terms. Lassen Music Academy is operated by Kristian Lassen Musik ApS (hereinafter \"we\", \"us\", or \"the academy\").",
+          body: 'These terms and conditions apply to your use of Lassen Music Academy\'s website and services. By creating an account, you agree to be bound by these terms. Lassen Music Academy is operated by Kristian Lassen Musik ApS (hereinafter "we", "us", or "the academy").',
         },
         {
           heading: "2. Account and Registration",
@@ -715,7 +772,7 @@ export const translations = {
         },
         {
           heading: "6. Disclaimer",
-          body: "Our courses and materials are for educational purposes only. We do not guarantee specific learning outcomes. The platform is provided \"as is\", and we assume no liability for technical errors, downtime, or data loss beyond what is required under Danish law.",
+          body: 'Our courses and materials are for educational purposes only. We do not guarantee specific learning outcomes. The platform is provided "as is", and we assume no liability for technical errors, downtime, or data loss beyond what is required under Danish law.',
         },
         {
           heading: "7. Privacy and Data",
@@ -814,7 +871,8 @@ export const translations = {
     },
     allCourses: {
       pageTitle: "All Courses",
-      pageSubtitle: "Explore our complete course library and find the perfect course for you",
+      pageSubtitle:
+        "Explore our complete course library and find the perfect course for you",
       filterAll: "All",
       filterLabel: "Filter by topic",
       showingResults: "Showing {count} courses",
@@ -823,7 +881,8 @@ export const translations = {
     },
     podcastPage: {
       pageTitle: "Podcast",
-      pageSubtitle: "Listen to conversations with musicians, educators, and industry professionals",
+      pageSubtitle:
+        "Listen to conversations with musicians, educators, and industry professionals",
       latestEpisodes: "Latest Episodes",
       listen: "Listen",
       minutes: "min",
@@ -838,7 +897,8 @@ export const translations = {
     },
     pricingPage: {
       pageTitle: "Pricing",
-      pageSubtitle: "All plans include a 14-day free trial. Annual billing — save 20%.",
+      pageSubtitle:
+        "All plans include a 14-day free trial. Annual billing — save 20%.",
       perMonth: "/ mo",
       billedAnnually: "Billed annually",
       popular: "Most popular",
@@ -868,7 +928,8 @@ export const translations = {
           tagline: "Accelerate your progress",
           monthlyPrice: 199,
           annualMonthlyPrice: 159,
-          description: "Everything in BASIC LMA plus group feedback and workshops.",
+          description:
+            "Everything in BASIC LMA plus group feedback and workshops.",
           features: [
             "Everything in BASIC LMA",
             "1x monthly group feedback session on submitted videos (60 min)",
@@ -893,17 +954,33 @@ export const translations = {
       },
       starterPack: {
         title: "Starter Packs + Subscription = Extra Perks",
-        description: "Buy one of our starter packs (3 guitar beginner packs + 1 bass beginner pack) with a subscription and get a free tuner and strap included.",
+        description:
+          "Buy one of our starter packs (3 guitar beginner packs + 1 bass beginner pack) with a subscription and get a free tuner and strap included.",
         cta: "View starter packs",
       },
       faq: {
         title: "Frequently Asked Questions",
         items: [
-          { q: "What happens after my free trial?", a: "After 14 days your subscription starts automatically. You can cancel anytime before — no commitment." },
-          { q: "Can I switch plans?", a: "Yes, you can upgrade or downgrade your plan at any time. The change takes effect at your next billing period." },
-          { q: "How does the starter pack offer work?", a: "When you buy a starter pack from Kristian Lassen Musik ApS and have an active subscription, you automatically get a free tuner and strap included." },
-          { q: "Is there a commitment period?", a: "The subscription is billed annually, but you can cancel anytime. No hidden fees." },
-          { q: "What is the launch offer?", a: "BASIC LMA and PRO LMA are available at 50% off for the first 3 months. PREMIUM LMA is full price from day one." },
+          {
+            q: "What happens after my free trial?",
+            a: "After 14 days your subscription starts automatically. You can cancel anytime before — no commitment.",
+          },
+          {
+            q: "Can I switch plans?",
+            a: "Yes, you can upgrade or downgrade your plan at any time. The change takes effect at your next billing period.",
+          },
+          {
+            q: "How does the starter pack offer work?",
+            a: "When you buy a starter pack from Kristian Lassen Musik ApS and have an active subscription, you automatically get a free tuner and strap included.",
+          },
+          {
+            q: "Is there a commitment period?",
+            a: "The subscription is billed annually, but you can cancel anytime. No hidden fees.",
+          },
+          {
+            q: "What is the launch offer?",
+            a: "BASIC LMA and PRO LMA are available at 50% off for the first 3 months. PREMIUM LMA is full price from day one.",
+          },
         ],
       },
     },
@@ -957,22 +1034,42 @@ export const translations = {
       validationTitleLength: "Title must be between 3 and 150 characters",
       validationBodyLength: "Content is too short or too long",
       validationSpam: "Content flagged as spam. Please revise.",
-      validationRateLimited: "Too many actions. Please wait before trying again.",
+      validationRateLimited:
+        "Too many actions. Please wait before trying again.",
       validationCommentLength: "Comment must be between 1 and 2000 characters",
     },
     aboutPage: {
       tagline: "Lassen Music Academy",
       pageTitle: "About us",
-      pageSubtitle: "We are a Danish music academy making it possible for everyone to learn music — regardless of level or background.",
+      pageSubtitle:
+        "We are a Danish music academy making it possible for everyone to learn music — regardless of level or background.",
       storyTitle: "Our story",
-      storyP1: "Lassen Music Academy was founded by Kristian Lassen, a professional bassist with a master's degree from SDMK. After many years of experience as a musician and teacher, Kristian dreamed of creating a digital learning environment where quality education is accessible to everyone — not just those living in the big cities.",
-      storyP2: "Today the academy has grown into a community of passionate musicians and instructors who all share the same love for music. We offer courses in guitar, bass, piano, vocals, and music theory, taught by experienced professionals rooted in the Danish music scene.",
+      storyP1:
+        "Lassen Music Academy was founded by Kristian Lassen, a professional bassist with a master's degree from SDMK. After many years of experience as a musician and teacher, Kristian dreamed of creating a digital learning environment where quality education is accessible to everyone — not just those living in the big cities.",
+      storyP2:
+        "Today the academy has grown into a community of passionate musicians and instructors who all share the same love for music. We offer courses in guitar, bass, piano, vocals, and music theory, taught by experienced professionals rooted in the Danish music scene.",
       valuesTitle: "Our values",
       values: {
-        passion: { title: "Passion for music", description: "Everything we do stems from a genuine love for music and the desire to share it with others." },
-        community: { title: "Strong community", description: "We believe music is best learned together. Our community connects students and instructors across the country." },
-        quality: { title: "High quality", description: "Our courses are created by professional musicians and educators who care about every single detail." },
-        growth: { title: "Personal growth", description: "We meet you where you are and help you reach your musical goals — step by step." },
+        passion: {
+          title: "Passion for music",
+          description:
+            "Everything we do stems from a genuine love for music and the desire to share it with others.",
+        },
+        community: {
+          title: "Strong community",
+          description:
+            "We believe music is best learned together. Our community connects students and instructors across the country.",
+        },
+        quality: {
+          title: "High quality",
+          description:
+            "Our courses are created by professional musicians and educators who care about every single detail.",
+        },
+        growth: {
+          title: "Personal growth",
+          description:
+            "We meet you where you are and help you reach your musical goals — step by step.",
+        },
       },
       stats: {
         students: "Students",
@@ -982,12 +1079,22 @@ export const translations = {
       },
       teamTitle: "Meet the team",
       team: {
-        kristian: { role: "Founder & Bass Instructor", bio: "Bassist with a master's from SDMK. Founder of the academy and owner of Kristian Lassen Musik ApS." },
-        ludwig: { role: "Guitar & Theory Instructor", bio: "Dedicated guitar instructor with a strong passion for music theory and technique." },
-        elena: { role: "Piano & Composition Instructor", bio: "Talented pianist and composer with a unique approach to jazz and improvisation." },
+        kristian: {
+          role: "Founder & Bass Instructor",
+          bio: "Bassist with a master's from SDMK. Founder of the academy and owner of Kristian Lassen Musik ApS.",
+        },
+        ludwig: {
+          role: "Guitar & Theory Instructor",
+          bio: "Dedicated guitar instructor with a strong passion for music theory and technique.",
+        },
+        elena: {
+          role: "Piano & Composition Instructor",
+          bio: "Talented pianist and composer with a unique approach to jazz and improvisation.",
+        },
       },
       missionTitle: "Our mission",
-      missionText: "To make world-class music education accessible to everyone — no matter where you live, what your level is, or which instrument you play.",
+      missionText:
+        "To make world-class music education accessible to everyone — no matter where you live, what your level is, or which instrument you play.",
     },
     contactPage: {
       pageTitle: "Contact",
@@ -1076,7 +1183,8 @@ export const translations = {
       pageTitle: "Admin Dashboard",
       pageSubtitle: "Manage news and content",
       accessDenied: "Access Denied",
-      accessDeniedText: "You must be logged in as an administrator to view this page.",
+      accessDeniedText:
+        "You must be logged in as an administrator to view this page.",
       goHome: "Go to homepage",
       newsSection: "News",
       createNews: "Create news",
