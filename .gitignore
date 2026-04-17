@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 .env
 .mcp.json
+# Supabase CLI temp files (project ref, linked project info)
+supabase/.temp/
 # Bruno environment files (contain credentials)
 bruno/environments/production.bru
 bruno/environments/local.bru
