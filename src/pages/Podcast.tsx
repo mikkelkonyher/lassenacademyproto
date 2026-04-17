@@ -42,8 +42,9 @@ export default function Podcast() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Audio playback state: which episode index is playing, current time, and total duration
+  // Audio playback state: which episode index is playing/paused, current time, and total duration
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [pausedIndex, setPausedIndex] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -102,34 +103,48 @@ export default function Podcast() {
 
   /**
    * Toggle play/pause for a given episode.
-   * Stops the current episode if a different one is selected.
+   * Resumes from the paused position if the same episode is selected.
+   * Creates a new audio element only when switching to a different episode.
    */
   const togglePlay = (index: number, audioUrl: string) => {
-    // If already playing this episode, pause it
+    // If already playing this episode, pause it (keep the audio element)
     if (playingIndex === index && audioRef.current) {
       audioRef.current.pause();
       stopTimeTracking();
       setPlayingIndex(null);
+      setPausedIndex(index);
       return;
     }
 
-    // Stop any currently playing audio
+    // If resuming the same paused episode, just continue playback
+    if (pausedIndex === index && audioRef.current) {
+      audioRef.current.play();
+      setPlayingIndex(index);
+      setPausedIndex(null);
+      startTimeTracking();
+      return;
+    }
+
+    // Switching to a different episode — stop and discard the old one
     if (audioRef.current) {
       audioRef.current.pause();
       stopTimeTracking();
     }
 
-    // Create a new audio element and play
+    // Create a new audio element and play from the start
     const audio = new Audio(audioUrl);
     audio.onloadedmetadata = () => setAudioDuration(audio.duration);
     audio.onended = () => {
       stopTimeTracking();
       setPlayingIndex(null);
+      setPausedIndex(null);
       setCurrentTime(0);
     };
     audio.play();
     audioRef.current = audio;
     setPlayingIndex(index);
+    setPausedIndex(null);
+    setCurrentTime(0);
     startTimeTracking();
   };
 
@@ -247,6 +262,8 @@ export default function Podcast() {
               {episodes.map((episode, idx) => {
                 const gradient = gradients[idx % gradients.length];
                 const isPlaying = playingIndex === idx;
+                const isPaused = pausedIndex === idx;
+                const showTimeline = isPlaying || isPaused;
 
                 return (
                   <div
@@ -330,8 +347,8 @@ export default function Podcast() {
                             )}
                           </button>
 
-                          {/* Timeline — only visible for the active episode */}
-                          {isPlaying && (
+                          {/* Timeline — visible while playing or paused */}
+                          {showTimeline && (
                             <div className="flex items-center gap-3 w-full mt-1">
                               <span className="text-xs text-gray-400 tabular-nums w-12 text-right shrink-0">
                                 {formatTime(currentTime)}
