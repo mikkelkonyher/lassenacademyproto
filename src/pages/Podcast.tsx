@@ -1,13 +1,14 @@
 /**
  * Podcast.tsx — Podcast episodes listing page.
  *
- * Displays a grid of podcast episodes with hardcoded content that switches
- * between Danish and English based on the active language. Each card shows
- * a thumbnail, guest name, duration, formatted date, and a play button.
+ * Fetches real episode data from the Buzzsprout RSS feed via a
+ * Supabase Edge Function and renders a grid of episode cards
+ * with inline audio playback.
  */
 
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Clock, Mic } from "lucide-react";
+import { ArrowLeft, Play, Pause, Clock, Mic, Loader2 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
@@ -15,114 +16,157 @@ import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
 
-// Shape of a single podcast episode entry
+// Shape of a single podcast episode returned by the edge function
 interface Episode {
   title: string;
   description: string;
   guest: string;
   date: string;
-  duration: number; // minutes
+  duration: number; // seconds
   image: string;
+  audioUrl: string;
+  episodeNumber: number | null;
 }
+
+// Supabase project URL for calling edge functions
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export default function Podcast() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
-  // Hardcoded episode data — title and description switch on language
-  const episodes: Episode[] = [
-    {
-      title:
-        language === "da"
-          ? "Groove, Bas & Livet som Musiker"
-          : "Groove, Bass & Life as a Musician",
-      description:
-        language === "da"
-          ? "Kristian deler sin rejse fra konservatoriet til at drive sit eget musikakademi, og hvad groove virkelig betyder."
-          : "Kristian shares his journey from the conservatory to running his own music academy, and what groove really means.",
-      guest: "Kristian Lassen",
-      date: "2025-12-01",
-      duration: 47,
-      image:
-        "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop",
-    },
-    {
-      title:
-        language === "da"
-          ? "Guitarens Rolle i Moderne Musik"
-          : "The Role of Guitar in Modern Music",
-      description:
-        language === "da"
-          ? "Ludwig fortæller om sin tilgang til undervisning og hvordan teori kan gøre dig til en bedre musiker."
-          : "Ludwig talks about his teaching approach and how theory can make you a better musician.",
-      guest: "Ludwig Hamilton-Wittendorff",
-      date: "2025-11-15",
-      duration: 38,
-      image:
-        "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=2338&auto=format&fit=crop",
-    },
-    {
-      title:
-        language === "da"
-          ? "Jazz, Improvisation & Kreativitet"
-          : "Jazz, Improvisation & Creativity",
-      description:
-        language === "da"
-          ? "Elena dykker ned i jazzens verden og deler tips til at blive en mere kreativ musiker gennem improvisation."
-          : "Elena dives into the world of jazz and shares tips on becoming a more creative musician through improvisation.",
-      guest: "Elena Rossi",
-      date: "2025-11-01",
-      duration: 52,
-      image:
-        "https://images.unsplash.com/photo-1552422535-c45813c61732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      title:
-        language === "da"
-          ? "Fra Øvelokalet til Scenen"
-          : "From the Practice Room to the Stage",
-      description:
-        language === "da"
-          ? "En samtale om performance-angst, forberedelse og hvad det kræver at levere en god live-optræden."
-          : "A conversation about performance anxiety, preparation, and what it takes to deliver a great live show.",
-      guest: "Sidsel Marie Søholm",
-      date: "2025-10-15",
-      duration: 41,
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop",
-    },
-    {
-      title:
-        language === "da"
-          ? "Musikteori Uden Kedsomhed"
-          : "Music Theory Without Boredom",
-      description:
-        language === "da"
-          ? "Hvordan gør man musikteori sjovt og relevant? Vi udforsker nye måder at lære og undervise på."
-          : "How do you make music theory fun and relevant? We explore new ways to learn and teach.",
-      guest: "Hans Mydtskov",
-      date: "2025-10-01",
-      duration: 35,
-      image:
-        "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2070&auto=format&fit=crop",
-    },
-    {
-      title:
-        language === "da"
-          ? "At Finde Sin Egen Lyd"
-          : "Finding Your Own Sound",
-      description:
-        language === "da"
-          ? "En dybdegående snak om identitet i musik — hvordan finder man sit eget udtryk som musiker?"
-          : "An in-depth talk about identity in music — how do you find your own expression as a musician?",
-      guest: "Adam Winberg",
-      date: "2025-09-15",
-      duration: 44,
-      image:
-        "https://images.unsplash.com/photo-1525898181636-29b30c26f6e1?q=80&w=2324&auto=format&fit=crop",
-    },
-  ];
+  // Episode data fetched from the edge function
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Audio playback state: which episode index is playing/paused, current time, and total duration
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [pausedIndex, setPausedIndex] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+
+  // Fetch episodes from the Supabase edge function on mount
+  useEffect(() => {
+    async function fetchEpisodes() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch(
+          `${SUPABASE_URL}/functions/v1/fetch-podcast-feed`,
+          {
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        setEpisodes(data.episodes ?? []);
+      } catch (err) {
+        console.error("Failed to fetch podcast episodes:", err);
+        setError(t.podcastPage.errorLoading);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchEpisodes();
+  }, []);
+
+  // Continuously sync currentTime from the audio element via requestAnimationFrame
+  const startTimeTracking = useCallback(() => {
+    const tick = () => {
+      if (audioRef.current) {
+        setCurrentTime(audioRef.current.currentTime);
+      }
+      animFrameRef.current = requestAnimationFrame(tick);
+    };
+    animFrameRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  // Stop the animation frame loop
+  const stopTimeTracking = useCallback(() => {
+    if (animFrameRef.current !== null) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+  }, []);
+
+  /**
+   * Toggle play/pause for a given episode.
+   * Resumes from the paused position if the same episode is selected.
+   * Creates a new audio element only when switching to a different episode.
+   */
+  const togglePlay = (index: number, audioUrl: string) => {
+    // If already playing this episode, pause it (keep the audio element)
+    if (playingIndex === index && audioRef.current) {
+      audioRef.current.pause();
+      stopTimeTracking();
+      setPlayingIndex(null);
+      setPausedIndex(index);
+      return;
+    }
+
+    // If resuming the same paused episode, just continue playback
+    if (pausedIndex === index && audioRef.current) {
+      audioRef.current.play();
+      setPlayingIndex(index);
+      setPausedIndex(null);
+      startTimeTracking();
+      return;
+    }
+
+    // Switching to a different episode — stop and discard the old one
+    if (audioRef.current) {
+      audioRef.current.pause();
+      stopTimeTracking();
+    }
+
+    // Create a new audio element and play from the start
+    const audio = new Audio(audioUrl);
+    audio.onloadedmetadata = () => setAudioDuration(audio.duration);
+    audio.onended = () => {
+      stopTimeTracking();
+      setPlayingIndex(null);
+      setPausedIndex(null);
+      setCurrentTime(0);
+    };
+    audio.play();
+    audioRef.current = audio;
+    setPlayingIndex(index);
+    setPausedIndex(null);
+    setCurrentTime(0);
+    startTimeTracking();
+  };
+
+  // Seek to a specific position when the user clicks/drags the timeline
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  // Clean up audio and animation frame on unmount
+  useEffect(() => {
+    return () => {
+      stopTimeTracking();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [stopTimeTracking]);
 
   // Format ISO date string to locale-aware long date (e.g. "1. december 2025")
   const formatDate = (dateStr: string) => {
@@ -132,6 +176,27 @@ export default function Podcast() {
       month: "long",
       day: "numeric",
     });
+  };
+
+  // Format duration from seconds to "Xh Ym" or "Xm" string (for episode cards)
+  const formatDuration = (seconds: number) => {
+    const mins = Math.round(seconds / 60);
+    if (mins >= 60) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${h}h ${m}${t.podcastPage.minutes}`;
+    }
+    return `${mins} ${t.podcastPage.minutes}`;
+  };
+
+  // Format seconds to "mm:ss" or "h:mm:ss" for the playback timeline
+  const formatTime = (secs: number) => {
+    const totalSec = Math.floor(secs);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
   };
 
   // Rotating gradient backgrounds applied to episode cards by index
@@ -169,72 +234,147 @@ export default function Podcast() {
             </p>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              <p className="text-gray-400">{t.podcastPage.loading}</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !loading && (
+            <div className="text-center py-24">
+              <p className="text-red-400 text-lg">{error}</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && episodes.length === 0 && (
+            <div className="text-center py-24">
+              <p className="text-gray-400 text-lg">{t.podcastPage.noEpisodes}</p>
+            </div>
+          )}
+
           {/* Episode Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {episodes.map((episode, idx) => {
-              const gradient = gradients[idx % gradients.length];
-              return (
-                <div
-                  key={idx}
-                  className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-2 relative"
-                >
-                  {/* Colorful gradient background */}
+          {!loading && !error && episodes.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {episodes.map((episode, idx) => {
+                const gradient = gradients[idx % gradients.length];
+                const isPlaying = playingIndex === idx;
+                const isPaused = pausedIndex === idx;
+                const showTimeline = isPlaying || isPaused;
+
+                return (
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-90`}
-                  ></div>
+                    key={episode.audioUrl || idx}
+                    className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-2 relative"
+                  >
+                    {/* Colorful gradient background */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-90`}
+                    ></div>
 
-                  {/* Animated glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 transform -skew-x-12 group-hover:translate-x-full"></div>
+                    {/* Animated glow effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 transform -skew-x-12 group-hover:translate-x-full"></div>
 
-                  <div className="relative flex flex-col sm:flex-row">
-                    {/* Thumbnail */}
-                    <div className="sm:w-48 sm:flex-shrink-0 aspect-video sm:aspect-square overflow-hidden">
-                      <img
-                        src={episode.image}
-                        alt={episode.title}
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 sm:w-48 bg-gradient-to-r from-transparent to-black/40"></div>
-                    </div>
+                    <div className="relative flex flex-col sm:flex-row">
+                      {/* Thumbnail */}
+                      <div className="sm:w-48 sm:flex-shrink-0 aspect-video sm:aspect-square overflow-hidden relative">
+                        <img
+                          src={episode.image}
+                          alt={episode.title}
+                          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 sm:w-48 bg-gradient-to-r from-transparent to-black/40"></div>
 
-                    {/* Content */}
-                    <div className="relative p-6 flex flex-col flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/15 px-3 py-1 rounded-full border border-primary/30">
-                          <Clock className="w-3 h-3" />
-                          {episode.duration} {t.podcastPage.minutes}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {formatDate(episode.date)}
-                        </span>
+                        {/* Episode number badge */}
+                        {episode.episodeNumber !== null && (
+                          <span className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-full border border-white/20">
+                            #{String(episode.episodeNumber).padStart(2, "0")}
+                          </span>
+                        )}
                       </div>
 
-                      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors leading-tight">
-                        {episode.title}
-                      </h3>
+                      {/* Content */}
+                      <div className="relative p-6 flex flex-col flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/15 px-3 py-1 rounded-full border border-primary/30">
+                            <Clock className="w-3 h-3" />
+                            {formatDuration(episode.duration)}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {formatDate(episode.date)}
+                          </span>
+                        </div>
 
-                      <p className="text-sm text-white/70 mb-2 flex items-center gap-1.5">
-                        <Mic className="w-3.5 h-3.5 text-accent" />
-                        {t.podcastPage.with}{" "}
-                        <span className="font-semibold text-white/90">
-                          {episode.guest}
-                        </span>
-                      </p>
+                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors leading-tight">
+                          {episode.title}
+                        </h3>
 
-                      <p className="text-sm text-gray-400 mb-4 line-clamp-2 flex-1">
-                        {episode.description}
-                      </p>
+                        <p className="text-sm text-white/70 mb-2 flex items-center gap-1.5">
+                          <Mic className="w-3.5 h-3.5 text-accent" />
+                          {t.podcastPage.with}{" "}
+                          <span className="font-semibold text-white/90">
+                            {episode.guest}
+                          </span>
+                        </p>
 
-                      <button className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-white transition-colors self-start bg-primary/10 hover:bg-primary/30 px-4 py-2 rounded-full border border-primary/30">
-                        <Play className="w-4 h-4 fill-current" />
-                        {t.podcastPage.listen}
-                      </button>
+                        <p className="text-sm text-gray-400 mb-4 line-clamp-2 flex-1">
+                          {episode.description}
+                        </p>
+
+                        {/* Player: button + seekable timeline */}
+                        <div className="flex flex-col gap-2 w-full">
+                          <button
+                            onClick={() => togglePlay(idx, episode.audioUrl)}
+                            className={`flex items-center gap-2 text-sm font-semibold transition-colors self-start px-4 py-2 rounded-full border ${
+                              isPlaying
+                                ? "text-white bg-primary/40 border-primary/60"
+                                : "text-primary hover:text-white bg-primary/10 hover:bg-primary/30 border-primary/30"
+                            }`}
+                          >
+                            {isPlaying ? (
+                              <>
+                                <Pause className="w-4 h-4 fill-current" />
+                                {t.podcastPage.pause}
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-4 h-4 fill-current" />
+                                {t.podcastPage.listen}
+                              </>
+                            )}
+                          </button>
+
+                          {/* Timeline — visible while playing or paused */}
+                          {showTimeline && (
+                            <div className="flex items-center gap-3 w-full mt-1">
+                              <span className="text-xs text-gray-400 tabular-nums w-12 text-right shrink-0">
+                                {formatTime(currentTime)}
+                              </span>
+                              <input
+                                type="range"
+                                min={0}
+                                max={audioDuration || episode.duration}
+                                step={1}
+                                value={currentTime}
+                                onChange={handleSeek}
+                                className="flex-1 h-1.5 appearance-none rounded-full bg-white/15 cursor-pointer accent-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-[0_0_6px_rgba(var(--color-primary),0.5)]"
+                              />
+                              <span className="text-xs text-gray-400 tabular-nums w-12 shrink-0">
+                                {formatTime(audioDuration || episode.duration)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
