@@ -2,13 +2,13 @@
  * Podcast.tsx — Podcast episodes listing page.
  *
  * Fetches real episode data from the Buzzsprout RSS feed via a
- * Supabase Edge Function and renders a grid of episode cards
- * with inline audio playback.
+ * Supabase Edge Function and renders a grid of episode cards.
+ * Each card links to a dedicated episode detail page.
  */
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Pause, Clock, Mic, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Play, Clock, Mic, Loader2 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
@@ -26,6 +26,7 @@ interface Episode {
   image: string;
   audioUrl: string;
   episodeNumber: number | null;
+  slug: string;
 }
 
 // Supabase project URL for calling edge functions
@@ -41,14 +42,6 @@ export default function Podcast() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Audio playback state: which episode index is playing/paused, current time, and total duration
-  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
-  const [pausedIndex, setPausedIndex] = useState<number | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [audioDuration, setAudioDuration] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const animFrameRef = useRef<number | null>(null);
 
   // Fetch episodes from the Supabase edge function on mount
   useEffect(() => {
@@ -82,92 +75,6 @@ export default function Podcast() {
     fetchEpisodes();
   }, []);
 
-  // Continuously sync currentTime from the audio element via requestAnimationFrame
-  const startTimeTracking = useCallback(() => {
-    const tick = () => {
-      if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime);
-      }
-      animFrameRef.current = requestAnimationFrame(tick);
-    };
-    animFrameRef.current = requestAnimationFrame(tick);
-  }, []);
-
-  // Stop the animation frame loop
-  const stopTimeTracking = useCallback(() => {
-    if (animFrameRef.current !== null) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
-  }, []);
-
-  /**
-   * Toggle play/pause for a given episode.
-   * Resumes from the paused position if the same episode is selected.
-   * Creates a new audio element only when switching to a different episode.
-   */
-  const togglePlay = (index: number, audioUrl: string) => {
-    // If already playing this episode, pause it (keep the audio element)
-    if (playingIndex === index && audioRef.current) {
-      audioRef.current.pause();
-      stopTimeTracking();
-      setPlayingIndex(null);
-      setPausedIndex(index);
-      return;
-    }
-
-    // If resuming the same paused episode, just continue playback
-    if (pausedIndex === index && audioRef.current) {
-      audioRef.current.play();
-      setPlayingIndex(index);
-      setPausedIndex(null);
-      startTimeTracking();
-      return;
-    }
-
-    // Switching to a different episode — stop and discard the old one
-    if (audioRef.current) {
-      audioRef.current.pause();
-      stopTimeTracking();
-    }
-
-    // Create a new audio element and play from the start
-    const audio = new Audio(audioUrl);
-    audio.onloadedmetadata = () => setAudioDuration(audio.duration);
-    audio.onended = () => {
-      stopTimeTracking();
-      setPlayingIndex(null);
-      setPausedIndex(null);
-      setCurrentTime(0);
-    };
-    audio.play();
-    audioRef.current = audio;
-    setPlayingIndex(index);
-    setPausedIndex(null);
-    setCurrentTime(0);
-    startTimeTracking();
-  };
-
-  // Seek to a specific position when the user clicks/drags the timeline
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = parseFloat(e.target.value);
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  };
-
-  // Clean up audio and animation frame on unmount
-  useEffect(() => {
-    return () => {
-      stopTimeTracking();
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, [stopTimeTracking]);
-
   // Format ISO date string to locale-aware long date (e.g. "1. december 2025")
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -178,7 +85,7 @@ export default function Podcast() {
     });
   };
 
-  // Format duration from seconds to "Xh Ym" or "Xm" string (for episode cards)
+  // Format duration from seconds to "Xh Ym" or "Xm" string
   const formatDuration = (seconds: number) => {
     const mins = Math.round(seconds / 60);
     if (mins >= 60) {
@@ -187,16 +94,6 @@ export default function Podcast() {
       return `${h}h ${m}${t.podcastPage.minutes}`;
     }
     return `${mins} ${t.podcastPage.minutes}`;
-  };
-
-  // Format seconds to "mm:ss" or "h:mm:ss" for the playback timeline
-  const formatTime = (secs: number) => {
-    const totalSec = Math.floor(secs);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
   };
 
   // Rotating gradient backgrounds applied to episode cards by index
@@ -261,14 +158,12 @@ export default function Podcast() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {episodes.map((episode, idx) => {
                 const gradient = gradients[idx % gradients.length];
-                const isPlaying = playingIndex === idx;
-                const isPaused = pausedIndex === idx;
-                const showTimeline = isPlaying || isPaused;
 
                 return (
-                  <div
-                    key={episode.audioUrl || idx}
-                    className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-2 relative"
+                  <Link
+                    to={`/podcast/${episode.slug}`}
+                    key={episode.slug}
+                    className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-2 relative block"
                   >
                     {/* Colorful gradient background */}
                     <div
@@ -324,53 +219,14 @@ export default function Podcast() {
                           {episode.description}
                         </p>
 
-                        {/* Player: button + seekable timeline */}
-                        <div className="flex flex-col gap-2 w-full">
-                          <button
-                            onClick={() => togglePlay(idx, episode.audioUrl)}
-                            className={`flex items-center gap-2 text-sm font-semibold transition-colors self-start px-4 py-2 rounded-full border ${
-                              isPlaying
-                                ? "text-white bg-primary/40 border-primary/60"
-                                : "text-primary hover:text-white bg-primary/10 hover:bg-primary/30 border-primary/30"
-                            }`}
-                          >
-                            {isPlaying ? (
-                              <>
-                                <Pause className="w-4 h-4 fill-current" />
-                                {t.podcastPage.pause}
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-4 h-4 fill-current" />
-                                {t.podcastPage.listen}
-                              </>
-                            )}
-                          </button>
-
-                          {/* Timeline — visible while playing or paused */}
-                          {showTimeline && (
-                            <div className="flex items-center gap-3 w-full mt-1">
-                              <span className="text-xs text-gray-400 tabular-nums w-12 text-right shrink-0">
-                                {formatTime(currentTime)}
-                              </span>
-                              <input
-                                type="range"
-                                min={0}
-                                max={audioDuration || episode.duration}
-                                step={1}
-                                value={currentTime}
-                                onChange={handleSeek}
-                                className="flex-1 h-1.5 appearance-none rounded-full bg-white/15 cursor-pointer accent-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-[0_0_6px_rgba(var(--color-primary),0.5)]"
-                              />
-                              <span className="text-xs text-gray-400 tabular-nums w-12 shrink-0">
-                                {formatTime(audioDuration || episode.duration)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                        {/* Listen CTA */}
+                        <span className="flex items-center gap-2 text-sm font-semibold text-primary group-hover:text-white transition-colors self-start bg-primary/10 group-hover:bg-primary/30 px-4 py-2 rounded-full border border-primary/30">
+                          <Play className="w-4 h-4 fill-current" />
+                          {t.podcastPage.listen}
+                        </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

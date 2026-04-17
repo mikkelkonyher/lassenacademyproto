@@ -31,6 +31,7 @@ interface Episode {
   image: string;
   audioUrl: string;
   episodeNumber: number | null;
+  slug: string;
 }
 
 // Returns CORS headers scoped to the requesting origin (if allowed)
@@ -74,6 +75,20 @@ function extractGuest(title: string): string {
 function extractEpisodeNumber(title: string): number | null {
   const match = title.match(/^#(\d+)/);
   return match ? parseInt(match[1], 10) : null;
+}
+
+/**
+ * Generate a URL-friendly slug from the episode title.
+ * e.g. "#12 CARS ON WATER - LMA DK" → "12-cars-on-water"
+ */
+function generateSlug(title: string): string {
+  return title
+    .replace(/\s*[-–]\s*LMA\s*DK$/i, "") // strip "- LMA DK" suffix
+    .replace(/^#/, "")                     // strip leading "#"
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9æøå]+/g, "-")       // non-alphanumeric → hyphens
+    .replace(/^-+|-+$/g, "");              // trim leading/trailing hyphens
 }
 
 /**
@@ -149,6 +164,7 @@ function parseRssFeed(xml: string): Episode[] {
       image,
       audioUrl,
       episodeNumber: extractEpisodeNumber(title),
+      slug: generateSlug(title),
     });
   }
 

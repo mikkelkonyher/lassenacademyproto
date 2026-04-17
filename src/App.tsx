@@ -22,6 +22,7 @@ import TeacherDetail from "./pages/TeacherDetail";
 import MyProfile from "./pages/MyProfile";
 import AllCourses from "./pages/AllCourses";
 import Podcast from "./pages/Podcast";
+import PodcastEpisode from "./pages/PodcastEpisode";
 import Community from "./pages/Community";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
@@ -90,6 +91,7 @@ function App() {
         <Route path="/teacher/:teacherSlug" element={<TeacherDetail />} />
         <Route path="/courses" element={<AllCourses />} />
         <Route path="/podcast" element={<Podcast />} />
+        <Route path="/podcast/:episodeSlug" element={<PodcastEpisode />} />
         <Route path="/community" element={<Community />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/about" element={<About />} />
