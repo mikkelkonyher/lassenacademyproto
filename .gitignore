@@ -29,3 +29,4 @@ supabase/.temp/
 # Bruno environment files (contain credentials)
 bruno/environments/production.bru
 bruno/environments/local.bru
+.claude/worktrees/serene-fermat-3e9b40/
