@@ -4,7 +4,7 @@
  * Displays a single membership plan with launch introductory offer
  * (50% off the monthly price) and a 12-month commitment. Includes a
  * starter-pack banner and FAQ section. All copy is sourced from i18n
- * translations.
+ * translations. /Trigger
  */
 
 import { useNavigate } from "react-router-dom";
@@ -26,7 +26,14 @@ import LoginModal from "../components/LoginModal";
 export default function Pricing() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
+  const {
+    isRegisterOpen,
+    isLoginOpen,
+    openRegister,
+    closeRegister,
+    openLogin,
+    closeLogin,
+  } = useAuthModals();
 
   const pt = t.pricingPage;
   const plan = pt.plan;
@@ -194,7 +201,7 @@ export default function Pricing() {
                       {item.a}
                     </p>
                   </div>
-                )
+                ),
               )}
             </div>
           </div>
@@ -202,8 +209,16 @@ export default function Pricing() {
       </div>
 
       <Footer />
-      <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
-      <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={closeRegister}
+        onSwitchToLogin={openLogin}
+      />
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={closeLogin}
+        onSwitchToRegister={openRegister}
+      />
     </div>
   );
 }
