@@ -4,8 +4,7 @@
  * Displays a single membership plan with launch introductory offer
  * (50% off the monthly price) and a 12-month commitment. Includes a
  * starter-pack banner and FAQ section. All copy is sourced from i18n
- * translations. /Trigger
- */
+ * translations.
 
 import { useNavigate } from "react-router-dom";
 import {
