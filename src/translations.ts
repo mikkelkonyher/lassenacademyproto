@@ -300,87 +300,51 @@ export const translations = {
     pricingPage: {
       pageTitle: "Priser",
       pageSubtitle:
-        "Alle abonnementer inkluderer 14 dages gratis prøveperiode. Årlig betaling — spar 20%.",
+        "Ét medlemskab — fuld adgang til alle kurser, community og kursusmateriale.",
       perMonth: "/ md",
-      billedAnnually: "Faktureres årligt",
-      popular: "Mest populær",
-      limitedSpots: "Begrænsede pladser",
-      trialNote: "14 dages gratis prøveperiode. Annuller når som helst.",
-      introOffer: "Lanceringstilbud: 50% rabat de første 3 måneder!",
-      introOfferPremium: "Fuld pris fra dag ét — ingen venteliste.",
-      plans: {
-        basic: {
-          name: "BASIC LMA",
-          tagline: "Perfekt alternativ til privatundervisning",
-          monthlyPrice: 149,
-          annualMonthlyPrice: 119,
-          description: "Alt du behøver for at komme i gang med musik.",
-          features: [
-            "Ubegrænset adgang til alle nuværende og fremtidige kurser",
-            "Nyt kursus hver måned",
-            "Download kursusmaterialer",
-            "2x månedlig live Q&A (60 min)",
-            "Gratis tuner og rem ved køb af startpakke fra Kristian Lassen Musik ApS",
-            "Community adgang",
-          ],
-          cta: "Start 14 dages gratis prøve",
-        },
-        pro: {
-          name: "PRO LMA",
-          tagline: "Sæt tempo på din udvikling",
-          monthlyPrice: 199,
-          annualMonthlyPrice: 159,
-          description: "Alt i BASIC LMA plus gruppefeedback og workshops.",
-          features: [
-            "Alt i BASIC LMA",
-            "1x månedlig gruppe-feedback session med video-indsendelse (60 min)",
-            "1x månedlig tema-workshop (60 min)",
-          ],
-          cta: "Start 14 dages gratis prøve",
-        },
-        premium: {
-          name: "PREMIUM LMA",
-          tagline: "1:1 undervisning – Direkte sparring på dit spil",
-          monthlyPrice: 499,
-          annualMonthlyPrice: 399,
-          description: "Alt i PRO LMA plus personlig 1:1 undervisning.",
-          features: [
-            "Alt i PRO LMA",
-            "2x individuelle lektioner pr. måned (45 min)",
-            "Input på øverutiner og mål",
-            "Begrænsede pladser",
-          ],
-          cta: "Start 14 dages gratis prøve",
-        },
+      popular: "Lanceringstilbud",
+      trialNote: "14 dages gratis prøveperiode.",
+      introOffer: "Introduktionstilbud: 50% rabat!",
+      // Single plan — full access membership with 12-month commitment
+      plan: {
+        name: "LMA Medlemskab",
+        tagline: "Fuld adgang til alt",
+        monthlyPrice: 299,
+        introMonthlyPrice: 149.5,
+        description: "Alt du behøver for at udvikle dig som musiker — på ét abonnement.",
+        features: [
+          "12 måneders binding",
+          "Ubegrænset adgang til alle nuværende og fremtidige kurser",
+          "14 dages gratis prøveperiode",
+          "Adgang til community",
+          "Download kursusmaterialer",
+        ],
+        cta: "Start 14 dages gratis prøve",
       },
-      starterPack: {
-        title: "Startpakker + Abonnement = Ekstra fordele",
+      storeDiscount: {
+        title: "Medlemsfordel i butikken",
         description:
-          "Køb en af vores startpakker (3 guitar-begynderpakker + 1 bas-begynderpakke) sammen med et abonnement, og få en gratis tuner og rem med i købet.",
-        cta: "Se startpakker",
+          "Som aktivt medlem får du 20% rabat på udvalgte varer — bl.a. tunere og guitarremme — når du besøger Kristian Lassen Musik ApS i Svendborg. Oplys blot dit medlemsnummer ved kassen.",
+        cta: "Find butikken",
       },
       faq: {
         title: "Ofte stillede spørgsmål",
         items: [
           {
             q: "Hvad sker der efter min gratis prøveperiode?",
-            a: "Efter 14 dage begynder dit abonnement automatisk. Du kan annullere når som helst inden — ingen binding.",
-          },
-          {
-            q: "Kan jeg skifte abonnement?",
-            a: "Ja, du kan opgradere eller nedgradere dit abonnement når som helst. Ændringen træder i kraft ved næste faktureringsperiode.",
-          },
-          {
-            q: "Hvordan fungerer startpakke-tilbuddet?",
-            a: "Når du køber en startpakke fra Kristian Lassen Musik ApS og har et aktivt abonnement, får du automatisk en gratis tuner og rem med.",
+            a: "Efter 14 dage begynder dit abonnement automatisk. Du kan annullere inden prøveperioden udløber uden at blive opkrævet.",
           },
           {
             q: "Er der bindingsperiode?",
-            a: "Abonnementet faktureres årligt, men du kan annullere når som helst. Ingen skjulte gebyrer.",
+            a: "Ja, abonnementet har 12 måneders binding efter prøveperioden. Du kan til gengæld bruge alle kurser, community og materiale uden begrænsninger.",
           },
           {
-            q: "Hvad er lanceringstilbuddet?",
-            a: "BASIC LMA og PRO LMA fås til 50% rabat de første 3 måneder. PREMIUM LMA er fuld pris fra dag ét.",
+            q: "Hvordan fungerer butiksrabatten?",
+            a: "Som aktivt medlem får du 20% rabat på udvalgte varer (fx tunere og guitarremme) i Kristian Lassen Musik ApS i Svendborg. Du oplyser blot dit medlemsnummer ved kassen, så trækkes rabatten automatisk.",
+          },
+          {
+            q: "Hvad er introduktionstilbuddet?",
+            a: "Som en del af lanceringen får nye medlemmer 50% rabat på den månedlige pris — 149,50 kr/md i stedet for 299 kr/md.",
           },
         ],
       },
@@ -908,88 +872,51 @@ export const translations = {
     pricingPage: {
       pageTitle: "Pricing",
       pageSubtitle:
-        "All plans include a 14-day free trial. Annual billing — save 20%.",
+        "One membership — full access to every course, the community, and downloadable materials.",
       perMonth: "/ mo",
-      billedAnnually: "Billed annually",
-      popular: "Most popular",
-      limitedSpots: "Limited spots",
-      trialNote: "14-day free trial. Cancel anytime.",
-      introOffer: "Launch offer: 50% off the first 3 months!",
-      introOfferPremium: "Full price from day one — no waitlist.",
-      plans: {
-        basic: {
-          name: "BASIC LMA",
-          tagline: "The perfect alternative to private lessons",
-          monthlyPrice: 149,
-          annualMonthlyPrice: 119,
-          description: "Everything you need to get started with music.",
-          features: [
-            "Unlimited access to all current and future courses",
-            "New course every month",
-            "Download course materials",
-            "2x monthly live Q&A (60 min each)",
-            "Free tuner & strap when buying a starter pack from Kristian Lassen Musik ApS",
-            "Community access",
-          ],
-          cta: "Start 14-day free trial",
-        },
-        pro: {
-          name: "PRO LMA",
-          tagline: "Accelerate your progress",
-          monthlyPrice: 199,
-          annualMonthlyPrice: 159,
-          description:
-            "Everything in BASIC LMA plus group feedback and workshops.",
-          features: [
-            "Everything in BASIC LMA",
-            "1x monthly group feedback session on submitted videos (60 min)",
-            "1x monthly themed workshop (60 min)",
-          ],
-          cta: "Start 14-day free trial",
-        },
-        premium: {
-          name: "PREMIUM LMA",
-          tagline: "1:1 lessons — Direct coaching on your playing",
-          monthlyPrice: 499,
-          annualMonthlyPrice: 399,
-          description: "Everything in PRO LMA plus personal 1:1 lessons.",
-          features: [
-            "Everything in PRO LMA",
-            "2x individual lessons per month (45 min each)",
-            "Input on practice routines and goals",
-            "Limited spots available",
-          ],
-          cta: "Start 14-day free trial",
-        },
+      popular: "Launch offer",
+      trialNote: "14-day free trial.",
+      introOffer: "Introductory offer: 50% off!",
+      // Single plan — full access membership with 12-month commitment
+      plan: {
+        name: "LMA Membership",
+        tagline: "Full access to everything",
+        monthlyPrice: 299,
+        introMonthlyPrice: 149.5,
+        description: "Everything you need to grow as a musician — in a single subscription.",
+        features: [
+          "12-month commitment",
+          "Unlimited access to all current and future courses",
+          "14-day free trial",
+          "Community access",
+          "Download course materials",
+        ],
+        cta: "Start 14-day free trial",
       },
-      starterPack: {
-        title: "Starter Packs + Subscription = Extra Perks",
+      storeDiscount: {
+        title: "Member discount in store",
         description:
-          "Buy one of our starter packs (3 guitar beginner packs + 1 bass beginner pack) with a subscription and get a free tuner and strap included.",
-        cta: "View starter packs",
+          "As an active member you get 20% off selected items — including tuners and guitar straps — when you visit Kristian Lassen Musik ApS in Svendborg. Just share your membership number at checkout.",
+        cta: "Find the store",
       },
       faq: {
         title: "Frequently Asked Questions",
         items: [
           {
             q: "What happens after my free trial?",
-            a: "After 14 days your subscription starts automatically. You can cancel anytime before — no commitment.",
-          },
-          {
-            q: "Can I switch plans?",
-            a: "Yes, you can upgrade or downgrade your plan at any time. The change takes effect at your next billing period.",
-          },
-          {
-            q: "How does the starter pack offer work?",
-            a: "When you buy a starter pack from Kristian Lassen Musik ApS and have an active subscription, you automatically get a free tuner and strap included.",
+            a: "After 14 days your subscription starts automatically. You can cancel before the trial ends without being charged.",
           },
           {
             q: "Is there a commitment period?",
-            a: "The subscription is billed annually, but you can cancel anytime. No hidden fees.",
+            a: "Yes, the subscription has a 12-month commitment after the trial. In return you get unlimited access to all courses, the community, and materials.",
           },
           {
-            q: "What is the launch offer?",
-            a: "BASIC LMA and PRO LMA are available at 50% off for the first 3 months. PREMIUM LMA is full price from day one.",
+            q: "How does the in-store member discount work?",
+            a: "As an active member you get 20% off selected items (e.g. tuners and guitar straps) at Kristian Lassen Musik ApS in Svendborg. Just provide your membership number at checkout, and the discount is applied automatically.",
+          },
+          {
+            q: "What is the introductory offer?",
+            a: "As part of the launch, new members get 50% off the monthly price — 149.50 kr/mo instead of 299 kr/mo.",
           },
         ],
       },
