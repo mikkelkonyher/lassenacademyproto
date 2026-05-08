@@ -5,6 +5,7 @@
  * (50% off the monthly price) and a 12-month commitment. Includes a
  * starter-pack banner and FAQ section. All copy is sourced from i18n
  * translations.
+ */
 
 import { useNavigate } from "react-router-dom";
 import {
