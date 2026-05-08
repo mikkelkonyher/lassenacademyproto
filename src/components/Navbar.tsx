@@ -46,9 +46,9 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
             </Link>
           </div>
 
-          {/* Center: Navigation Links */}
-          <div className="hidden md:flex flex-1 justify-center">
-            <div className="flex items-baseline space-x-1 lg:space-x-3">
+          {/* Center: Navigation Links — only on real desktop (>=1400px); iPads (incl. iPad Pro 12.9" landscape at 1366px) fall back to burger */}
+          <div className="hidden min-[1400px]:flex flex-1 justify-center">
+            <div className="flex items-baseline space-x-2">
               <Link to="/courses" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.courses}</Link>
               <Link to="/podcast" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.podcast}</Link>
               <Link to="/community" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.community}</Link>
@@ -59,7 +59,9 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
             </div>
           </div>
 
-          {/* Right: Action Buttons */}
+          {/* Right group — wraps action buttons + burger so they stay together when center nav is hidden */}
+          <div className="flex items-center gap-2">
+          {/* Action Buttons — visible on tablets (md+) and above so login/logout stays in the navbar on iPads */}
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
               <button
@@ -111,11 +113,12 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="-mr-2 flex md:hidden gap-2">
+          {/* Burger menu button — shown below 1400px so all iPads (incl. iPad Pro 12.9" landscape) get a hamburger */}
+          <div className="-mr-2 flex min-[1400px]:hidden gap-2">
+            {/* Compact language toggle next to burger — only on phones; tablets/desktop have the larger one in the action group */}
             <button
                 onClick={toggleLanguage}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
+                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
               >
                 <span className="text-xs font-bold">{language === 'da' ? 'EN' : 'DA'}</span>
             </button>
@@ -127,12 +130,13 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
               {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
             </button>
           </div>
+          </div>
         </div>
       </div>
 
-      {/* Mobile dropdown menu — only rendered when hamburger is toggled open */}
+      {/* Mobile / tablet dropdown menu — rendered when hamburger is toggled open, hidden at 1400px+ where the full nav appears */}
       {isOpen && (
-        <div className="md:hidden bg-background border-b border-white/10">
+        <div className="min-[1400px]:hidden bg-background border-b border-white/10">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link to="/courses" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.courses}</Link>
             <Link to="/podcast" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.podcast}</Link>
@@ -141,7 +145,8 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
             <Link to="/nyheder" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.news}</Link>
             <Link to="/about" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.about}</Link>
             <Link to="/contact" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.contact}</Link>
-            <div className="pt-4 border-t border-gray-700">
+            {/* Auth section in dropdown — only shown on phones; tablets/desktop show login/logout directly in the navbar */}
+            <div className="md:hidden pt-4 border-t border-gray-700">
               {user ? (
                 <>
                   <Link to="/profile" className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium">
