@@ -22,7 +22,7 @@ export const translations = {
     },
     hero: {
       newMasterclass: "Nyhed: Masterclass med Kristian Lassen",
-      headline: "Mestre dit instrument.",
+      headline: "Undervisning der udvikler.",
       subheadline: "Find din lyd.",
       description: "It's all about the music we love",
       ctaMain: "Kom i gang",
@@ -594,7 +594,7 @@ export const translations = {
     },
     hero: {
       newMasterclass: "New: Masterclass with Kristian Lassen",
-      headline: "Master your instrument.",
+      headline: "Teaching that develops you.",
       subheadline: "Find your sound.",
       description: "It's all about the music we love",
       ctaMain: "Get Started",
