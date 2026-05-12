@@ -123,12 +123,12 @@ export default function News() {
                     className="block group"
                   >
                     <article className="mb-12 last:mb-0">
-                      {/* Large hero image */}
+                      {/* Hero image */}
                       {article.image_url && (
                         <img
                           src={article.image_url}
                           alt={getTitle(article)}
-                          className="w-full aspect-[16/9] object-cover rounded-2xl mb-6 group-hover:opacity-90 transition-opacity"
+                          className="w-[28rem] max-w-full mx-auto aspect-square object-cover rounded-2xl mb-6 group-hover:opacity-90 transition-opacity block"
                         />
                       )}
 

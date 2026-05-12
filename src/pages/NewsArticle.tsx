@@ -108,7 +108,7 @@ export default function NewsArticle() {
                 <img
                   src={article.image_url}
                   alt={title}
-                  className="w-full aspect-[16/9] object-cover rounded-2xl mb-8"
+                  className="w-[28rem] max-w-full mx-auto aspect-square object-cover rounded-2xl mb-8 block"
                 />
               )}
 
