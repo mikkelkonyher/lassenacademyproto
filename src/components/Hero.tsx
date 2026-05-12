@@ -12,6 +12,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
+import heroBackground from "../assets/IMG_0005.webp";
 
 type NewsRow = Database["public"]["Tables"]["news"]["Row"];
 
@@ -58,14 +59,16 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
 
   return (
     <div className="relative pt-28 pb-24 sm:pt-28 sm:pb-32 overflow-hidden min-h-screen flex flex-col justify-center">
-      {/* Full Color Background Image */}
+      {/* Darkened, near-monochrome background image for readability */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1602900326340-4445b41cdd4e?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          src={heroBackground}
           alt="Music Studio"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-[70%_center] scale-[1.25] origin-right grayscale-[55%] brightness-[0.55] contrast-105"
         />
-        {/* Colorful gradient overlays for warmth and creativity */}
+        {/* Dark base overlay to deepen blacks and boost text contrast */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Subtle colorful tint to retain warmth and creativity */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15"></div>
       </div>
 
