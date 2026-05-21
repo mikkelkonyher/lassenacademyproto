@@ -5,14 +5,17 @@
  * All text is i18n-driven via the translation context.
  */
 import { BookOpen, ArrowRight, CheckCircle, Sparkles, GraduationCap, TrendingUp, Award } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 
 export default function LearningPaths() {
   const { t } = useLanguage();
 
-  // Each path maps to a skill tier with its own icon and color scheme
+  // Each path maps to a skill tier with its own icon, color scheme, and
+  // route slug — the tier slug feeds the /learning-paths/:tier page.
   const learningPaths = [
     {
+      tier: "beginner",
       title: t.learningPaths.beginner.title,
       description: t.learningPaths.beginner.description,
       duration: t.learningPaths.beginner.duration,
@@ -24,6 +27,7 @@ export default function LearningPaths() {
       textClass: "text-primary",
     },
     {
+      tier: "intermediate",
       title: t.learningPaths.intermediate.title,
       description: t.learningPaths.intermediate.description,
       duration: t.learningPaths.intermediate.duration,
@@ -35,6 +39,7 @@ export default function LearningPaths() {
       textClass: "text-accent",
     },
     {
+      tier: "advanced",
       title: t.learningPaths.advanced.title,
       description: t.learningPaths.advanced.description,
       duration: t.learningPaths.advanced.duration,
@@ -119,11 +124,14 @@ export default function LearningPaths() {
                   </div>
                 </div>
 
-                {/* CTA */}
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-white font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/30 group-hover:border-primary/60">
+                {/* CTA — routes to the tier-scoped learning path page */}
+                <Link
+                  to={`/learning-paths/${path.tier}`}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-white font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/30 group-hover:border-primary/60"
+                >
                   {t.learningPaths.cta}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
+                </Link>
               </div>
 
               {/* Hover glow effect — accent color for the middle card, primary for others */}

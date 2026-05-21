@@ -282,6 +282,15 @@ export const translations = {
       cta: "Start stien",
       viewAll: "Se alle læringsstier",
     },
+    learningPath: {
+      pickInstrument: "Vælg dit instrument",
+      allInstruments: "Alle instrumenter",
+      noCoursesYet: "Der er endnu ingen kurser på dette niveau",
+      noCoursesForInstrument: "Ingen kurser for dette instrument endnu",
+      notFoundTitle: "Læringssti ikke fundet",
+      notFoundDescription: "Den læringssti du leder efter findes ikke.",
+      backHome: "Tilbage til forsiden",
+    },
     allCourses: {
       pageTitle: "Alle Kurser",
       pageSubtitle:
@@ -867,6 +876,15 @@ export const translations = {
       },
       cta: "Start Path",
       viewAll: "View All Learning Paths",
+    },
+    learningPath: {
+      pickInstrument: "Pick your instrument",
+      allInstruments: "All instruments",
+      noCoursesYet: "No courses at this level yet",
+      noCoursesForInstrument: "No courses for this instrument yet",
+      notFoundTitle: "Learning path not found",
+      notFoundDescription: "The learning path you're looking for doesn't exist.",
+      backHome: "Back to home",
     },
     allCourses: {
       pageTitle: "All Courses",
