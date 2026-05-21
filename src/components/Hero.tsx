@@ -64,8 +64,16 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
         <img
           src={heroBackground}
           alt="Music Studio"
-          className="w-full h-full object-cover object-[70%_center] scale-[1.25] origin-right grayscale-[55%] brightness-[0.55] contrast-105"
+          className="w-full h-full object-cover object-center md:object-[65%_25%] grayscale-[55%] brightness-[0.55] contrast-105"
         />
+        {/* Left-side blur to hide the Svendborg Jazzfestival poster on wider screens; mask fades the blur out smoothly */}
+        <div
+          className="absolute inset-y-0 left-0 w-1/5 backdrop-blur-md hidden md:block"
+          style={{
+            maskImage: "linear-gradient(to right, black 40%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to right, black 40%, transparent 100%)",
+          }}
+        ></div>
         {/* Dark base overlay to deepen blacks and boost text contrast */}
         <div className="absolute inset-0 bg-black/40"></div>
         {/* Subtle colorful tint to retain warmth and creativity */}
