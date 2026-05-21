@@ -22,6 +22,7 @@ import {
   getCourseThumbnail,
   totalCourseDuration,
 } from "../utils/courseImage";
+import { getTagLabel } from "../utils/tagLabel";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
@@ -170,7 +171,7 @@ export default function AllCourses() {
                         : "glass border-white/10 text-gray-400 hover:text-white"
                     }`}
                   >
-                    {tag}
+                    {getTagLabel(tag, t)}
                   </button>
                 ))}
               </div>
@@ -221,7 +222,7 @@ export default function AllCourses() {
                               key={tag}
                               className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-primary/50 shadow-lg shadow-primary/40"
                             >
-                              {tag}
+                              {getTagLabel(tag, t)}
                             </span>
                           ))}
                         </div>

@@ -19,6 +19,7 @@ import { useAuthModals } from "../hooks/useAuthModals";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
 import { getLessonThumbnail } from "../utils/courseImage";
+import { getTagLabel } from "../utils/tagLabel";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
@@ -272,7 +273,7 @@ export default function LessonPlayer() {
                       key={tag}
                       className="px-3 py-1 bg-primary/15 border border-primary/30 rounded-full text-sm text-white/90"
                     >
-                      {tag}
+                      {getTagLabel(tag, t)}
                     </span>
                   ))}
                 </div>

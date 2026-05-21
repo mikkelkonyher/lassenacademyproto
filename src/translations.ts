@@ -49,6 +49,22 @@ export const translations = {
       },
       with: "med",
     },
+    // Tag labels keyed by canonical lowercase key (matches courses.tags[]).
+    // Unknown tags fall back to their raw key — see getTagLabel().
+    tags: {
+      guitar: "Guitar",
+      bass: "Bas",
+      piano: "Klaver",
+      beginner: "Begynder",
+      intermediate: "Mellem",
+      advanced: "Avanceret",
+      theory: "Teori",
+      technique: "Teknik",
+      groove: "Groove",
+      rhythm: "Rytme",
+      harmony: "Harmoni",
+      improv: "Impro",
+    },
     courseDetail: {
       notFound: "Kurset blev ikke fundet",
       lessonNotFound: "Lektionen blev ikke fundet",
@@ -619,6 +635,22 @@ export const translations = {
         elena: "Piano & Composition",
       },
       with: "with",
+    },
+    // Tag labels keyed by canonical lowercase key (matches courses.tags[]).
+    // Unknown tags fall back to their raw key — see getTagLabel().
+    tags: {
+      guitar: "Guitar",
+      bass: "Bass",
+      piano: "Piano",
+      beginner: "Beginner",
+      intermediate: "Intermediate",
+      advanced: "Advanced",
+      theory: "Theory",
+      technique: "Technique",
+      groove: "Groove",
+      rhythm: "Rhythm",
+      harmony: "Harmony",
+      improv: "Improv",
     },
     courseDetail: {
       notFound: "Course not found",
