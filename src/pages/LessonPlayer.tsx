@@ -205,10 +205,10 @@ export default function LessonPlayer() {
 
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Two-column layout: player on the left, playlist on the right */}
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Main column — player + title + description */}
-            <div className="lg:col-span-2 min-w-0">
+          {/* Two-column layout: wider player on the left, slimmer playlist on the right */}
+          <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
+            {/* Main column — player + title + description (3/4 width on lg+) */}
+            <div className="lg:col-span-3 min-w-0">
               {/* Player block — Mux when ready, placeholder otherwise */}
               <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.4)] border border-primary/30">
                 {lesson.mux_playback_id ? (
@@ -295,17 +295,17 @@ export default function LessonPlayer() {
               )}
             </div>
 
-            {/* Sidebar — playlist */}
-            <aside className="lg:col-span-1">
+            {/* Sidebar — playlist (1/4 width on lg+) */}
+            <aside className="lg:col-span-1 min-w-0">
               <ul className="space-y-3 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-2">
                 {sortedLessons.map((l, idx) => {
                   const isCurrent = l.slug === lesson.slug;
+                  // Sidebar shows a generic module label (e.g. "Modul 1") to
+                  // avoid duplicating the lesson's full title with the player
+                  // header. The actual title appears below the video.
+                  const moduleLabel = `${t.courseDetail.moduleLabel} ${idx + 1}`;
                   const itemTitle =
                     language === "da" ? l.title_da : l.title_en || l.title_da;
-                  const itemDesc =
-                    language === "da"
-                      ? l.description_da
-                      : l.description_en || l.description_da;
                   const itemRuntime = formatLessonRuntime(l.duration_seconds);
                   const thumb = getLessonThumbnail(l);
 
@@ -322,7 +322,7 @@ export default function LessonPlayer() {
                         }`}
                       >
                         {/* Thumbnail with runtime overlay */}
-                        <div className="relative w-32 sm:w-36 aspect-video rounded-lg overflow-hidden flex-shrink-0 bg-black/40">
+                        <div className="relative w-24 sm:w-28 aspect-video rounded-lg overflow-hidden flex-shrink-0 bg-black/40">
                           {thumb ? (
                             <img
                               src={thumb}
@@ -341,20 +341,18 @@ export default function LessonPlayer() {
                           )}
                         </div>
 
-                        {/* Title + short description */}
+                        {/* Module label + the lesson's actual title underneath */}
                         <div className="flex-1 min-w-0 py-1">
                           <p
-                            className={`text-xs uppercase tracking-wider font-bold mb-1 ${
-                              isCurrent ? "text-primary" : "text-gray-400"
+                            className={`text-sm font-bold uppercase tracking-wider break-words ${
+                              isCurrent ? "text-primary" : "text-white"
                             }`}
                           >
-                            {`${idx + 1}: ${itemTitle}`}
+                            {moduleLabel}
                           </p>
-                          {itemDesc && (
-                            <p className="text-xs text-gray-400 line-clamp-2 leading-snug">
-                              {itemDesc}
-                            </p>
-                          )}
+                          <p className="text-xs text-gray-400 line-clamp-2 leading-snug break-words mt-0.5">
+                            {itemTitle}
+                          </p>
                         </div>
                       </Link>
                     </li>

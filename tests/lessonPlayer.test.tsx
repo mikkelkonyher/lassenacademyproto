@@ -157,8 +157,10 @@ describe("LessonPlayer page", () => {
     reset(COURSE);
     renderWithPath("begynder-guitar-fra-0-til-helt", "modul-1");
 
+    // Title appears in two places: the h1 below the player AND the sidebar
+    // subtitle under "Modul N". Both should render.
     await waitFor(() =>
-      expect(screen.getByText("Modul 1: Introduktion")).toBeInTheDocument()
+      expect(screen.getAllByText("Modul 1: Introduktion").length).toBeGreaterThanOrEqual(1)
     );
 
     const player = screen.getByTestId("mux-player");
@@ -200,8 +202,9 @@ describe("LessonPlayer page", () => {
     reset(COURSE);
     renderWithPath("begynder-guitar-fra-0-til-helt");
 
+    // Title appears in two places (h1 + sidebar subtitle)
     await waitFor(() =>
-      expect(screen.getByText("Modul 1: Introduktion")).toBeInTheDocument()
+      expect(screen.getAllByText("Modul 1: Introduktion").length).toBeGreaterThanOrEqual(1)
     );
 
     // First lesson's MuxPlayer should be rendered

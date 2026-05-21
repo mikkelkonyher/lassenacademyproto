@@ -64,6 +64,7 @@ export const translations = {
       backToCourse: "Tilbage til kurset",
       previousLesson: "Forrige",
       nextLesson: "Næste",
+      moduleLabel: "Modul",
     },
     footer: {
       description:
@@ -634,6 +635,7 @@ export const translations = {
       backToCourse: "Back to course",
       previousLesson: "Previous",
       nextLesson: "Next",
+      moduleLabel: "Module",
     },
     footer: {
       description:
