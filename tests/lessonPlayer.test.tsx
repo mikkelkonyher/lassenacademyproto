@@ -123,12 +123,14 @@ vi.mock("../src/supabase/client", () => ({
   },
 }));
 
-function renderWithPath(slug: string, lessonSlug: string) {
+function renderWithPath(slug: string, lessonSlug?: string) {
+  const path = lessonSlug ? `/courses/${slug}/${lessonSlug}` : `/courses/${slug}`;
   return render(
-    <MemoryRouter initialEntries={[`/courses/${slug}/${lessonSlug}`]}>
+    <MemoryRouter initialEntries={[path]}>
       <LanguageProvider>
         <AuthProvider>
           <Routes>
+            <Route path="/courses/:slug" element={<LessonPlayer />} />
             <Route path="/courses/:slug/:lessonSlug" element={<LessonPlayer />} />
           </Routes>
         </AuthProvider>
@@ -192,5 +194,28 @@ describe("LessonPlayer page", () => {
     await waitFor(() =>
       expect(screen.getByText(/Kurset blev ikke fundet/i)).toBeInTheDocument()
     );
+  });
+
+  it("defaults to the first lesson when the URL has no lessonSlug", async () => {
+    reset(COURSE);
+    renderWithPath("begynder-guitar-fra-0-til-helt");
+
+    await waitFor(() =>
+      expect(screen.getByText("Modul 1: Introduktion")).toBeInTheDocument()
+    );
+
+    // First lesson's MuxPlayer should be rendered
+    const player = screen.getByTestId("mux-player");
+    expect(player).toHaveAttribute("data-playback-id", "abc123XYZ");
+  });
+
+  it("renders the 'no lessons yet' state when the course has zero lessons and no lessonSlug", async () => {
+    reset({ ...COURSE, lessons: [] });
+    renderWithPath("begynder-guitar-fra-0-til-helt");
+
+    await waitFor(() =>
+      expect(screen.getByText(/Lektioner kommer snart/i)).toBeInTheDocument()
+    );
+    expect(screen.queryByTestId("mux-player")).not.toBeInTheDocument();
   });
 });

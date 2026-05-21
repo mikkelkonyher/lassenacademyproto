@@ -21,7 +21,6 @@ import ScrollToTop from "./components/ScrollToTop";
 import TeacherDetail from "./pages/TeacherDetail";
 import MyProfile from "./pages/MyProfile";
 import AllCourses from "./pages/AllCourses";
-import CourseOverview from "./pages/CourseOverview";
 import LessonPlayer from "./pages/LessonPlayer";
 import Podcast from "./pages/Podcast";
 import PodcastEpisode from "./pages/PodcastEpisode";
@@ -92,7 +91,7 @@ function App() {
         />
         <Route path="/teacher/:teacherSlug" element={<TeacherDetail />} />
         <Route path="/courses" element={<AllCourses />} />
-        <Route path="/courses/:slug" element={<CourseOverview />} />
+        <Route path="/courses/:slug" element={<LessonPlayer />} />
         <Route path="/courses/:slug/:lessonSlug" element={<LessonPlayer />} />
         <Route path="/podcast" element={<Podcast />} />
         <Route path="/podcast/:episodeSlug" element={<PodcastEpisode />} />
