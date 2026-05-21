@@ -1,126 +1,76 @@
 /**
  * AllCourses.tsx — Full course catalogue with tag-based filtering.
  *
- * Renders all available courses in a responsive grid. Users can filter
- * by one or more tags (instrument, skill area). When no tags are selected,
- * all courses are shown. Course metadata is hardcoded; translatable fields
- * (titles, levels, tag labels) come from the i18n translations object.
+ * Fetches every published course from Supabase, renders them in a responsive
+ * grid, and provides a tag filter bar. Each card links to /courses/:slug.
+ * Tags are sourced from the actual courses (de-duplicated) so the filter UI
+ * always matches what's in the database.
  */
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, PlayCircle, Star } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, PlayCircle } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
+import { supabase } from "../supabase/client";
+import type { Database } from "../types/database.types";
+import { getCourseThumbnail } from "../utils/courseImage";
+
+type Course = Database["public"]["Tables"]["courses"]["Row"];
+
+/** Format duration in seconds as "Xt YYm" (DA) / "Xh YYm" (EN); null if unknown */
+function formatDuration(seconds: number | null, language: "da" | "en"): string | null {
+  if (seconds == null || seconds <= 0) return null;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const hoursLabel = language === "da" ? "t" : "h";
+  if (h === 0) return `${m}m`;
+  return `${h}${hoursLabel} ${m.toString().padStart(2, "0")}m`;
+}
 
 export default function AllCourses() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
-  const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
+  const { t, language } = useLanguage();
+  const {
+    isRegisterOpen,
+    isLoginOpen,
+    openRegister,
+    closeRegister,
+    openLogin,
+    closeLogin,
+  } = useAuthModals();
+
+  const [courses, setCourses] = useState<Course[]>([]);
   // Tracks which filter tags the user has toggled on; empty means "show all"
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
-  // All available filter tags, pulled from translations so they match the active language
-  const allTags = [
-    t.featured.tags.guitar,
-    t.featured.tags.bas,
-    t.featured.tags.klaver,
-    t.featured.tags.teknik,
-    t.featured.tags.teori,
-    t.featured.tags.groove,
-    t.featured.tags.rytme,
-    t.featured.tags.harmoni,
-    t.featured.tags.impro,
-  ];
+  // Fetch all published courses, sorted by sort_order then most-recent
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from("courses")
+        .select("*")
+        .eq("published", true)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false });
+      if (data) setCourses(data as Course[]);
+    };
+    fetchCourses();
+  }, []);
 
-  // Hardcoded course catalogue — each course has tags used for client-side filtering
-  const courses = [
-    {
-      title: t.featured.courseData.guitarTitle,
-      instructor: "Ludwig Hamilton-Wittendorff",
-      level: t.featured.courseData.guitarLevel,
-      duration: "4t 30m",
-      image:
-        "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=2338&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.guitar, t.featured.tags.teknik, t.featured.tags.teori],
-    },
-    {
-      title: t.featured.courseData.bassTitle,
-      instructor: "Kristian Lassen",
-      level: t.featured.courseData.bassLevel,
-      duration: "6t 15m",
-      image:
-        "https://images.unsplash.com/photo-1525898181636-29b30c26f6e1?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.bas, t.featured.tags.groove, t.featured.tags.rytme],
-    },
-    {
-      title: t.featured.courseData.pianoTitle,
-      instructor: "Elena Rossi",
-      level: t.featured.courseData.pianoLevel,
-      duration: "8t 00m",
-      image:
-        "https://images.unsplash.com/photo-1552422535-c45813c61732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: [t.featured.tags.klaver, t.featured.tags.harmoni, t.featured.tags.impro],
-    },
-    {
-      title: "Slap Bass Fundamentals",
-      instructor: "Kristian Lassen",
-      level: t.featured.courseData.bassLevel,
-      duration: "5t 45m",
-      image:
-        "https://images.unsplash.com/photo-1511735111819-9a3f7709049c?q=80&w=2274&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.bas, t.featured.tags.teknik, t.featured.tags.groove],
-    },
-    {
-      title: "Jazz Harmony & Voicings",
-      instructor: "Elena Rossi",
-      level: t.featured.courseData.pianoLevel,
-      duration: "7t 20m",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.klaver, t.featured.tags.harmoni, t.featured.tags.teori],
-    },
-    {
-      title: "Fingerstyle Guitar Mastery",
-      instructor: "Ludwig Hamilton-Wittendorff",
-      level: t.featured.courseData.bassLevel,
-      duration: "6t 00m",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.guitar, t.featured.tags.teknik, t.featured.tags.teori],
-    },
-    {
-      title: "Walking Bass Lines",
-      instructor: "Kristian Lassen",
-      level: t.featured.courseData.pianoLevel,
-      duration: "5t 15m",
-      image:
-        "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.bas, t.featured.tags.groove, t.featured.tags.harmoni],
-    },
-    {
-      title: "Music Theory Essentials",
-      instructor: "Ludwig Hamilton-Wittendorff",
-      level: t.featured.courseData.guitarLevel,
-      duration: "4t 00m",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.guitar, t.featured.tags.teori, t.featured.tags.harmoni],
-    },
-    {
-      title: "Advanced Improvisation",
-      instructor: "Elena Rossi",
-      level: t.featured.courseData.pianoLevel,
-      duration: "9t 30m",
-      image:
-        "https://images.unsplash.com/photo-1511735111819-9a3f7709049c?q=80&w=2274&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: [t.featured.tags.klaver, t.featured.tags.impro, t.featured.tags.harmoni],
-    },
-  ];
+  // Distinct tags pulled from the fetched courses themselves so the filter UI
+  // always reflects what's actually in the database
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of courses) {
+      for (const tag of c.tags ?? []) set.add(tag);
+    }
+    return [...set].sort();
+  }, [courses]);
 
   // Toggle a tag on/off in the active filter set
   const toggleTag = (tag: string) => {
@@ -130,12 +80,12 @@ export default function AllCourses() {
   };
 
   // Show all courses when no tags selected; otherwise keep courses matching ANY active tag
-  const filteredCourses =
-    activeTags.length === 0
-      ? courses
-      : courses.filter((course) =>
-          course.tags.some((tag) => activeTags.includes(tag))
-        );
+  const filteredCourses = useMemo(() => {
+    if (activeTags.length === 0) return courses;
+    return courses.filter((course) =>
+      (course.tags ?? []).some((tag) => activeTags.includes(tag))
+    );
+  }, [courses, activeTags]);
 
   // Rotating gradient backgrounds for visual variety across course cards
   const gradients = [
@@ -182,37 +132,39 @@ export default function AllCourses() {
             </p>
           </div>
 
-          {/* Tag Filter Bar */}
-          <div className="mb-8">
-            <p className="text-sm text-gray-400 mb-3 font-medium">
-              {t.allCourses.filterLabel}
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => setActiveTags([])}
-                className={`px-5 py-2 rounded-full text-sm font-semibold border transition-all ${
-                  activeTags.length === 0
-                    ? "bg-primary/20 border-primary/50 text-primary"
-                    : "glass border-white/10 text-gray-400 hover:text-white"
-                }`}
-              >
-                {t.allCourses.filterAll}
-              </button>
-              {allTags.map((tag) => (
+          {/* Tag Filter Bar — only render when we have tags to offer */}
+          {allTags.length > 0 && (
+            <div className="mb-8">
+              <p className="text-sm text-gray-400 mb-3 font-medium">
+                {t.allCourses.filterLabel}
+              </p>
+              <div className="flex flex-wrap gap-3">
                 <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
+                  onClick={() => setActiveTags([])}
                   className={`px-5 py-2 rounded-full text-sm font-semibold border transition-all ${
-                    activeTags.includes(tag)
+                    activeTags.length === 0
                       ? "bg-primary/20 border-primary/50 text-primary"
                       : "glass border-white/10 text-gray-400 hover:text-white"
                   }`}
                 >
-                  {tag}
+                  {t.allCourses.filterAll}
                 </button>
-              ))}
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`px-5 py-2 rounded-full text-sm font-semibold border transition-all ${
+                      activeTags.includes(tag)
+                        ? "bg-primary/20 border-primary/50 text-primary"
+                        : "glass border-white/10 text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Result Count */}
           <p className="text-sm text-gray-500 mb-6">{resultText}</p>
@@ -225,11 +177,14 @@ export default function AllCourses() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCourses.map((course, idx) => {
+                const title = language === "da" ? course.title_da : course.title_en || course.title_da;
+                const duration = formatDuration(course.duration_seconds, language);
                 const gradient = gradients[idx % gradients.length];
                 return (
-                  <div
-                    key={idx}
-                    className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-2 relative"
+                  <Link
+                    key={course.id}
+                    to={`/courses/${course.slug}`}
+                    className="rounded-2xl border border-white/20 hover:border-primary/60 transition-all duration-500 group overflow-hidden hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-2 relative cursor-pointer"
                   >
                     {/* Colorful gradient background */}
                     <div
@@ -241,27 +196,29 @@ export default function AllCourses() {
 
                     <div className="relative aspect-video overflow-hidden">
                       <img
-                        src={course.image}
-                        alt={course.title}
+                        src={getCourseThumbnail(course)}
+                        alt={title}
                         className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                       />
                       {/* Vibrant gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-primary/20 to-transparent group-hover:from-black/80 transition-all"></div>
                       {/* Tags overlay on image */}
-                      <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-                        {course.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-primary/50 shadow-lg shadow-primary/40"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                      {course.tags && course.tags.length > 0 && (
+                        <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+                          {course.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-primary/50 shadow-lg shadow-primary/40"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="relative p-6">
                       <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight drop-shadow-lg">
-                        {course.title}
+                        {title}
                       </h3>
                       <p className="text-sm text-white/90 mb-5 font-medium">
                         {t.featured.with}{" "}
@@ -269,18 +226,14 @@ export default function AllCourses() {
                           {course.instructor}
                         </span>
                       </p>
-                      <div className="flex items-center justify-between text-sm pt-4 border-t border-white/20">
+                      <div className="flex items-center text-sm pt-4 border-t border-white/20">
                         <span className="flex items-center text-white font-medium">
                           <PlayCircle className="w-4 h-4 mr-2 text-primary drop-shadow-lg" />
-                          {course.duration}
-                        </span>
-                        <span className="flex items-center text-white font-semibold">
-                          <Star className="w-4 h-4 mr-1.5 text-yellow-400 fill-yellow-400 drop-shadow-lg" />
-                          4.9
+                          {duration ?? "—"}
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

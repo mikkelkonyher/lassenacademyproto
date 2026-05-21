@@ -58,9 +58,9 @@ export default function MyProfile() {
       setSettingsName(profile.full_name);
       setSettingsBio(profile.bio ?? '');
       setNotifications({
-        email: profile.notify_email,
-        courseUpdates: profile.notify_course_updates,
-        newsletter: profile.notify_newsletter,
+        email: profile.notify_email ?? false,
+        courseUpdates: profile.notify_course_updates ?? false,
+        newsletter: profile.notify_newsletter ?? false,
       });
     }
   }, [profile]);

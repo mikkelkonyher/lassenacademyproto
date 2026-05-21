@@ -1,0 +1,25 @@
+meta {
+  name: GET - List Published Courses
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/courses?published=eq.true&select=id,slug,title_da,title_en,mux_playback_id&order=sort_order.asc
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}
+
+docs {
+  Verifies that the courses table is publicly readable for published rows.
+  No auth required — RLS allows anonymous reads when published = true.
+}

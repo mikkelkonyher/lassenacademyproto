@@ -1,0 +1,28 @@
+meta {
+  name: GET - Course by Slug
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/courses?slug=eq.begynder-guitar-fra-0-til-helt&published=eq.true&select=id,slug,title_da,title_en,instructor,mux_playback_id,duration_seconds,access_tier
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: length 1
+  res.body[0].slug: eq begynder-guitar-fra-0-til-helt
+  res.body[0].instructor: eq Ludwig Hamilton-Wittendorff
+  res.body[0].access_tier: eq free
+}
+
+docs {
+  Fetches the seeded guitar course by its slug.
+  mux_playback_id may be null until the Mux webhook fires after the first upload.
+}
