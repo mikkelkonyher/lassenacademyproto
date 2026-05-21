@@ -2,10 +2,6 @@
  * LessonPlayer.tsx — Single-lesson page with the Mux video player and a
  * playlist-style sidebar listing sibling lessons.
  *
- * Layout follows the Mix-with-the-Masters pattern: a wide player on the
- * left with title/description underneath, and a vertical playlist on the
- * right (each entry has a thumbnail, lesson title, short description, and
- * runtime overlay). The currently-playing lesson is highlighted.
  *
  * On smaller screens the playlist stacks below the player.
  */
