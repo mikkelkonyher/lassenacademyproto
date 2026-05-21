@@ -1,18 +1,19 @@
 /**
- * VideoModal — Fullscreen overlay that plays a YouTube video.
+ * VideoModal — Fullscreen overlay that plays a Mux video.
  * Controlled externally via isOpen/onClose props. When open, it renders
- * a blurred backdrop and a centered iframe that autoplays the given videoId.
- * Clicking the backdrop or the X button closes the modal.
+ * a blurred backdrop and a centered Mux player that autoplays the given
+ * playbackId. Clicking the backdrop or the X button closes the modal.
  */
 import { X } from 'lucide-react';
+import MuxPlayer from '@mux/mux-player-react';
 
 interface VideoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  videoId: string;
+  playbackId: string;
 }
 
-export default function VideoModal({ isOpen, onClose, videoId }: VideoModalProps) {
+export default function VideoModal({ isOpen, onClose, playbackId }: VideoModalProps) {
   // Early return — render nothing when the modal is closed
   if (!isOpen) return null;
 
@@ -35,20 +36,19 @@ export default function VideoModal({ isOpen, onClose, videoId }: VideoModalProps
           <span className="sr-only">Close</span>
         </button>
 
-        {/* 16:9 responsive iframe container */}
+        {/* 16:9 responsive Mux player. autoPlay matches the previous
+            YouTube behaviour so opening the modal starts playback. */}
         <div className="relative w-full aspect-video">
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-            title="Trailer Video"
-            className="absolute top-0 left-0 w-full h-full"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          ></iframe>
+          <MuxPlayer
+            playbackId={playbackId}
+            streamType="on-demand"
+            accentColor="#fb923c"
+            autoPlay
+            metadata={{ video_title: 'Trailer' }}
+            className="absolute inset-0 w-full h-full"
+          />
         </div>
       </div>
     </div>
   );
 }
-
