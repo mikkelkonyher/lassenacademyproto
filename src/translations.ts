@@ -51,11 +51,19 @@ export const translations = {
     },
     courseDetail: {
       notFound: "Kurset blev ikke fundet",
+      lessonNotFound: "Lektionen blev ikke fundet",
       about: "Om kurset",
       instructor: "Underviser",
       level: "Niveau",
       duration: "Varighed",
       comingSoon: "Video kommer snart",
+      lessonsHeading: "Lektioner",
+      noLessonsYet: "Lektioner kommer snart",
+      lessonCountOne: "1 lektion",
+      lessonCountMany: "{count} lektioner",
+      backToCourse: "Tilbage til kurset",
+      previousLesson: "Forrige",
+      nextLesson: "Næste",
     },
     footer: {
       description:
@@ -613,11 +621,19 @@ export const translations = {
     },
     courseDetail: {
       notFound: "Course not found",
+      lessonNotFound: "Lesson not found",
       about: "About this course",
       instructor: "Instructor",
       level: "Level",
       duration: "Duration",
       comingSoon: "Video coming soon",
+      lessonsHeading: "Lessons",
+      noLessonsYet: "Lessons coming soon",
+      lessonCountOne: "1 lesson",
+      lessonCountMany: "{count} lessons",
+      backToCourse: "Back to course",
+      previousLesson: "Previous",
+      nextLesson: "Next",
     },
     footer: {
       description:

@@ -1,0 +1,27 @@
+meta {
+  name: GET - List Lessons for Course
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/lessons?published=eq.true&course_id=eq.{{guitar_course_id}}&order=sort_order.asc&select=id,slug,title_da,title_en,mux_playback_id,duration_seconds,sort_order
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}
+
+docs {
+  Lists published lessons for a course. Set the `guitar_course_id` env var
+  (or replace inline) to the UUID of the guitar course row before running.
+
+  Modul 1 should appear with a populated mux_playback_id and duration_seconds.
+}

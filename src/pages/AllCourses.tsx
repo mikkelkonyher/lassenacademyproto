@@ -18,9 +18,16 @@ import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
-import { getCourseThumbnail } from "../utils/courseImage";
+import {
+  getCourseThumbnail,
+  totalCourseDuration,
+} from "../utils/courseImage";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
+type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
+type CourseWithLessons = Course & {
+  lessons: Pick<Lesson, "mux_playback_id" | "duration_seconds" | "sort_order" | "published">[];
+};
 
 /** Format duration in seconds as "Xt YYm" (DA) / "Xh YYm" (EN); null if unknown */
 function formatDuration(seconds: number | null, language: "da" | "en"): string | null {
@@ -44,20 +51,24 @@ export default function AllCourses() {
     closeLogin,
   } = useAuthModals();
 
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<CourseWithLessons[]>([]);
   // Tracks which filter tags the user has toggled on; empty means "show all"
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
-  // Fetch all published courses, sorted by sort_order then most-recent
+  // Fetch all published courses with their published lessons embedded;
+  // lessons feed the card thumbnail (first lesson's Mux poster) and total runtime.
   useEffect(() => {
     const fetchCourses = async () => {
       const { data } = await supabase
         .from("courses")
-        .select("*")
+        .select(
+          "*, lessons(mux_playback_id, duration_seconds, sort_order, published)",
+        )
         .eq("published", true)
+        .eq("lessons.published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
-      if (data) setCourses(data as Course[]);
+      if (data) setCourses(data as CourseWithLessons[]);
     };
     fetchCourses();
   }, []);
@@ -178,7 +189,7 @@ export default function AllCourses() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCourses.map((course, idx) => {
                 const title = language === "da" ? course.title_da : course.title_en || course.title_da;
-                const duration = formatDuration(course.duration_seconds, language);
+                const duration = formatDuration(totalCourseDuration(course.lessons), language);
                 const gradient = gradients[idx % gradients.length];
                 return (
                   <Link

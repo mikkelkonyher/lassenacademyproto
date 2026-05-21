@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{supabase_url}}/rest/v1/courses?slug=eq.begynder-guitar-fra-0-til-helt&published=eq.true&select=id,slug,title_da,title_en,instructor,mux_playback_id,duration_seconds,access_tier
+  url: {{supabase_url}}/rest/v1/courses?slug=eq.begynder-guitar-fra-0-til-helt&published=eq.true&select=id,slug,title_da,title_en,instructor,access_tier
   body: none
   auth: none
 }
@@ -24,5 +24,5 @@ assert {
 
 docs {
   Fetches the seeded guitar course by its slug.
-  mux_playback_id may be null until the Mux webhook fires after the first upload.
+  Mux fields no longer live on `courses` — they're on `lessons` now (see seq 3).
 }

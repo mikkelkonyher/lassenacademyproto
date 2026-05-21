@@ -3,11 +3,41 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "../src/context/LanguageContext";
 import { AuthProvider } from "../src/context/AuthContext";
-import CourseDetail from "../src/pages/CourseDetail";
+import CourseOverview from "../src/pages/CourseOverview";
 
 // ── Mock data ────────────────────────────────────────────────
 
-const COURSE_WITH_VIDEO = {
+const LESSON_1 = {
+  id: "lesson-1",
+  course_id: "course-1",
+  slug: "modul-1",
+  title_da: "Modul 1: Introduktion",
+  title_en: "Module 1: Introduction",
+  description_da: null,
+  description_en: null,
+  mux_playback_id: "abc123XYZ",
+  mux_asset_id: "asset-xyz",
+  mux_playback_policy: "public",
+  duration_seconds: 156,
+  aspect_ratio: "16:9",
+  sort_order: 0,
+  published: true,
+  created_at: "2026-05-21T00:00:00Z",
+  updated_at: "2026-05-21T00:00:00Z",
+};
+
+const LESSON_2 = {
+  ...LESSON_1,
+  id: "lesson-2",
+  slug: "modul-2",
+  title_da: "Modul 2: Akkorder",
+  title_en: "Module 2: Chords",
+  mux_playback_id: null,
+  duration_seconds: null,
+  sort_order: 1,
+};
+
+const COURSE_WITH_LESSONS = {
   id: "course-1",
   slug: "begynder-guitar-fra-0-til-helt",
   title_da: "Begynder Guitar: Fra 0 til Helt",
@@ -19,37 +49,15 @@ const COURSE_WITH_VIDEO = {
   instructor: "Ludwig Hamilton-Wittendorff",
   image_url: "https://example.com/guitar.webp",
   tags: ["Guitar", "Beginner"],
-  mux_playback_id: "abc123XYZ",
-  mux_asset_id: "asset-xyz",
-  mux_playback_policy: "public",
-  duration_seconds: 16200, // 4h 30m
-  aspect_ratio: "16:9",
   access_tier: "free",
   published: true,
   sort_order: 0,
   created_at: "2026-05-21T00:00:00Z",
   updated_at: "2026-05-21T00:00:00Z",
+  lessons: [LESSON_1, LESSON_2],
 };
 
-const COURSE_NO_VIDEO = {
-  ...COURSE_WITH_VIDEO,
-  id: "course-2",
-  slug: "draft-course",
-  mux_playback_id: null,
-  mux_asset_id: null,
-  duration_seconds: null,
-  aspect_ratio: null,
-};
-
-// ── Mux player mock — avoid HLS / web component setup in jsdom ─
-
-const muxPlayerSpy = vi.fn();
-vi.mock("@mux/mux-player-react", () => ({
-  default: (props: { playbackId: string }) => {
-    muxPlayerSpy(props);
-    return <div data-testid="mux-player" data-playback-id={props.playbackId} />;
-  },
-}));
+const COURSE_NO_LESSONS = { ...COURSE_WITH_LESSONS, lessons: [] };
 
 // ── Supabase mock ────────────────────────────────────────────
 
@@ -58,20 +66,24 @@ const mockOnAuthStateChange = vi.fn().mockReturnValue({
   data: { subscription: { unsubscribe: vi.fn() } },
 });
 
-// Each test sets the row this mock should return for the current slug
 let mockCourseRow: unknown = null;
-let mockCourseError: unknown = null;
 
-// Build a chain that satisfies: .select("*").eq("slug",x).eq("published",true).maybeSingle()
+// Build a chain that satisfies:
+//   .select(...).eq("slug",x).eq("published",true).eq("lessons.published",true).maybeSingle()
 function buildCoursesChain() {
   const maybeSingleFn = vi.fn().mockImplementation(async () => ({
     data: mockCourseRow,
-    error: mockCourseError,
+    error: null,
   }));
-  const eqPublishedFn = vi.fn().mockReturnValue({ maybeSingle: maybeSingleFn });
+  const eqLessonsPublishedFn = vi
+    .fn()
+    .mockReturnValue({ maybeSingle: maybeSingleFn });
+  const eqPublishedFn = vi
+    .fn()
+    .mockReturnValue({ eq: eqLessonsPublishedFn });
   const eqSlugFn = vi.fn().mockReturnValue({ eq: eqPublishedFn });
   const selectFn = vi.fn().mockReturnValue({ eq: eqSlugFn });
-  return { selectFn, eqSlugFn, eqPublishedFn, maybeSingleFn };
+  return { selectFn };
 }
 
 let coursesChain = buildCoursesChain();
@@ -88,10 +100,7 @@ vi.mock("../src/supabase/client", () => ({
       updateUser: vi.fn(),
     },
     from: (table: string) => {
-      if (table === "courses") {
-        return { select: coursesChain.selectFn };
-      }
-      // Profiles table for AuthContext
+      if (table === "courses") return { select: coursesChain.selectFn };
       if (table === "profiles") {
         const singleFn = vi.fn().mockReturnValue({ data: null, error: null });
         const eqFn = vi.fn().mockReturnValue({ single: singleFn });
@@ -108,15 +117,13 @@ vi.mock("../src/supabase/client", () => ({
   },
 }));
 
-// ── Helper wrapper ───────────────────────────────────────────
-
 function renderWithSlug(slug: string) {
   return render(
     <MemoryRouter initialEntries={[`/courses/${slug}`]}>
       <LanguageProvider>
         <AuthProvider>
           <Routes>
-            <Route path="/courses/:slug" element={<CourseDetail />} />
+            <Route path="/courses/:slug" element={<CourseOverview />} />
           </Routes>
         </AuthProvider>
       </LanguageProvider>
@@ -124,62 +131,56 @@ function renderWithSlug(slug: string) {
   );
 }
 
-// Resets shared mocks before each test
-function reset({ row, error = null }: { row: unknown; error?: unknown }) {
+function reset(row: unknown) {
   vi.clearAllMocks();
   mockCourseRow = row;
-  mockCourseError = error;
   coursesChain = buildCoursesChain();
 }
 
 // ── Tests ────────────────────────────────────────────────────
 
-describe("CourseDetail page", () => {
+describe("CourseOverview page", () => {
   beforeEach(() => {
-    muxPlayerSpy.mockClear();
+    reset(null);
   });
 
-  it("renders MuxPlayer with the correct playback ID when video is available", async () => {
-    reset({ row: COURSE_WITH_VIDEO });
+  it("renders course meta and a lesson list when lessons exist", async () => {
+    reset(COURSE_WITH_LESSONS);
 
     renderWithSlug("begynder-guitar-fra-0-til-helt");
 
-    // Title appears
     await waitFor(() =>
       expect(screen.getByText("Begynder Guitar: Fra 0 til Helt")).toBeInTheDocument()
     );
 
-    // Mux player gets rendered with the right playback ID
-    const player = screen.getByTestId("mux-player");
-    expect(player).toHaveAttribute("data-playback-id", "abc123XYZ");
-    expect(muxPlayerSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ playbackId: "abc123XYZ" })
-    );
+    // Both lessons rendered — title is prefixed with the 1-based index, so match by regex
+    expect(screen.getByText(/1:\s+Modul 1: Introduktion/)).toBeInTheDocument();
+    expect(screen.getByText(/2:\s+Modul 2: Akkorder/)).toBeInTheDocument();
 
-    // Instructor + duration appear in the right column
-    expect(screen.getAllByText("Ludwig Hamilton-Wittendorff").length).toBeGreaterThan(0);
-    expect(screen.getByText("4t 30m")).toBeInTheDocument();
+    // Lesson links point to /courses/:slug/:lessonSlug
+    const modul1Link = screen.getAllByRole("link").find((a) =>
+      a.getAttribute("href") === "/courses/begynder-guitar-fra-0-til-helt/modul-1"
+    );
+    expect(modul1Link).toBeTruthy();
   });
 
-  it("renders the Coming Soon placeholder when mux_playback_id is null", async () => {
-    reset({ row: COURSE_NO_VIDEO });
+  it("renders the empty state when the course has no lessons", async () => {
+    reset(COURSE_NO_LESSONS);
 
-    renderWithSlug("draft-course");
+    renderWithSlug("begynder-guitar-fra-0-til-helt");
 
-    // Coming Soon copy appears; MuxPlayer is NOT rendered
-    await waitFor(() => expect(screen.getByText(/Video kommer snart/i)).toBeInTheDocument());
-    expect(screen.queryByTestId("mux-player")).not.toBeInTheDocument();
-    expect(muxPlayerSpy).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.getByText(/Lektioner kommer snart/i)).toBeInTheDocument()
+    );
   });
 
   it("renders the not-found state when the slug returns no row", async () => {
-    reset({ row: null });
+    reset(null);
 
     renderWithSlug("unknown-slug");
 
     await waitFor(() =>
       expect(screen.getByText(/Kurset blev ikke fundet/i)).toBeInTheDocument()
     );
-    expect(screen.queryByTestId("mux-player")).not.toBeInTheDocument();
   });
 });

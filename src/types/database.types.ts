@@ -23,19 +23,14 @@ export type Database = {
       courses: {
         Row: {
           access_tier: string | null
-          aspect_ratio: string | null
           created_at: string | null
           description_da: string | null
           description_en: string | null
-          duration_seconds: number | null
           id: string
           image_url: string
           instructor: string
           level_da: string
           level_en: string
-          mux_asset_id: string | null
-          mux_playback_id: string | null
-          mux_playback_policy: string | null
           published: boolean | null
           slug: string
           sort_order: number | null
@@ -46,19 +41,14 @@ export type Database = {
         }
         Insert: {
           access_tier?: string | null
-          aspect_ratio?: string | null
           created_at?: string | null
           description_da?: string | null
           description_en?: string | null
-          duration_seconds?: number | null
           id?: string
           image_url: string
           instructor: string
           level_da: string
           level_en: string
-          mux_asset_id?: string | null
-          mux_playback_id?: string | null
-          mux_playback_policy?: string | null
           published?: boolean | null
           slug: string
           sort_order?: number | null
@@ -69,19 +59,14 @@ export type Database = {
         }
         Update: {
           access_tier?: string | null
-          aspect_ratio?: string | null
           created_at?: string | null
           description_da?: string | null
           description_en?: string | null
-          duration_seconds?: number | null
           id?: string
           image_url?: string
           instructor?: string
           level_da?: string
           level_en?: string
-          mux_asset_id?: string | null
-          mux_playback_id?: string | null
-          mux_playback_policy?: string | null
           published?: boolean | null
           slug?: string
           sort_order?: number | null
@@ -251,6 +236,71 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lessons: {
+        Row: {
+          aspect_ratio: string | null
+          course_id: string
+          created_at: string | null
+          description_da: string | null
+          description_en: string | null
+          duration_seconds: number | null
+          id: string
+          mux_asset_id: string | null
+          mux_playback_id: string | null
+          mux_playback_policy: string | null
+          published: boolean | null
+          slug: string
+          sort_order: number | null
+          title_da: string
+          title_en: string
+          updated_at: string | null
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          course_id: string
+          created_at?: string | null
+          description_da?: string | null
+          description_en?: string | null
+          duration_seconds?: number | null
+          id?: string
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          mux_playback_policy?: string | null
+          published?: boolean | null
+          slug: string
+          sort_order?: number | null
+          title_da: string
+          title_en: string
+          updated_at?: string | null
+        }
+        Update: {
+          aspect_ratio?: string | null
+          course_id?: string
+          created_at?: string | null
+          description_da?: string | null
+          description_en?: string | null
+          duration_seconds?: number | null
+          id?: string
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          mux_playback_policy?: string | null
+          published?: boolean | null
+          slug?: string
+          sort_order?: number | null
+          title_da?: string
+          title_en?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       news: {
         Row: {

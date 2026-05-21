@@ -1,17 +1,23 @@
 /**
- * CourseDetail.tsx — Individual course page with embedded Mux video player.
+ * CourseOverview.tsx — Course overview page with a lesson list.
  *
- * Resolves the course from the URL slug (/courses/:slug), fetches the row
- * from Supabase, and renders the player together with title, instructor,
- * level, duration, tags, and description in the user's language. When the
- * Mux columns haven't been populated yet (upload in flight or no asset
- * uploaded), it shows a "Coming Soon" placeholder where the player would be.
+ * Resolves the course from the URL slug (/courses/:slug), fetches its
+ * published lessons, and renders the course meta (title, instructor, level,
+ * total runtime, description) above a clickable list of lessons. Each lesson
+ * links to /courses/:slug/:lessonSlug where the actual video plays.
  */
 
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, BarChart3, User, Sparkles } from "lucide-react";
-import MuxPlayer from "@mux/mux-player-react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Clock,
+  BarChart3,
+  User,
+  PlayCircle,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
@@ -20,13 +26,16 @@ import { useLanguage } from "../context/LanguageContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
+import {
+  getLessonThumbnail,
+  totalCourseDuration,
+} from "../utils/courseImage";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
+type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
+type CourseWithLessons = Course & { lessons: Lesson[] };
 
-/**
- * Format duration in seconds as a localized "Xt Ym" / "Xh Ym" string.
- * Returns null when the duration is unknown so the caller can hide the field.
- */
+/** Format duration as "Xt YYm" (DA) / "Xh YYm" (EN); null if unknown */
 function formatDuration(seconds: number | null, language: "da" | "en"): string | null {
   if (seconds == null || seconds <= 0) return null;
   const h = Math.floor(seconds / 3600);
@@ -36,7 +45,15 @@ function formatDuration(seconds: number | null, language: "da" | "en"): string |
   return `${h}${hoursLabel} ${m.toString().padStart(2, "0")}m`;
 }
 
-export default function CourseDetail() {
+/** Format a short "M:SS" runtime for a single lesson */
+function formatLessonRuntime(seconds: number | null): string | null {
+  if (seconds == null || seconds <= 0) return null;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+export default function CourseOverview() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -49,12 +66,10 @@ export default function CourseDetail() {
     closeLogin,
   } = useAuthModals();
 
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourse] = useState<CourseWithLessons | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  // Fetch the course by slug. RLS restricts to published rows, so an unpublished
-  // (or non-existent) slug naturally returns null and we treat that as 404.
   useEffect(() => {
     let cancelled = false;
     const fetchCourse = async () => {
@@ -65,15 +80,16 @@ export default function CourseDetail() {
       }
       const { data, error } = await supabase
         .from("courses")
-        .select("*")
+        .select("*, lessons(*)")
         .eq("slug", slug)
         .eq("published", true)
+        .eq("lessons.published", true)
         .maybeSingle();
       if (cancelled) return;
       if (error || !data) {
         setNotFound(true);
       } else {
-        setCourse(data as Course);
+        setCourse(data as CourseWithLessons);
       }
       setLoading(false);
     };
@@ -83,20 +99,18 @@ export default function CourseDetail() {
     };
   }, [slug]);
 
-  // Loading skeleton — short, so we keep it minimal
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-white">
         <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-pulse text-gray-400">…</div>
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
         </div>
         <Footer />
       </div>
     );
   }
 
-  // Course not found / not published — link back to the all-courses page
   if (notFound || !course) {
     return (
       <div className="min-h-screen bg-background text-white">
@@ -117,13 +131,26 @@ export default function CourseDetail() {
     );
   }
 
-  // Resolve language-specific fields (fall back to DA if EN is empty)
+  // Sort lessons client-side by sort_order (PostgREST embedded resources don't
+  // accept an order param at this level without `.order` on the relation).
+  const lessons = [...(course.lessons ?? [])].sort(
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+  );
+
   const title = language === "da" ? course.title_da : course.title_en || course.title_da;
   const level = language === "da" ? course.level_da : course.level_en || course.level_da;
   const description =
     language === "da" ? course.description_da : course.description_en || course.description_da;
-  const duration = formatDuration(course.duration_seconds, language);
-  const videoTitle = course.title_en || course.title_da;
+  const totalDuration = formatDuration(totalCourseDuration(lessons), language);
+
+  const lessonCountText =
+    lessons.length === 1
+      ? t.courseDetail.lessonCountOne
+      : t.courseDetail.lessonCountMany.replace("{count}", String(lessons.length));
+
+  // URL-safe instructor slug for the teacher page link (same convention as
+  // the FeaturedSection tutor cards: lowercase, collapse whitespace + hyphens)
+  const instructorSlug = course.instructor.toLowerCase().replace(/[\s-]+/g, "-");
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -140,34 +167,20 @@ export default function CourseDetail() {
             <span>{t.auth.goBack}</span>
           </button>
 
-          {/* Player block — Mux when ready, placeholder otherwise */}
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.4)] border border-primary/30 mb-10">
-            {course.mux_playback_id ? (
-              <MuxPlayer
-                playbackId={course.mux_playback_id}
-                streamType="on-demand"
-                accentColor="#fb923c"
-                metadata={{ video_title: videoTitle }}
-                className="absolute inset-0 w-full h-full"
-              />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
-                <Sparkles className="w-12 h-12 text-primary mb-4" />
-                <p className="text-xl font-semibold text-white">
-                  {t.courseDetail.comingSoon}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Meta + description */}
-          <div className="grid md:grid-cols-3 gap-10">
+          {/* Course header */}
+          <div className="grid md:grid-cols-3 gap-10 mb-12">
             <div className="md:col-span-2">
               <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 tracking-tight">
                 {title}
               </h1>
               <p className="text-lg text-primary font-semibold mb-6">
-                {t.featured.with} {course.instructor}
+                {t.featured.with}{" "}
+                <Link
+                  to={`/teacher/${instructorSlug}`}
+                  className="underline underline-offset-4 decoration-primary/40 hover:decoration-primary hover:text-primary/80 transition-colors"
+                >
+                  {course.instructor}
+                </Link>
               </p>
 
               {description && (
@@ -195,7 +208,7 @@ export default function CourseDetail() {
               )}
             </div>
 
-            {/* Right column — quick facts */}
+            {/* Quick facts */}
             <aside className="glass-strong border border-white/10 rounded-2xl p-6 h-fit space-y-5">
               <div className="flex items-start gap-3">
                 <User className="w-5 h-5 text-primary mt-0.5" />
@@ -203,7 +216,12 @@ export default function CourseDetail() {
                   <p className="text-xs uppercase tracking-wider text-gray-400">
                     {t.courseDetail.instructor}
                   </p>
-                  <p className="text-white font-medium">{course.instructor}</p>
+                  <Link
+                    to={`/teacher/${instructorSlug}`}
+                    className="text-white font-medium hover:text-primary transition-colors"
+                  >
+                    {course.instructor}
+                  </Link>
                 </div>
               </div>
 
@@ -217,18 +235,84 @@ export default function CourseDetail() {
                 </div>
               </div>
 
-              {duration && (
+              {totalDuration && (
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-primary mt-0.5" />
                   <div>
                     <p className="text-xs uppercase tracking-wider text-gray-400">
                       {t.courseDetail.duration}
                     </p>
-                    <p className="text-white font-medium">{duration}</p>
+                    <p className="text-white font-medium">{totalDuration}</p>
                   </div>
                 </div>
               )}
+
+              <div className="flex items-start gap-3">
+                <PlayCircle className="w-5 h-5 text-primary mt-0.5" />
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-gray-400">
+                    {t.courseDetail.lessonsHeading}
+                  </p>
+                  <p className="text-white font-medium">{lessonCountText}</p>
+                </div>
+              </div>
             </aside>
+          </div>
+
+          {/* Lesson list */}
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-6">
+              {t.courseDetail.lessonsHeading}
+            </h2>
+
+            {lessons.length === 0 ? (
+              <p className="text-gray-400 py-8">{t.courseDetail.noLessonsYet}</p>
+            ) : (
+              <ul className="space-y-3">
+                {lessons.map((lesson, idx) => {
+                  const lessonTitle =
+                    language === "da" ? lesson.title_da : lesson.title_en || lesson.title_da;
+                  const runtime = formatLessonRuntime(lesson.duration_seconds);
+                  const thumb = getLessonThumbnail(lesson);
+
+                  return (
+                    <li key={lesson.id}>
+                      <Link
+                        to={`/courses/${course.slug}/${lesson.slug}`}
+                        className="flex items-center gap-4 p-4 rounded-xl glass-strong border border-white/10 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/20 transition-all group"
+                      >
+                        {/* Thumbnail (Mux poster) or placeholder */}
+                        <div className="relative w-28 sm:w-40 aspect-video rounded-lg overflow-hidden flex-shrink-0 bg-black/40">
+                          {thumb ? (
+                            <img
+                              src={thumb}
+                              alt={lessonTitle}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/15 to-accent/10">
+                              <PlayCircle className="w-8 h-8 text-primary/70" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Lesson title + runtime */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-semibold text-white truncate group-hover:text-primary transition-colors">
+                            {idx + 1}: {lessonTitle}
+                          </h3>
+                          {runtime && (
+                            <p className="text-xs text-gray-400 mt-1">{runtime}</p>
+                          )}
+                        </div>
+
+                        <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors flex-shrink-0" />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
       </div>

@@ -12,9 +12,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
-import { getCourseThumbnail } from "../utils/courseImage";
+import {
+  getCourseThumbnail,
+  totalCourseDuration,
+} from "../utils/courseImage";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
+type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
+type CourseWithLessons = Course & {
+  lessons: Pick<Lesson, "mux_playback_id" | "duration_seconds" | "sort_order" | "published">[];
+};
 
 /** Format duration in seconds as "Xt YYm" (DA) / "Xh YYm" (EN); null if unknown */
 function formatDuration(seconds: number | null, language: "da" | "en"): string | null {
@@ -29,19 +36,24 @@ function formatDuration(seconds: number | null, language: "da" | "en"): string |
 export default function FeaturedSection() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<CourseWithLessons[]>([]);
 
-  // Fetch up to 9 most recent published courses for the "Nyeste Kurser" carousel
+  // Fetch up to 9 most recent published courses with their published lessons.
+  // Embedded lessons are used to derive the card thumbnail (first lesson's
+  // Mux poster) and total runtime (sum of lesson durations).
   useEffect(() => {
     const fetchCourses = async () => {
       const { data } = await supabase
         .from("courses")
-        .select("*")
+        .select(
+          "*, lessons(mux_playback_id, duration_seconds, sort_order, published)",
+        )
         .eq("published", true)
+        .eq("lessons.published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
         .limit(9);
-      if (data) setCourses(data as Course[]);
+      if (data) setCourses(data as CourseWithLessons[]);
     };
     fetchCourses();
   }, []);
@@ -130,7 +142,7 @@ export default function FeaturedSection() {
                 <div className="flex gap-8 min-w-max">
                   {courses.map((course, idx) => {
                     const title = language === "da" ? course.title_da : course.title_en || course.title_da;
-                    const duration = formatDuration(course.duration_seconds, language);
+                    const duration = formatDuration(totalCourseDuration(course.lessons), language);
                     const gradient = gradients[idx % gradients.length];
 
                     return (
