@@ -58,5 +58,4 @@ jobs:
             --env-var supabase_url=${{ secrets.SUPABASE_URL }} \
             --env-var supabase_anon_key=${{ secrets.SUPABASE_ANON_KEY }} \
             --env-var test_email=${{ secrets.TEST_EMAIL }} \
-            --env-var test_password=${{ secrets.TEST_PASSWORD }} \
-            --env-var test_course_id=${{ secrets.TEST_COURSE_ID }}
+            --env-var test_password=${{ secrets.TEST_PASSWORD }}
