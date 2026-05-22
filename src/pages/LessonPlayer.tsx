@@ -285,17 +285,11 @@ export default function LessonPlayer() {
                 </p>
               </div>
 
-              {/* Watchlist actions — save the course and/or the current lesson */}
+              {/* Watchlist — save the parent course (lessons aren't savable on their own) */}
               <div className="flex flex-wrap gap-3 mb-6">
                 <WatchlistButton
                   itemType="course"
                   itemId={course.id}
-                  variant="pill"
-                  onRequireLogin={openLogin}
-                />
-                <WatchlistButton
-                  itemType="lesson"
-                  itemId={lesson.id}
                   variant="pill"
                   onRequireLogin={openLogin}
                 />

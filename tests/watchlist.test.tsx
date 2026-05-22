@@ -39,27 +39,36 @@ vi.mock('../src/supabase/client', () => ({
     },
     from: (table: string) => {
       if (table === 'user_watchlist') {
+        // Both initial select and toggle delete chain `.eq().eq()`. We expose a
+        // thenable at every step so callers can await at any depth.
+        const resolveSelect = () =>
+          Promise.resolve({ data: initialWatchlist, error: null });
+        const resolveDelete = () => {
+          mockDelete();
+          return Promise.resolve({ data: null, error: nextWriteError });
+        };
         return {
-          select: () => ({
-            // The provider does `.select(...).eq('user_id', …)` and awaits it.
-            // The eq() return value is a thenable resolving to { data, error }.
-            eq: () => Promise.resolve({ data: initialWatchlist, error: null }),
-          }),
+          select: () => {
+            // First .eq returns another chainable; both that and the next .eq
+            // are thenables, so awaiting at either depth works.
+            const second = {
+              eq: () => resolveSelect(),
+              then: (onFulfilled: (v: unknown) => unknown) =>
+                resolveSelect().then(onFulfilled),
+            };
+            return { eq: () => second };
+          },
           insert: (row: unknown) => {
             mockInsert(row);
             return Promise.resolve({ data: null, error: nextWriteError });
           },
-          delete: () => {
-            const eqStep = () => ({
+          delete: () => ({
+            eq: () => ({
               eq: () => ({
-                eq: () => {
-                  mockDelete();
-                  return Promise.resolve({ data: null, error: nextWriteError });
-                },
+                eq: () => resolveDelete(),
               }),
-            });
-            return { eq: eqStep };
-          },
+            }),
+          }),
         };
       }
       if (table === 'profiles') {
@@ -118,11 +127,11 @@ describe('WatchlistButton', () => {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
-  it('inserts when an authed user saves an unsaved item', async () => {
+  it('inserts when an authed user saves an unsaved course', async () => {
     mockSession = { user: TEST_USER };
     render(
       <Providers>
-        <WatchlistButton itemType="lesson" itemId="lesson-42" onRequireLogin={vi.fn()} />
+        <WatchlistButton itemType="course" itemId="course-42" onRequireLogin={vi.fn()} />
       </Providers>,
     );
 
@@ -135,8 +144,8 @@ describe('WatchlistButton', () => {
     await waitFor(() => expect(mockInsert).toHaveBeenCalledTimes(1));
     expect(mockInsert).toHaveBeenCalledWith({
       user_id: TEST_USER.id,
-      item_type: 'lesson',
-      lesson_id: 'lesson-42',
+      item_type: 'course',
+      course_id: 'course-42',
     });
     expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
   });
@@ -172,7 +181,7 @@ describe('WatchlistProvider', () => {
       return (
         <div>
           <span data-testid="count">{courses.size}</span>
-          <button onClick={() => toggle('course', 'course-1')}>toggle</button>
+          <button onClick={() => toggle('course-1')}>toggle</button>
         </div>
       );
     }

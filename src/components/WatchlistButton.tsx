@@ -1,5 +1,5 @@
 /**
- * WatchlistButton — drop-in toggle for saving a course or lesson.
+ * WatchlistButton — drop-in toggle for saving a course.
  *
  * Two visual variants:
  *  - 'icon': a small circular bookmark overlay (used on course cards)
@@ -16,7 +16,8 @@ import { useWatchlist } from '../context/WatchlistContext';
 import { useLanguage } from '../context/LanguageContext';
 
 interface WatchlistButtonProps {
-  itemType: 'course' | 'lesson';
+  /** Only courses can be saved — lessons are derived from their parent course */
+  itemType: 'course';
   itemId: string;
   /** 'icon' is compact (card overlay); 'pill' is wide with label */
   variant?: 'icon' | 'pill';
@@ -26,7 +27,6 @@ interface WatchlistButtonProps {
 }
 
 export default function WatchlistButton({
-  itemType,
   itemId,
   variant = 'icon',
   onRequireLogin,
@@ -36,24 +36,12 @@ export default function WatchlistButton({
   const { isSaved, toggle } = useWatchlist();
   const { t } = useLanguage();
 
-  const saved = isSaved(itemType, itemId);
+  const saved = isSaved(itemId);
 
-  // Pick the right tooltip / pill label for the current item type + state
   const tooltip = saved
-    ? itemType === 'course'
-      ? t.watchlist.tooltipRemoveCourse
-      : t.watchlist.tooltipRemoveLesson
-    : itemType === 'course'
-      ? t.watchlist.tooltipAddCourse
-      : t.watchlist.tooltipAddLesson;
-
-  const pillLabel = saved
-    ? itemType === 'course'
-      ? t.watchlist.removeCourse
-      : t.watchlist.removeLesson
-    : itemType === 'course'
-      ? t.watchlist.saveCourse
-      : t.watchlist.saveLesson;
+    ? t.watchlist.tooltipRemoveCourse
+    : t.watchlist.tooltipAddCourse;
+  const pillLabel = saved ? t.watchlist.removeCourse : t.watchlist.saveCourse;
 
   // Single click handler for both variants: gate on auth, then toggle
   const handleClick = (e: React.MouseEvent) => {
@@ -64,7 +52,7 @@ export default function WatchlistButton({
       onRequireLogin();
       return;
     }
-    void toggle(itemType, itemId);
+    void toggle(itemId);
   };
 
   const Icon = saved ? BookmarkCheck : Bookmark;

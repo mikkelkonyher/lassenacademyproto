@@ -73,7 +73,6 @@ export const translations = {
       level: "Niveau",
       duration: "Varighed",
       comingSoon: "Video kommer snart",
-      lessonsHeading: "Lektioner",
       noLessonsYet: "Lektioner kommer snart",
       lessonCountOne: "1 lektion",
       lessonCountMany: "{count} lektioner",
@@ -369,7 +368,7 @@ export const translations = {
       browseCta: "Se kurser",
       purchasedOn: "Købt",
       pricePaid: "Pris",
-      openCourse: "Åbn kursus",
+      openCourse: "Se kursus",
     },
     // In-store member discount banner, shown on the course store page
     storeDiscount: {
@@ -514,12 +513,8 @@ export const translations = {
     watchlist: {
       saveCourse: "Gem kursus",
       removeCourse: "Fjern kursus",
-      saveLesson: "Gem modul",
-      removeLesson: "Fjern modul",
       tooltipAddCourse: "Tilføj kursus til ønskeliste",
       tooltipRemoveCourse: "Fjern kursus fra ønskeliste",
-      tooltipAddLesson: "Tilføj modul til ønskeliste",
-      tooltipRemoveLesson: "Fjern modul fra ønskeliste",
     },
     myProfile: {
       pageTitle: "Min Profil",
@@ -538,8 +533,6 @@ export const translations = {
       },
       watchlist: {
         title: "Ønskeliste",
-        coursesHeading: "Gemte kurser",
-        lessonsHeading: "Gemte moduler",
         empty: "Du har ikke gemt noget endnu.",
         browseCourses: "Se kurser",
       },
@@ -675,7 +668,6 @@ export const translations = {
       level: "Level",
       duration: "Duration",
       comingSoon: "Video coming soon",
-      lessonsHeading: "Lessons",
       noLessonsYet: "Lessons coming soon",
       lessonCountOne: "1 lesson",
       lessonCountMany: "{count} lessons",
@@ -968,7 +960,7 @@ export const translations = {
       browseCta: "Browse courses",
       purchasedOn: "Purchased",
       pricePaid: "Price",
-      openCourse: "Open course",
+      openCourse: "Watch course",
     },
     storeDiscount: {
       title: "In-store discount",
@@ -1111,12 +1103,8 @@ export const translations = {
     watchlist: {
       saveCourse: "Save course",
       removeCourse: "Remove course",
-      saveLesson: "Save lesson",
-      removeLesson: "Remove lesson",
       tooltipAddCourse: "Add course to watchlist",
       tooltipRemoveCourse: "Remove course from watchlist",
-      tooltipAddLesson: "Add lesson to watchlist",
-      tooltipRemoveLesson: "Remove lesson from watchlist",
     },
     myProfile: {
       pageTitle: "My Profile",
@@ -1135,8 +1123,6 @@ export const translations = {
       },
       watchlist: {
         title: "Watchlist",
-        coursesHeading: "Saved courses",
-        lessonsHeading: "Saved lessons",
         empty: "You haven't saved anything yet.",
         browseCourses: "Browse courses",
       },
