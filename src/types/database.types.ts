@@ -28,9 +28,12 @@ export type Database = {
           description_en: string | null
           id: string
           image_url: string
+          includes_da: string[] | null
+          includes_en: string[] | null
           instructor: string
           level_da: string
           level_en: string
+          price_dkk: number | null
           published: boolean | null
           slug: string
           sort_order: number | null
@@ -46,9 +49,12 @@ export type Database = {
           description_en?: string | null
           id?: string
           image_url: string
+          includes_da?: string[] | null
+          includes_en?: string[] | null
           instructor: string
           level_da: string
           level_en: string
+          price_dkk?: number | null
           published?: boolean | null
           slug: string
           sort_order?: number | null
@@ -64,9 +70,12 @@ export type Database = {
           description_en?: string | null
           id?: string
           image_url?: string
+          includes_da?: string[] | null
+          includes_en?: string[] | null
           instructor?: string
           level_da?: string
           level_en?: string
+          price_dkk?: number | null
           published?: boolean | null
           slug?: string
           sort_order?: number | null
@@ -246,6 +255,7 @@ export type Database = {
           description_en: string | null
           duration_seconds: number | null
           id: string
+          is_free_preview: boolean
           mux_asset_id: string | null
           mux_playback_id: string | null
           mux_playback_policy: string | null
@@ -264,6 +274,7 @@ export type Database = {
           description_en?: string | null
           duration_seconds?: number | null
           id?: string
+          is_free_preview?: boolean
           mux_asset_id?: string | null
           mux_playback_id?: string | null
           mux_playback_policy?: string | null
@@ -282,6 +293,7 @@ export type Database = {
           description_en?: string | null
           duration_seconds?: number | null
           id?: string
+          is_free_preview?: boolean
           mux_asset_id?: string | null
           mux_playback_id?: string | null
           mux_playback_policy?: string | null
@@ -399,6 +411,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_course_purchases: {
+        Row: {
+          course_id: string
+          id: string
+          payment_provider: string
+          payment_reference: string | null
+          price_paid_dkk: number
+          purchased_at: string
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          id?: string
+          payment_provider: string
+          payment_reference?: string | null
+          price_paid_dkk: number
+          purchased_at?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          id?: string
+          payment_provider?: string
+          payment_reference?: string | null
+          price_paid_dkk?: number
+          purchased_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_course_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_watchlist: {
         Row: {

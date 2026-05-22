@@ -8,14 +8,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { PlayCircle, Sparkles, Loader2, User } from "lucide-react";
+import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen, Check } from "lucide-react";
 import MuxPlayer from "@mux/mux-player-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
 import WatchlistButton from "../components/WatchlistButton";
+import BuyCourseModal from "../components/BuyCourseModal";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
@@ -38,6 +40,7 @@ export default function LessonPlayer() {
   const { slug, lessonSlug } = useParams<{ slug: string; lessonSlug: string }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { user, purchasedCourseIds } = useAuth();
   const {
     isRegisterOpen,
     isLoginOpen,
@@ -50,6 +53,8 @@ export default function LessonPlayer() {
   const [course, setCourse] = useState<CourseWithLessons | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  // Buy modal visibility — opened from the locked-lesson panel
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
 
   // Auto-scroll the active item into view when switching lessons on long lists
   const activeItemRef = useRef<HTMLAnchorElement | null>(null);
@@ -180,6 +185,13 @@ export default function LessonPlayer() {
     );
   }
 
+  // Ownership-based gating. Non-preview lessons require either ownership
+  // of the parent course OR the lesson being explicitly marked as a free
+  // preview. Today the gate is UI-only (Mux playback is still public) — when
+  // signed-playback lands, the same `canPlay` check will guard the token fetch.
+  const ownsCourse = purchasedCourseIds.has(course.id);
+  const canPlay = lesson.is_free_preview || ownsCourse;
+
   const courseTitle =
     language === "da" ? course.title_da : course.title_en || course.title_da;
   const lessonTitle =
@@ -207,22 +219,58 @@ export default function LessonPlayer() {
           <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
             {/* Main column — player + title + description (3/4 width on lg+) */}
             <div className="lg:col-span-3 min-w-0">
-              {/* Player block — Mux when ready, placeholder otherwise */}
+              {/* Player block:
+                  - canPlay (free preview OR user owns the course): Mux player, falling back to a "coming soon" panel if Mux isn't set up.
+                  - Otherwise: locked panel that prompts the user to buy the course (or log in first). */}
               <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.4)] border border-primary/30">
-                {lesson.mux_playback_id ? (
-                  <MuxPlayer
-                    playbackId={lesson.mux_playback_id}
-                    streamType="on-demand"
-                    accentColor="#fb923c"
-                    metadata={{ video_title: videoTitle }}
-                    className="absolute inset-0 w-full h-full"
-                  />
+                {canPlay ? (
+                  lesson.mux_playback_id ? (
+                    <MuxPlayer
+                      playbackId={lesson.mux_playback_id}
+                      streamType="on-demand"
+                      accentColor="#fb923c"
+                      metadata={{ video_title: videoTitle }}
+                      className="absolute inset-0 w-full h-full"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
+                      <Sparkles className="w-12 h-12 text-primary mb-4" />
+                      <p className="text-xl font-semibold text-white">
+                        {t.courseDetail.comingSoon}
+                      </p>
+                    </div>
+                  )
                 ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
-                    <Sparkles className="w-12 h-12 text-primary mb-4" />
-                    <p className="text-xl font-semibold text-white">
-                      {t.courseDetail.comingSoon}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
+                    <div className="p-4 rounded-full bg-primary/15 border border-primary/30 mb-4">
+                      <Lock className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                      {t.lessonGate.lockedTitle}
+                    </h3>
+                    <p className="text-sm text-gray-300 max-w-md mb-5 leading-relaxed">
+                      {t.lessonGate.lockedBody}
                     </p>
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          openLogin();
+                          return;
+                        }
+                        setBuyModalOpen(true);
+                      }}
+                      className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer flex items-center gap-2"
+                    >
+                      <Lock className="w-4 h-4" />
+                      {t.lessonGate.buyCta}
+                      {course.price_dkk != null && course.price_dkk > 0 && (
+                        <span className="opacity-90">
+                          · {language === "da"
+                            ? `${Number(course.price_dkk).toString().replace(".", ",")} kr`
+                            : `${Number(course.price_dkk)} kr`}
+                        </span>
+                      )}
+                    </button>
                   </div>
                 )}
               </div>
@@ -322,6 +370,10 @@ export default function LessonPlayer() {
                     language === "da" ? l.title_da : l.title_en || l.title_da;
                   const itemRuntime = formatLessonRuntime(l.duration_seconds);
                   const thumb = getLessonThumbnail(l);
+                  // Locked = non-preview lesson the user doesn't own. We still
+                  // navigate to it on click so the locked panel can pitch the
+                  // purchase in context.
+                  const itemLocked = !l.is_free_preview && !ownsCourse;
 
                   return (
                     <li key={l.id}>
@@ -357,13 +409,32 @@ export default function LessonPlayer() {
 
                         {/* Module label + the lesson's actual title underneath */}
                         <div className="flex-1 min-w-0 py-1">
-                          <p
-                            className={`text-sm font-bold uppercase tracking-wider break-words ${
-                              isCurrent ? "text-primary" : "text-white"
-                            }`}
-                          >
-                            {moduleLabel}
-                          </p>
+                          <div className="flex items-center gap-1.5">
+                            <p
+                              className={`text-sm font-bold uppercase tracking-wider break-words ${
+                                isCurrent ? "text-primary" : "text-white"
+                              }`}
+                            >
+                              {moduleLabel}
+                            </p>
+                            {/* Per-item ownership marker:
+                                - locked icon for paid + unowned
+                                - check for owned (any lesson)
+                                - open-lock icon for free preview lessons when not owned */}
+                            {itemLocked ? (
+                              <Lock
+                                className="w-3 h-3 text-gray-400 flex-shrink-0"
+                                aria-label={t.lessonGate.lockedTitle}
+                              />
+                            ) : ownsCourse ? (
+                              <Check className="w-3 h-3 text-green-400 flex-shrink-0" />
+                            ) : l.is_free_preview ? (
+                              <LockOpen
+                                className="w-3 h-3 text-green-400 flex-shrink-0"
+                                aria-label={t.lessonGate.freePreviewBadge}
+                              />
+                            ) : null}
+                          </div>
                           <p className="text-xs text-gray-400 line-clamp-2 leading-snug break-words mt-0.5">
                             {itemTitle}
                           </p>
@@ -388,6 +459,15 @@ export default function LessonPlayer() {
         isOpen={isLoginOpen}
         onClose={closeLogin}
         onSwitchToRegister={openRegister}
+      />
+      <BuyCourseModal
+        isOpen={buyModalOpen}
+        onClose={() => setBuyModalOpen(false)}
+        course={{
+          id: course.id,
+          title: courseTitle,
+          price_dkk: course.price_dkk,
+        }}
       />
     </div>
   );

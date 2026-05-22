@@ -8,6 +8,9 @@ import LessonPlayer from "../src/pages/LessonPlayer";
 
 // ── Mock data ────────────────────────────────────────────────
 
+// is_free_preview: true on both lessons so these tests focus on the
+// "video present vs absent" behavior. Purchase gating is covered separately
+// in tests/purchase.test.tsx.
 const LESSON_WITH_VIDEO = {
   id: "lesson-1",
   course_id: "course-1",
@@ -19,6 +22,7 @@ const LESSON_WITH_VIDEO = {
   mux_playback_id: "abc123XYZ",
   mux_asset_id: "asset-xyz",
   mux_playback_policy: "public",
+  is_free_preview: true,
   duration_seconds: 156,
   aspect_ratio: "16:9",
   sort_order: 0,
@@ -112,6 +116,15 @@ vi.mock("../src/supabase/client", () => ({
         const singleFn = vi.fn().mockReturnValue({ data: null, error: null });
         const eqFn = vi.fn().mockReturnValue({ single: singleFn });
         return { select: vi.fn().mockReturnValue({ eq: eqFn }) };
+      }
+      // AuthContext fetches user_course_purchases on session restore.
+      // Tests run as a guest user → return an empty list.
+      if (table === "user_course_purchases") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }),
+        };
       }
       return {
         select: vi.fn().mockReturnValue({

@@ -71,6 +71,15 @@ vi.mock('../src/supabase/client', () => ({
           }),
         };
       }
+      // AuthContext also fetches the user's purchases on session restore.
+      // These tests don't exercise that flow, so return an empty list.
+      if (table === 'user_course_purchases') {
+        return {
+          select: () => ({
+            eq: () => Promise.resolve({ data: [], error: null }),
+          }),
+        };
+      }
       throw new Error(`unexpected table ${table}`);
     },
   },

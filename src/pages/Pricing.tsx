@@ -1,31 +1,47 @@
 /**
- * Pricing.tsx — Subscription pricing page.
+ * Pricing.tsx — Course showcase.
  *
- * Displays a single membership plan with launch introductory offer
- * (50% off the monthly price) and a 12-month commitment. Includes a
- * starter-pack banner and FAQ section. All copy is sourced from i18n
- * translations.
+ * Cinematic per-course showcase modelled on Mix With The Masters. Each course
+ * gets a wide hero image, oversized title + instructor, prominent price, a
+ * what's-included bullet list (from `courses.includes_*`), and a big "Køb
+ * kursus" CTA. Scales naturally as the catalog grows — cards alternate left/
+ * right to keep the rhythm visual rather than gridded.
+ *
+ * Replaces the old subscription pricing page (single LMA Membership plan).
  */
 
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  Check,
-  Star,
   ShoppingBag,
-  Zap,
   ExternalLink,
+  Check,
+  Lock,
+  ShieldAlert,
 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
+import BuyCourseModal from "../components/BuyCourseModal";
+import { supabase } from "../supabase/client";
+import type { Database } from "../types/database.types";
+import { getCourseThumbnail } from "../utils/courseImage";
+
+type Course = Database["public"]["Tables"]["courses"]["Row"];
+type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
+type CourseWithLessons = Course & {
+  lessons: Pick<Lesson, "mux_playback_id" | "sort_order" | "published">[];
+};
 
 export default function Pricing() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { user, purchasedCourseIds } = useAuth();
   const {
     isRegisterOpen,
     isLoginOpen,
@@ -35,139 +51,252 @@ export default function Pricing() {
     closeLogin,
   } = useAuthModals();
 
-  const pt = t.pricingPage;
-  const plan = pt.plan;
+  const [courses, setCourses] = useState<CourseWithLessons[]>([]);
+  // Course currently being purchased (drives BuyCourseModal); null = closed
+  const [pendingCourse, setPendingCourse] = useState<CourseWithLessons | null>(null);
 
-  // Locale-aware price formatting — Danish uses comma as decimal separator
+  // Fetch published courses + slim lesson preview for the thumbnail/poster
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from("courses")
+        .select("*, lessons(mux_playback_id, sort_order, published)")
+        .eq("published", true)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false });
+      if (data) setCourses(data as CourseWithLessons[]);
+    };
+    fetchCourses();
+  }, []);
+
+  // Locale-aware price formatting (DA uses comma as decimal separator)
   const isDa = language === "da";
-  const currency = "kr";
+  const formatPrice = useMemo(
+    () => (price: number) => {
+      const hasDecimals = price % 1 !== 0;
+      const formatted = hasDecimals
+        ? price.toFixed(2).replace(".", isDa ? "," : ".")
+        : price.toString();
+      return `${formatted} kr`;
+    },
+    [isDa],
+  );
 
-  // Format a numeric price with the right decimal separator and "kr" suffix.
-  // Whole numbers display without decimals; fractional values keep two digits.
-  const fmtPrice = (price: number) => {
-    const hasDecimals = price % 1 !== 0;
-    const formatted = hasDecimals
-      ? price.toFixed(2).replace(".", isDa ? "," : ".")
-      : price.toString();
-    return `${formatted} ${currency}`;
+  const store = t.courseStore;
+
+  // Sign-in gate around the buy flow. If the user is not authenticated, route
+  // them to the login modal first — we don't try to resume the purchase
+  // post-login (that flow can come later if it matters).
+  const handleBuyClick = (course: CourseWithLessons) => {
+    if (!user) {
+      openLogin();
+      return;
+    }
+    setPendingCourse(course);
   };
 
   return (
     <div className="min-h-screen bg-background text-white">
       <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
-      <div className="pt-24 pb-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="pt-24 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8"
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-10"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>{t.auth.goBack}</span>
           </button>
 
-          {/* Page Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">
-              {pt.pageTitle}
+          {/* Page Header — slim, sparse. The hero is each course, not this header. */}
+          <div className="max-w-3xl mb-12 sm:mb-20">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary mb-4">
+              {t.navbar.pricing}
+            </p>
+            <h1 className="text-4xl sm:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-5">
+              {store.pageTitle}
             </h1>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              {pt.pageSubtitle}
+            <p className="text-lg text-gray-400 max-w-xl leading-relaxed">
+              {store.pageSubtitle}
             </p>
           </div>
 
-          {/* Single Plan Card — centered */}
-          <div className="flex justify-center mb-16">
-            <div className="relative w-full max-w-md rounded-2xl border border-primary/40 bg-gradient-to-b from-primary/15 via-accent/10 to-primary/5 p-6 sm:p-8 flex flex-col transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/20">
-              {/* Launch offer badge at top of card */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="flex items-center gap-1 text-xs font-bold text-white bg-primary px-4 py-1.5 rounded-full shadow-lg shadow-primary/30">
-                  <Star className="w-3 h-3 fill-current" />
-                  {pt.popular}
-                </span>
-              </div>
-
-              {/* Plan Icon & Name */}
-              <div className="flex items-center gap-3 mb-2 mt-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/20 text-primary">
-                  <Zap className="w-6 h-6" />
-                </div>
-                <h3 className="text-lg font-bold text-white">{plan.name}</h3>
-              </div>
-
-              {/* Tagline */}
-              <p className="text-xs text-primary/80 font-medium italic mb-4">
-                {plan.tagline}
-              </p>
-
-              {/* Price — show introductory price prominently with regular price struck through */}
-              <div className="mb-1">
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-4xl font-bold text-white">
-                    {fmtPrice(plan.introMonthlyPrice)}
-                  </span>
-                  <span className="text-sm text-gray-500">{pt.perMonth}</span>
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-gray-600 line-through">
-                    {fmtPrice(plan.monthlyPrice)} {pt.perMonth}
-                  </span>
-                  <span className="text-xs font-semibold text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full border border-green-400/20">
-                    -50%
-                  </span>
-                </div>
-              </div>
-
-              {/* Plan description */}
-              <p className="text-sm text-gray-400 mb-6 mt-4">
-                {plan.description}
-              </p>
-
-              {/* Feature list */}
-              <ul className="space-y-3 mb-8 flex-1">
-                {plan.features.map((feature: string, idx: number) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
-                    <span className="text-sm text-gray-300">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Intro offer banner inside card */}
-              <div className="mb-4 px-3 py-2 rounded-lg bg-green-400/10 border border-green-400/20 text-center">
-                <span className="text-xs font-semibold text-green-400">
-                  {pt.introOffer}
-                </span>
-              </div>
-
-              {/* Primary CTA — opens the registration modal */}
-              <button
-                onClick={openRegister}
-                className="w-full py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 hover:scale-[1.02]"
-              >
-                {plan.cta}
-              </button>
-
-              {/* Free trial reminder under CTA */}
-              <p className="text-[11px] text-gray-600 text-center mt-3">
-                {pt.trialNote}
-              </p>
-            </div>
+          {/* Test-mode banner — small, subtle. Remove once Stripe is live. */}
+          <div className="mb-12 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-200 text-[11px] font-semibold uppercase tracking-wider">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            {store.testModeNotice}
           </div>
 
-          {/* In-store member discount banner — 20% off selected items in Svendborg */}
-          <div className="rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 p-6 sm:p-8 mb-12">
+          {/* Course Showcase */}
+          {courses.length === 0 ? (
+            <div className="text-center py-24 border border-white/10 rounded-3xl bg-white/[0.02]">
+              <p className="text-gray-400 text-lg">{store.empty}</p>
+            </div>
+          ) : (
+            <div className="space-y-16 sm:space-y-24 mb-20">
+              {courses.map((course, idx) => {
+                const title =
+                  language === "da"
+                    ? course.title_da
+                    : course.title_en || course.title_da;
+                const description =
+                  language === "da"
+                    ? course.description_da
+                    : course.description_en || course.description_da;
+                const includes =
+                  (language === "da" ? course.includes_da : course.includes_en) ??
+                  [];
+                const level =
+                  language === "da"
+                    ? course.level_da
+                    : course.level_en || course.level_da;
+                const owned = purchasedCourseIds.has(course.id);
+                const price = course.price_dkk;
+                const isFree = price == null || Number(price) <= 0;
+                // Alternate left/right rhythm so the column doesn't read like a grid
+                const flip = idx % 2 === 1;
+
+                return (
+                  <article
+                    key={course.id}
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+                  >
+                    {/* Hero image — full-bleed within the column, large, cinematic */}
+                    <div className={`lg:col-span-7 ${flip ? "lg:order-last" : ""}`}>
+                      <Link
+                        to={`/courses/${course.slug}`}
+                        className="block relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden rounded-2xl group"
+                      >
+                        <img
+                          src={getCourseThumbnail(course)}
+                          alt={title}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                        />
+                        {/* Soft vignette so titles overlaid in future can sit on dark */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+                        {/* Status badge — top-right, restrained */}
+                        <div className="absolute top-5 right-5">
+                          {owned ? (
+                            <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-white bg-green-500/85 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                              <Check className="w-3 h-3" />
+                              {store.owned}
+                            </span>
+                          ) : isFree ? (
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-white bg-primary/85 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                              {store.free}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        {/* Level chip — bottom-left, low-key */}
+                        <div className="absolute bottom-5 left-5">
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                            {level}
+                          </span>
+                        </div>
+                      </Link>
+                    </div>
+
+                    {/* Text column */}
+                    <div className="lg:col-span-5">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-primary/80 mb-3">
+                        {t.featured.with}{" "}
+                        <span className="text-white/90">{course.instructor}</span>
+                      </p>
+
+                      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.05] tracking-tight mb-5">
+                        {title}
+                      </h2>
+
+                      {description && (
+                        <p className="text-base text-gray-400 leading-relaxed mb-7 max-w-md">
+                          {description}
+                        </p>
+                      )}
+
+                      {/* What's included — typographic list, not card-y */}
+                      {includes.length > 0 && (
+                        <ul className="space-y-2.5 mb-8">
+                          {includes.map((item, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-3 text-sm text-gray-200"
+                            >
+                              <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {/* Price + CTA row */}
+                      <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-8">
+                        <div>
+                          {!isFree && price != null && (
+                            <>
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-500 mb-1">
+                                {store.buyFor}
+                              </p>
+                              <p className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                                {formatPrice(Number(price))}
+                              </p>
+                            </>
+                          )}
+                          {isFree && (
+                            <p className="text-3xl font-bold text-white">
+                              {store.free}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex-1 flex sm:justify-end">
+                          {owned ? (
+                            <Link
+                              to={`/courses/${course.slug}`}
+                              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold tracking-wide bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all"
+                            >
+                              {t.myPurchases.openCourse}
+                            </Link>
+                          ) : isFree ? (
+                            <Link
+                              to={`/courses/${course.slug}`}
+                              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold tracking-wide bg-white text-black hover:bg-white/90 transition-all"
+                            >
+                              {t.myPurchases.openCourse}
+                            </Link>
+                          ) : (
+                            <button
+                              onClick={() => handleBuyClick(course)}
+                              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold tracking-wide bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 hover:shadow-primary/40 transition-all cursor-pointer"
+                            >
+                              <Lock className="w-3.5 h-3.5" />
+                              {store.buy}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+
+          {/* In-store member discount banner — kept from the prior pricing page */}
+          <div className="rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                 <ShoppingBag className="w-7 h-7 text-primary" />
               </div>
               <div className="text-center sm:text-left flex-1">
                 <h3 className="text-lg font-bold text-white mb-1">
-                  {pt.storeDiscount.title}
+                  {t.storeDiscount.title}
                 </h3>
                 <p className="text-sm text-gray-400">
-                  {pt.storeDiscount.description}
+                  {t.storeDiscount.description}
                 </p>
               </div>
               <a
@@ -176,33 +305,9 @@ export default function Pricing() {
                 rel="noopener noreferrer"
                 className="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold border border-primary/30 transition-colors"
               >
-                {pt.storeDiscount.cta}
+                {t.storeDiscount.cta}
                 <ExternalLink className="w-4 h-4" />
               </a>
-            </div>
-          </div>
-
-          {/* FAQ */}
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold text-white text-center mb-8">
-              {pt.faq.title}
-            </h2>
-            <div className="space-y-4">
-              {pt.faq.items.map(
-                (item: { q: string; a: string }, idx: number) => (
-                  <div
-                    key={idx}
-                    className="rounded-xl border border-white/10 bg-white/[0.02] p-5"
-                  >
-                    <h4 className="text-sm font-semibold text-white mb-2">
-                      {item.q}
-                    </h4>
-                    <p className="text-sm text-gray-400 leading-relaxed">
-                      {item.a}
-                    </p>
-                  </div>
-                ),
-              )}
             </div>
           </div>
         </div>
@@ -218,6 +323,22 @@ export default function Pricing() {
         isOpen={isLoginOpen}
         onClose={closeLogin}
         onSwitchToRegister={openRegister}
+      />
+      <BuyCourseModal
+        isOpen={!!pendingCourse}
+        onClose={() => setPendingCourse(null)}
+        course={
+          pendingCourse
+            ? {
+                id: pendingCourse.id,
+                title:
+                  language === "da"
+                    ? pendingCourse.title_da
+                    : pendingCourse.title_en || pendingCourse.title_da,
+                price_dkk: pendingCourse.price_dkk,
+              }
+            : null
+        }
       />
     </div>
   );

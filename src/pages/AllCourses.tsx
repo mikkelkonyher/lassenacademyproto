@@ -9,8 +9,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, PlayCircle } from "lucide-react";
+import { ArrowLeft, PlayCircle, Check } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -44,6 +45,7 @@ function formatDuration(seconds: number | null, language: "da" | "en"): string |
 export default function AllCourses() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { purchasedCourseIds } = useAuth();
   const {
     isRegisterOpen,
     isLoginOpen,
@@ -52,6 +54,16 @@ export default function AllCourses() {
     openLogin,
     closeLogin,
   } = useAuthModals();
+
+  // Locale-aware price formatter for the price badge (DA uses ",")
+  const isDa = language === "da";
+  const formatPrice = (price: number) => {
+    const hasDecimals = price % 1 !== 0;
+    const formatted = hasDecimals
+      ? price.toFixed(2).replace(".", isDa ? "," : ".")
+      : price.toString();
+    return `${formatted} kr`;
+  };
 
   const [courses, setCourses] = useState<CourseWithLessons[]>([]);
   // Tracks which filter tags the user has toggled on; empty means "show all"
@@ -193,6 +205,10 @@ export default function AllCourses() {
                 const title = language === "da" ? course.title_da : course.title_en || course.title_da;
                 const duration = formatDuration(totalCourseDuration(course.lessons), language);
                 const gradient = gradients[idx % gradients.length];
+                // Per-card purchase state for the badge: owned > priced > free
+                const owned = purchasedCourseIds.has(course.id);
+                const price = course.price_dkk;
+                const isFree = price == null || Number(price) <= 0;
                 return (
                   <Link
                     key={course.id}
@@ -228,6 +244,24 @@ export default function AllCourses() {
                           ))}
                         </div>
                       )}
+                      {/* Price / Owned / Free badge in the bottom-right corner of the image */}
+                      <div className="absolute bottom-3 right-3 z-10">
+                        {owned ? (
+                          <span className="flex items-center gap-1 text-[11px] font-bold text-white bg-green-500/90 px-2.5 py-1 rounded-full shadow-lg">
+                            <Check className="w-3 h-3" />
+                            {t.courseStore.owned}
+                          </span>
+                        ) : isFree ? (
+                          <span className="text-[11px] font-bold text-white bg-primary/90 px-2.5 py-1 rounded-full shadow-lg">
+                            {t.courseStore.free}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-bold text-white bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-lg border border-white/20">
+                            {formatPrice(Number(price))}
+                          </span>
+                        )}
+                      </div>
+
                       {/* Watchlist toggle in the top-right corner of the card image.
                           The button stops propagation so the surrounding Link doesn't navigate. */}
                       <div className="absolute top-4 right-4 z-10">

@@ -172,12 +172,12 @@ export const translations = {
           body: "Du skal være mindst 13 år for at oprette en konto. Er du under 18 år, kræves samtykke fra en forælder eller værge. Du er ansvarlig for at holde dine loginoplysninger fortrolige og for al aktivitet, der sker via din konto. Du må ikke dele din konto med andre.",
         },
         {
-          heading: "3. Abonnementer og betaling",
-          body: "Betalte abonnementer fornyes automatisk ved periodens udløb, medmindre du opsiger inden fornyelsesdatoen. Priserne er angivet i DKK og inkluderer dansk moms. Vi forbeholder os retten til at ændre priser med mindst 30 dages varsel. Refusioner følger dansk forbrugerlovgivning, herunder 14 dages fortrydelsesret på digitalt indhold, forudsat indholdet ikke er tilgået.",
+          heading: "3. Kursuskøb og betaling",
+          body: "Kurser sælges som enkeltkøb. Når du har købt et kursus, har du varig adgang til kursets lektioner via din konto. Priserne er angivet i DKK og inkluderer dansk moms. Vi forbeholder os retten til at ændre priser på kommende køb. Den første lektion i hvert kursus kan ses gratis som prøve. I henhold til dansk forbrugerlovgivning har du 14 dages fortrydelsesret på digitalt indhold, forudsat du ikke har påbegyndt afspilning af indhold ud over den gratis prøvelektion.",
         },
         {
           heading: "4. Brugsrettigheder og indhold",
-          body: "Dit abonnement giver dig en personlig, ikke-overdragelig licens til at streame kursusindhold. Du må ikke downloade, kopiere, distribuere, sælge eller dele indhold fra platformen uden skriftlig tilladelse. Alt kursusindhold, videoer, noter og materialer er beskyttet af ophavsret og tilhører Lassen Music Academy eller vores undervisere.",
+          body: "Dit køb giver dig en personlig, ikke-overdragelig licens til at streame kursusindhold via din konto. Du må ikke downloade, kopiere, distribuere, sælge eller dele indhold fra platformen uden skriftlig tilladelse. Alt kursusindhold, videoer, noter og materialer er beskyttet af ophavsret og tilhører Lassen Music Academy eller vores undervisere.",
         },
         {
           heading: "5. Community-regler",
@@ -321,57 +321,62 @@ export const translations = {
       readMore: "Læs mere",
       visitBlog: "Besøg bloggen",
     },
-    pricingPage: {
-      pageTitle: "Priser",
+    // Per-course store — each course is a one-time purchase. First lesson of
+    // each course is a free preview; remaining lessons unlock after buying.
+    courseStore: {
+      pageTitle: "Kursusbutik",
       pageSubtitle:
-        "Ét medlemskab — fuld adgang til alle kurser, community og kursusmateriale.",
-      perMonth: "/ md",
-      popular: "Lanceringstilbud",
-      trialNote: "14 dages gratis prøveperiode.",
-      introOffer: "Introduktionstilbud: 50% rabat!",
-      // Single plan — full access membership with 12-month commitment
-      plan: {
-        name: "LMA Medlemskab",
-        tagline: "Fuld adgang til alt",
-        monthlyPrice: 299,
-        introMonthlyPrice: 149.5,
-        description: "Alt du behøver for at udvikle dig som musiker — på ét abonnement.",
-        features: [
-          "12 måneders binding",
-          "Ubegrænset adgang til alle nuværende og fremtidige kurser",
-          "14 dages gratis prøveperiode",
-          "Adgang til community",
-          "Download kursusmaterialer",
-        ],
-        cta: "Start 14 dages gratis prøve",
-      },
-      storeDiscount: {
-        title: "Medlemsfordel i butikken",
-        description:
-          "Som aktivt medlem får du 20% rabat på udvalgte varer — bl.a. tunere og guitarremme — når du besøger Kristian Lassen Musik ApS i Svendborg. Oplys blot dit medlemsnummer ved kassen.",
-        cta: "Find butikken",
-      },
-      faq: {
-        title: "Ofte stillede spørgsmål",
-        items: [
-          {
-            q: "Hvad sker der efter min gratis prøveperiode?",
-            a: "Efter 14 dage begynder dit abonnement automatisk. Du kan annullere inden prøveperioden udløber uden at blive opkrævet.",
-          },
-          {
-            q: "Er der bindingsperiode?",
-            a: "Ja, abonnementet har 12 måneders binding efter prøveperioden. Du kan til gengæld bruge alle kurser, community og materiale uden begrænsninger.",
-          },
-          {
-            q: "Hvordan fungerer butiksrabatten?",
-            a: "Som aktivt medlem får du 20% rabat på udvalgte varer (fx tunere og guitarremme) i Kristian Lassen Musik ApS i Svendborg. Du oplyser blot dit medlemsnummer ved kassen, så trækkes rabatten automatisk.",
-          },
-          {
-            q: "Hvad er introduktionstilbuddet?",
-            a: "Som en del af lanceringen får nye medlemmer 50% rabat på den månedlige pris — 149,50 kr/md i stedet for 299 kr/md.",
-          },
-        ],
-      },
+        "Køb kurser enkeltvis — første lektion er altid gratis, så du kan prøve, før du køber.",
+      buy: "Køb kursus",
+      buyFor: "Køb for",
+      owned: "Ejet",
+      free: "Gratis",
+      notForSale: "Kommer snart",
+      currency: "kr",
+      testModeNotice: "TEST-tilstand — der gennemføres ingen rigtig betaling.",
+      empty: "Ingen kurser tilgængelige endnu.",
+    },
+    // Locked-lesson panel shown when a non-preview lesson is opened by a non-buyer
+    lessonGate: {
+      lockedTitle: "Lås resten af kurset op",
+      lockedBody:
+        "Du har set den gratis prøvelektion. Køb kurset for at få adgang til de resterende lektioner.",
+      buyCta: "Køb kursus",
+      freePreviewBadge: "Gratis prøve",
+      ownedBadge: "Ejet",
+    },
+    // Modal that opens when a user clicks "Buy course"
+    buyCourseModal: {
+      title: "Køb kursus",
+      youGet: "Det får du",
+      benefit1: "Adgang til alle lektioner i kurset",
+      benefit2: "Køb én gang — beholde for altid",
+      benefit3: "Adgang til community og kursusmateriale",
+      payButton: "Betal (test)",
+      paying: "Behandler…",
+      successTitle: "Tak for dit køb!",
+      successBody: "Kurset er nu låst op. God fornøjelse.",
+      close: "Luk",
+      alreadyOwned: "Du ejer allerede dette kursus.",
+      genericError: "Noget gik galt. Prøv igen.",
+      testModeNotice:
+        "TEST-tilstand: dette er en simulering. Når Stripe er klar, vil rigtige betalinger blive aktiveret.",
+    },
+    // Purchases list shown on the user's profile
+    myPurchases: {
+      title: "Mine køb",
+      empty: "Du har ikke købt nogen kurser endnu.",
+      browseCta: "Se kurser",
+      purchasedOn: "Købt",
+      pricePaid: "Pris",
+      openCourse: "Åbn kursus",
+    },
+    // In-store member discount banner, shown on the course store page
+    storeDiscount: {
+      title: "Medlemsfordel i butikken",
+      description:
+        "Når du har købt et kursus, får du også 20% rabat på udvalgte varer — bl.a. tunere og guitarremme — når du besøger Kristian Lassen Musik ApS i Svendborg.",
+      cta: "Find butikken",
     },
     communityPage: {
       pageTitle: "Fællesskab",
@@ -768,12 +773,12 @@ export const translations = {
           body: "You must be at least 13 years old to create an account. If you are under 18, parental or guardian consent is required. You are responsible for keeping your login credentials confidential and for all activity that occurs under your account. You may not share your account with others.",
         },
         {
-          heading: "3. Subscriptions and Payment",
-          body: "Paid subscriptions renew automatically at the end of each period unless you cancel before the renewal date. Prices are listed in DKK and include Danish VAT. We reserve the right to change prices with at least 30 days' notice. Refunds follow Danish consumer protection laws, including a 14-day right of withdrawal for digital content, provided the content has not been accessed.",
+          heading: "3. Course Purchases and Payment",
+          body: "Courses are sold as one-time purchases. Once you have bought a course, you retain access to its lessons via your account. Prices are listed in DKK and include Danish VAT. We reserve the right to change prices for future purchases. The first lesson of each course is available as a free preview. Under Danish consumer protection law, you have a 14-day right of withdrawal for digital content, provided you have not started playback of content beyond the free preview lesson.",
         },
         {
           heading: "4. Usage Rights and Content",
-          body: "Your subscription grants you a personal, non-transferable license to stream course content. You may not download, copy, distribute, sell, or share content from the platform without written permission. All course content, videos, notes, and materials are protected by copyright and belong to Lassen Music Academy or our instructors.",
+          body: "Your purchase grants you a personal, non-transferable license to stream course content through your account. You may not download, copy, distribute, sell, or share content from the platform without written permission. All course content, videos, notes, and materials are protected by copyright and belong to Lassen Music Academy or our instructors.",
         },
         {
           heading: "5. Community Guidelines",
@@ -918,57 +923,58 @@ export const translations = {
       readMore: "Read more",
       visitBlog: "Visit the blog",
     },
-    pricingPage: {
-      pageTitle: "Pricing",
+    // Per-course store — each course is a one-time purchase. First lesson of
+    // each course is a free preview; remaining lessons unlock after buying.
+    courseStore: {
+      pageTitle: "Course store",
       pageSubtitle:
-        "One membership — full access to every course, the community, and downloadable materials.",
-      perMonth: "/ mo",
-      popular: "Launch offer",
-      trialNote: "14-day free trial.",
-      introOffer: "Introductory offer: 50% off!",
-      // Single plan — full access membership with 12-month commitment
-      plan: {
-        name: "LMA Membership",
-        tagline: "Full access to everything",
-        monthlyPrice: 299,
-        introMonthlyPrice: 149.5,
-        description: "Everything you need to grow as a musician — in a single subscription.",
-        features: [
-          "12-month commitment",
-          "Unlimited access to all current and future courses",
-          "14-day free trial",
-          "Community access",
-          "Download course materials",
-        ],
-        cta: "Start 14-day free trial",
-      },
-      storeDiscount: {
-        title: "Member discount in store",
-        description:
-          "As an active member you get 20% off selected items — including tuners and guitar straps — when you visit Kristian Lassen Musik ApS in Svendborg. Just share your membership number at checkout.",
-        cta: "Find the store",
-      },
-      faq: {
-        title: "Frequently Asked Questions",
-        items: [
-          {
-            q: "What happens after my free trial?",
-            a: "After 14 days your subscription starts automatically. You can cancel before the trial ends without being charged.",
-          },
-          {
-            q: "Is there a commitment period?",
-            a: "Yes, the subscription has a 12-month commitment after the trial. In return you get unlimited access to all courses, the community, and materials.",
-          },
-          {
-            q: "How does the in-store member discount work?",
-            a: "As an active member you get 20% off selected items (e.g. tuners and guitar straps) at Kristian Lassen Musik ApS in Svendborg. Just provide your membership number at checkout, and the discount is applied automatically.",
-          },
-          {
-            q: "What is the introductory offer?",
-            a: "As part of the launch, new members get 50% off the monthly price — 149.50 kr/mo instead of 299 kr/mo.",
-          },
-        ],
-      },
+        "Buy courses individually — the first lesson is always free, so you can try before you buy.",
+      buy: "Buy course",
+      buyFor: "Buy for",
+      owned: "Owned",
+      free: "Free",
+      notForSale: "Coming soon",
+      currency: "kr",
+      testModeNotice: "TEST mode — no real payment is taken.",
+      empty: "No courses available yet.",
+    },
+    lessonGate: {
+      lockedTitle: "Unlock the rest of this course",
+      lockedBody:
+        "You've watched the free preview lesson. Buy this course to access the remaining lessons.",
+      buyCta: "Buy course",
+      freePreviewBadge: "Free preview",
+      ownedBadge: "Owned",
+    },
+    buyCourseModal: {
+      title: "Buy course",
+      youGet: "What you get",
+      benefit1: "Access to every lesson in this course",
+      benefit2: "Buy once — keep forever",
+      benefit3: "Community access and course materials",
+      payButton: "Pay (test)",
+      paying: "Processing…",
+      successTitle: "Thanks for your purchase!",
+      successBody: "The course is now unlocked. Enjoy.",
+      close: "Close",
+      alreadyOwned: "You already own this course.",
+      genericError: "Something went wrong. Please try again.",
+      testModeNotice:
+        "TEST mode: this is a simulation. Real payments will be enabled once Stripe is wired up.",
+    },
+    myPurchases: {
+      title: "My purchases",
+      empty: "You haven't bought any courses yet.",
+      browseCta: "Browse courses",
+      purchasedOn: "Purchased",
+      pricePaid: "Price",
+      openCourse: "Open course",
+    },
+    storeDiscount: {
+      title: "In-store discount",
+      description:
+        "Once you've bought a course, you also get 20% off selected items — including tuners and guitar straps — when you visit Kristian Lassen Musik ApS in Svendborg.",
+      cta: "Find the store",
     },
     communityPage: {
       pageTitle: "Community",

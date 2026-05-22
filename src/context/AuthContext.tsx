@@ -22,6 +22,8 @@ interface AuthContextType {
   loading: boolean;
   /** Convenience flag: true when the logged-in user has admin role */
   isAdmin: boolean;
+  /** Course IDs the current user has purchased; empty for guests */
+  purchasedCourseIds: Set<string>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -31,6 +33,8 @@ interface AuthContextType {
   resetPasswordRequest: (email: string) => Promise<{ error: string | null }>;
   resetPassword: (newPassword: string) => Promise<{ error: string | null }>;
   refreshProfile: () => Promise<void>;
+  /** Re-fetch the user's course purchases (call after a successful purchase) */
+  refreshPurchases: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,6 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   // True until the initial session check completes; prevents flash of unauthenticated UI
   const [loading, setLoading] = useState(true);
+  // Set of course IDs owned by the current user; gates lesson playback in LessonPlayer
+  const [purchasedCourseIds, setPurchasedCourseIds] = useState<Set<string>>(new Set());
 
   /** Fetch the user's profile row from the profiles table */
   const fetchProfile = async (userId: string) => {
@@ -55,9 +61,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /** Fetch the IDs of every course the user has purchased (RLS scopes this to self) */
+  const fetchPurchases = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_course_purchases')
+      .select('course_id')
+      .eq('user_id', userId);
+
+    if (!error && data) {
+      setPurchasedCourseIds(new Set(data.map((row) => row.course_id)));
+    }
+  };
+
   const refreshProfile = async () => {
     if (user) {
       await fetchProfile(user.id);
+    }
+  };
+
+  const refreshPurchases = async () => {
+    if (user) {
+      await fetchPurchases(user.id);
     }
   };
 
@@ -69,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(currentSession?.user ?? null);
       if (currentSession?.user) {
         fetchProfile(currentSession.user.id);
+        fetchPurchases(currentSession.user.id);
       }
       setLoading(false);
     });
@@ -79,8 +104,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
         fetchProfile(newSession.user.id);
+        fetchPurchases(newSession.user.id);
       } else {
         setProfile(null);
+        setPurchasedCourseIds(new Set());
       }
       // Supabase fires PASSWORD_RECOVERY when the user clicks the reset link in their email
       if (event === 'PASSWORD_RECOVERY') {
@@ -114,6 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    setPurchasedCourseIds(new Set());
   };
 
   /**
@@ -214,7 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, resetPasswordRequest, resetPassword, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin, purchasedCourseIds, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, resetPasswordRequest, resetPassword, refreshProfile, refreshPurchases }}>
       {children}
     </AuthContext.Provider>
   );
