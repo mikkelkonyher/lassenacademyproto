@@ -16,6 +16,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
+import WatchlistButton from "../components/WatchlistButton";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
 import {
@@ -227,6 +228,16 @@ export default function AllCourses() {
                           ))}
                         </div>
                       )}
+                      {/* Watchlist toggle in the top-right corner of the card image.
+                          The button stops propagation so the surrounding Link doesn't navigate. */}
+                      <div className="absolute top-4 right-4 z-10">
+                        <WatchlistButton
+                          itemType="course"
+                          itemId={course.id}
+                          variant="icon"
+                          onRequireLogin={openLogin}
+                        />
+                      </div>
                     </div>
                     <div className="relative p-6">
                       <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight drop-shadow-lg">

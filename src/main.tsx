@@ -13,17 +13,21 @@ import App from './App.tsx'
 
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
+import { WatchlistProvider } from './context/WatchlistContext';
 import { Analytics } from '@vercel/analytics/react';
 
 // Provider order matters: BrowserRouter must wrap everything that uses routing,
-// LanguageProvider supplies translations, AuthProvider depends on Supabase client.
+// LanguageProvider supplies translations, AuthProvider depends on Supabase client,
+// WatchlistProvider depends on AuthProvider for the current user.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <LanguageProvider>
         <AuthProvider>
-          <App />
-          <Analytics />
+          <WatchlistProvider>
+            <App />
+            <Analytics />
+          </WatchlistProvider>
         </AuthProvider>
       </LanguageProvider>
     </BrowserRouter>

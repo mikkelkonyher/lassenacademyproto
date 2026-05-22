@@ -14,6 +14,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
+import WatchlistButton from "../components/WatchlistButton";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import { supabase } from "../supabase/client";
@@ -234,6 +235,22 @@ export default function LessonPlayer() {
                 <p className="text-lg text-primary font-semibold mt-1">
                   {courseTitle}
                 </p>
+              </div>
+
+              {/* Watchlist actions — save the course and/or the current lesson */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <WatchlistButton
+                  itemType="course"
+                  itemId={course.id}
+                  variant="pill"
+                  onRequireLogin={openLogin}
+                />
+                <WatchlistButton
+                  itemType="lesson"
+                  itemId={lesson.id}
+                  variant="pill"
+                  onRequireLogin={openLogin}
+                />
               </div>
 
               {/* Instructor row */}

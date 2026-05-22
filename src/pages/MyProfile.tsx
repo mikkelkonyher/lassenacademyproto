@@ -6,18 +6,65 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar, Bookmark, PlayCircle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useWatchlist } from '../context/WatchlistContext';
+import { supabase } from '../supabase/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RegisterModal from '../components/RegisterModal';
 import LoginModal from '../components/LoginModal';
+import WatchlistButton from '../components/WatchlistButton';
+
+// Shape of the joined query that backs the Watchlist section. Supabase returns
+// nested objects for embedded relations; we narrow them here so the JSX is typed.
+type WatchlistRow = {
+  id: string;
+  item_type: string;
+  created_at: string;
+  courses: {
+    id: string;
+    slug: string;
+    title_da: string;
+    title_en: string;
+    image_url: string;
+    instructor: string;
+  } | null;
+  lessons: {
+    id: string;
+    slug: string;
+    title_da: string;
+    title_en: string;
+    duration_seconds: number | null;
+    courses: {
+      slug: string;
+      title_da: string;
+      title_en: string;
+      image_url: string;
+    } | null;
+  } | null;
+};
+
+/** Format a lesson runtime as "M:SS"; null if unknown */
+function formatLessonRuntime(seconds: number | null): string | null {
+  if (seconds == null || seconds <= 0) return null;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
 
 export default function MyProfile() {
   const navigate = useNavigate();
   const { t, language, toggleLanguage } = useLanguage();
   const { user, profile, loading, updateProfile, uploadAvatar, changePassword } = useAuth();
+  // Watchlist Sets — used to filter the locally-fetched rows so removed items
+  // disappear from the grid immediately on click (driven by the context's
+  // optimistic toggle, no second fetch required)
+  const { courses: watchlistCourses, lessons: watchlistLessons, loading: watchlistLoading } = useWatchlist();
+  // Joined watchlist rows (with embedded course/lesson info) for rendering the
+  // saved-items grids on this page
+  const [watchlistRows, setWatchlistRows] = useState<WatchlistRow[]>([]);
   // Auth modal state
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -70,6 +117,42 @@ export default function MyProfile() {
   const closeRegister = () => setIsRegisterOpen(false);
   const openLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
   const closeLogin = () => setIsLoginOpen(false);
+
+  // Fetch the user's watchlist with embedded course / lesson info so we can
+  // render rich cards. RLS limits the result to this user's rows.
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing fetched data + clearing on logout */
+  useEffect(() => {
+    if (!user) {
+      setWatchlistRows([]);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from('user_watchlist')
+      .select(
+        'id, item_type, created_at, courses(id, slug, title_da, title_en, image_url, instructor), lessons(id, slug, title_da, title_en, duration_seconds, courses(slug, title_da, title_en, image_url))'
+      )
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setWatchlistRows(data as unknown as WatchlistRow[]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Filter the fetched rows against the context Sets so optimistic removes
+  // from the WatchlistButton make cards disappear immediately
+  const visibleCourseRows = watchlistRows.filter(
+    (r) => r.item_type === 'course' && r.courses && watchlistCourses.has(r.courses.id),
+  );
+  const visibleLessonRows = watchlistRows.filter(
+    (r) => r.item_type === 'lesson' && r.lessons && watchlistLessons.has(r.lessons.id),
+  );
+  const watchlistIsEmpty =
+    !watchlistLoading && visibleCourseRows.length === 0 && visibleLessonRows.length === 0;
 
   // Persist name, bio, notification prefs, and language to Supabase profiles table
   const handleSaveSettings = async () => {
@@ -252,6 +335,136 @@ export default function MyProfile() {
 
           {/* Settings */}
           <div className="space-y-6">
+            {/* Watchlist — saved courses and lessons */}
+            <div className="glass border border-white/20 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Bookmark className="w-5 h-5 text-primary" />
+                <h3 className="text-lg font-bold text-white">{t.myProfile.watchlist.title}</h3>
+              </div>
+
+              {watchlistIsEmpty ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400 mb-4">{t.myProfile.watchlist.empty}</p>
+                  <Link
+                    to="/courses"
+                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-5 rounded-lg shadow-lg shadow-primary/20 transition-all"
+                  >
+                    {t.myProfile.watchlist.browseCourses}
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {visibleCourseRows.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-3">
+                        {t.myProfile.watchlist.coursesHeading}
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {visibleCourseRows.map((row) => {
+                          const c = row.courses!;
+                          const title = language === 'da' ? c.title_da : c.title_en || c.title_da;
+                          return (
+                            <Link
+                              key={row.id}
+                              to={`/courses/${c.slug}`}
+                              className="relative rounded-xl overflow-hidden border border-white/10 hover:border-primary/50 transition-all group"
+                            >
+                              <div className="aspect-video relative">
+                                <img
+                                  src={c.image_url}
+                                  alt={title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
+                                <div className="absolute top-2 right-2 z-10">
+                                  <WatchlistButton
+                                    itemType="course"
+                                    itemId={c.id}
+                                    variant="icon"
+                                    onRequireLogin={openLogin}
+                                  />
+                                </div>
+                                <div className="absolute bottom-0 left-0 right-0 p-3">
+                                  <p className="text-white font-bold leading-tight line-clamp-2">{title}</p>
+                                  <p className="text-xs text-gray-300 mt-0.5">{c.instructor}</p>
+                                </div>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {visibleLessonRows.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-3">
+                        {t.myProfile.watchlist.lessonsHeading}
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {visibleLessonRows.map((row) => {
+                          const l = row.lessons!;
+                          const parent = l.courses;
+                          const lessonTitle = language === 'da' ? l.title_da : l.title_en || l.title_da;
+                          const parentTitle = parent
+                            ? language === 'da'
+                              ? parent.title_da
+                              : parent.title_en || parent.title_da
+                            : '';
+                          const runtime = formatLessonRuntime(l.duration_seconds);
+                          // Lesson links require BOTH parent course slug and lesson slug;
+                          // if the parent is missing (orphan row) fall back to courses index
+                          const href = parent
+                            ? `/courses/${parent.slug}/${l.slug}`
+                            : '/courses';
+                          return (
+                            <Link
+                              key={row.id}
+                              to={href}
+                              className="relative rounded-xl overflow-hidden border border-white/10 hover:border-primary/50 transition-all group flex gap-3 p-3"
+                            >
+                              <div className="relative w-24 sm:w-28 aspect-video rounded-lg overflow-hidden flex-shrink-0 bg-black/40">
+                                {parent?.image_url ? (
+                                  <img
+                                    src={parent.image_url}
+                                    alt={lessonTitle}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/15 to-accent/10">
+                                    <PlayCircle className="w-6 h-6 text-primary/70" />
+                                  </div>
+                                )}
+                                {runtime && (
+                                  <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-black/80 text-white tracking-wider">
+                                    {runtime}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0 py-1">
+                                <p className="text-sm font-bold text-white line-clamp-2 leading-snug">{lessonTitle}</p>
+                                {parentTitle && (
+                                  <p className="text-xs text-primary mt-1 line-clamp-1">{parentTitle}</p>
+                                )}
+                              </div>
+                              <div className="flex-shrink-0 self-start">
+                                <WatchlistButton
+                                  itemType="lesson"
+                                  itemId={l.id}
+                                  variant="icon"
+                                  onRequireLogin={openLogin}
+                                />
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Account Settings */}
             <div className="glass border border-white/20 rounded-2xl p-6">
               <h3 className="text-lg font-bold text-white mb-5">{t.myProfile.settings.accountTitle}</h3>

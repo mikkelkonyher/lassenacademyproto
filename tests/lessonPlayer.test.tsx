@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "../src/context/LanguageContext";
 import { AuthProvider } from "../src/context/AuthContext";
+import { WatchlistProvider } from "../src/context/WatchlistContext";
 import LessonPlayer from "../src/pages/LessonPlayer";
 
 // ── Mock data ────────────────────────────────────────────────
@@ -129,10 +130,12 @@ function renderWithPath(slug: string, lessonSlug?: string) {
     <MemoryRouter initialEntries={[path]}>
       <LanguageProvider>
         <AuthProvider>
-          <Routes>
-            <Route path="/courses/:slug" element={<LessonPlayer />} />
-            <Route path="/courses/:slug/:lessonSlug" element={<LessonPlayer />} />
-          </Routes>
+          <WatchlistProvider>
+            <Routes>
+              <Route path="/courses/:slug" element={<LessonPlayer />} />
+              <Route path="/courses/:slug/:lessonSlug" element={<LessonPlayer />} />
+            </Routes>
+          </WatchlistProvider>
         </AuthProvider>
       </LanguageProvider>
     </MemoryRouter>
