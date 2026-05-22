@@ -45,7 +45,6 @@ export const translations = {
       instructorRoles: {
         kristian: "Bas og grundlæggende teknik",
         ludwig: "Guitar og teori",
-        elena: "Piano & Composition",
       },
       with: "med",
     },
@@ -238,17 +237,6 @@ export const translations = {
           "Specialist i guitar og teori",
           "Erfaren underviser på alle niveauer",
           "Ekspert i akkorder og scalaer",
-        ],
-      },
-      elenarossi: {
-        bio: "Elena Rossi er en talentfuld pianist og komponist med en unik tilgang til jazz og improvisation. Hendes undervisning kombinerer tekniske færdigheder med kreativ udfoldelse.",
-        specialties: ["Jazz piano", "Improvisation", "Komposition", "Harmoni"],
-        experience:
-          "Professionel pianist med omfattende erfaring inden for jazz og improvisation. Har optrådt på adskillige scener og deltager aktivt i det musikalske miljø.",
-        achievements: [
-          "Ekspert i jazz piano",
-          "Erfaren komponist",
-          "Aktiv performer i musikmiljøet",
         ],
       },
     },
@@ -481,10 +469,6 @@ export const translations = {
           role: "Guitar & Teoriinstruktør",
           bio: "Dedikeret guitarinstruktør med stærk passion for musikteori og teknik.",
         },
-        elena: {
-          role: "Piano & Kompositionsinstruktør",
-          bio: "Talentfuld pianist og komponist med en unik tilgang til jazz og improvisation.",
-        },
       },
       missionTitle: "Vores mission",
       missionText:
@@ -640,7 +624,6 @@ export const translations = {
       instructorRoles: {
         kristian: "Bass for all levels",
         ludwig: "Guitar and theory",
-        elena: "Piano & Composition",
       },
       with: "with",
     },
@@ -832,17 +815,6 @@ export const translations = {
           "Specialist in guitar and theory",
           "Experienced teacher at all levels",
           "Expert in chords and scales",
-        ],
-      },
-      elenarossi: {
-        bio: "Elena Rossi is a talented pianist and composer with a unique approach to jazz and improvisation. Her teaching combines technical skills with creative expression.",
-        specialties: ["Jazz piano", "Improvisation", "Composition", "Harmony"],
-        experience:
-          "Professional pianist with extensive experience in jazz and improvisation. Has performed on numerous stages and actively participates in the music scene.",
-        achievements: [
-          "Expert in jazz piano",
-          "Experienced composer",
-          "Active performer in music scene",
         ],
       },
     },
@@ -1070,10 +1042,6 @@ export const translations = {
         ludwig: {
           role: "Guitar & Theory Instructor",
           bio: "Dedicated guitar instructor with a strong passion for music theory and technique.",
-        },
-        elena: {
-          role: "Piano & Composition Instructor",
-          bio: "Talented pianist and composer with a unique approach to jazz and improvisation.",
         },
       },
       missionTitle: "Our mission",

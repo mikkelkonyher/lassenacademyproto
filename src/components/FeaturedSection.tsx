@@ -17,6 +17,8 @@ import {
   totalCourseDuration,
 } from "../utils/courseImage";
 import { getTagLabel } from "../utils/tagLabel";
+import ludwigPortrait from "../assets/Ludwig Forside2.webp";
+import kristianPortrait from "../assets/KristianLassen.webp";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
@@ -64,22 +66,14 @@ export default function FeaturedSection() {
     {
       name: "Kristian Lassen",
       role: t.featured.instructorRoles.kristian,
-      image: "https://storage.buzzsprout.com/n42rc747h78xv4w7z7kjf5uv52oy?.jpg",
+      image: kristianPortrait,
       studio: "Lassen HQ",
     },
     {
       name: "Ludwig Hamilton-Wittendorff",
       role: t.featured.instructorRoles.ludwig,
-      image:
-        "https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      image: ludwigPortrait,
       studio: "Akkorder og scalaer",
-    },
-    {
-      name: "Elena Rossi",
-      role: t.featured.instructorRoles.elena,
-      image:
-        "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      studio: "Nordic Sound",
     },
   ];
 

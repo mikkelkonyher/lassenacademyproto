@@ -15,23 +15,20 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RegisterModal from '../components/RegisterModal';
 import LoginModal from '../components/LoginModal';
+import ludwigPortrait from '../assets/Ludwig Forside2.webp';
+import kristianPortrait from '../assets/KristianLassen.webp';
 
 // Hardcoded teacher roster — kept in sync with FeaturedSection's instructor list
 const teachers = [
   {
     name: "Kristian Lassen",
-    image: "https://storage.buzzsprout.com/n42rc747h78xv4w7z7kjf5uv52oy?.jpg",
+    image: kristianPortrait,
     studio: "Lassen HQ",
   },
   {
     name: "Ludwig Hamilton-Wittendorff",
-    image: "https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    image: ludwigPortrait,
     studio: "Akkorder og scalaer",
-  },
-  {
-    name: "Elena Rossi",
-    image: "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    studio: "Nordic Sound",
   },
 ];
 
@@ -69,8 +66,7 @@ export default function TeacherDetail() {
 
   // Map the teacher's full name to a short key used in the translations object
   const teacherKey = teacher.name.toLowerCase().replace(/[\s-]+/g, '') as keyof typeof t.teachers;
-  const roleKey = teacherKey === 'kristianlassen' ? 'kristian' :
-                  teacherKey === 'ludwighamiltonwittendorff' ? 'ludwig' : 'elena';
+  const roleKey = teacherKey === 'kristianlassen' ? 'kristian' : 'ludwig';
   const role = t.featured.instructorRoles[roleKey as keyof typeof t.featured.instructorRoles];
 
   // Pull localized bio, specialties, experience, and achievements; fallback to empty defaults

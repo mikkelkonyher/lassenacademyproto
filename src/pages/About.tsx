@@ -23,6 +23,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
+import ludwigPortrait from "../assets/Ludwig Forside2.webp";
+import kristianPortrait from "../assets/KristianLassen.webp";
 
 export default function About() {
   const navigate = useNavigate();
@@ -53,22 +55,15 @@ export default function About() {
       name: "Kristian Lassen",
       role: at.team.kristian.role,
       bio: at.team.kristian.bio,
-      image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=400&auto=format&fit=crop",
+      image: kristianPortrait,
       initials: "KL",
     },
     {
       name: "Ludwig Hamilton-Wittendorff",
       role: at.team.ludwig.role,
       bio: at.team.ludwig.bio,
-      image: "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=400&auto=format&fit=crop",
+      image: ludwigPortrait,
       initials: "LH",
-    },
-    {
-      name: "Elena Rossi",
-      role: at.team.elena.role,
-      bio: at.team.elena.bio,
-      image: "https://images.unsplash.com/photo-1552422535-c45813c61732?q=80&w=400&auto=format&fit=crop",
-      initials: "ER",
     },
   ];
 
