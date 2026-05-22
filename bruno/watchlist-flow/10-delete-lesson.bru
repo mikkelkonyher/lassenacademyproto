@@ -1,0 +1,20 @@
+meta {
+  name: Remove Lesson from Watchlist
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{supabase_url}}/rest/v1/user_watchlist?item_type=eq.lesson&lesson_id=eq.{{test_lesson_id}}
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 204
+}

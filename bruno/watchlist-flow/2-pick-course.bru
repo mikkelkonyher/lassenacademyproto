@@ -1,0 +1,26 @@
+meta {
+  name: Pick a Published Course
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/courses?published=eq.true&select=id&limit=1
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+  res.body[0].id: isString
+}
+
+script:post-response {
+  // Stash a real course id so the watchlist insert respects the FK
+  bru.setVar("test_course_id", res.body[0].id);
+}

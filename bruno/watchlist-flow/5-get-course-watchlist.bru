@@ -1,0 +1,30 @@
+meta {
+  name: GET - Verify Course in Watchlist
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/user_watchlist?item_type=eq.course&course_id=eq.{{test_course_id}}&select=item_type,course_id,user_id
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+  res.body[0].item_type: eq course
+}
+
+script:post-response {
+  // RLS should restrict the result to the calling user's row
+  const userId = bru.getVar("user_id");
+  if (res.body[0].user_id !== userId) {
+    throw new Error(`user_id mismatch: expected ${userId}, got ${res.body[0].user_id}`);
+  }
+}

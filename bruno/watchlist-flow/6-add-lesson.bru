@@ -1,0 +1,31 @@
+meta {
+  name: Add Lesson to Watchlist
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{supabase_url}}/rest/v1/user_watchlist
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+  Prefer: return=representation
+}
+
+body:json {
+  {
+    "user_id": "{{user_id}}",
+    "item_type": "lesson",
+    "lesson_id": "{{test_lesson_id}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body[0].item_type: eq lesson
+}
