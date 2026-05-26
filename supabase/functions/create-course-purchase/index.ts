@@ -44,6 +44,19 @@ function getCorsHeaders(req: Request) {
 const RATE_LIMIT_PURCHASES = 10;
 const RATE_LIMIT_WINDOW_MIN = 60;
 
+// 2026 launch promotion — 35% off for all of calendar year 2026 (UTC).
+// Mirrors src/utils/coursePricing.ts so the price the customer sees on the
+// pricing page is the price recorded on the purchase row.
+const PROMO_DISCOUNT_PERCENT = 35;
+const PROMO_START_UTC = Date.UTC(2026, 0, 1, 0, 0, 0);
+const PROMO_END_UTC = Date.UTC(2027, 0, 1, 0, 0, 0);
+
+function computeEffectivePriceDkk(basePrice: number, nowMs: number): number {
+  const promoActive = nowMs >= PROMO_START_UTC && nowMs < PROMO_END_UTC;
+  if (!promoActive) return basePrice;
+  return Math.round(basePrice * (1 - PROMO_DISCOUNT_PERCENT / 100));
+}
+
 function jsonError(
   message: string,
   code: string,
@@ -215,12 +228,19 @@ Deno.serve(async (req: Request) => {
     }
 
     // --- Record the purchase ---
+    // Compute the effective (post-promo) price the customer is charged so the
+    // recorded amount matches what the pricing page displayed at checkout time.
+    const effectivePriceDkk = computeEffectivePriceDkk(
+      Number(course.price_dkk),
+      Date.now(),
+    );
+
     const { data: purchase, error: insertErr } = await supabaseAdmin
       .from("user_course_purchases")
       .insert({
         user_id: user.id,
         course_id: courseId,
-        price_paid_dkk: course.price_dkk,
+        price_paid_dkk: effectivePriceDkk,
         payment_provider: payment.provider,
         payment_reference: payment.reference,
       })

@@ -31,6 +31,7 @@ import BuyCourseModal from "../components/BuyCourseModal";
 import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
 import { getCourseThumbnail } from "../utils/courseImage";
+import { getCoursePricing } from "../utils/coursePricing";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
@@ -155,6 +156,10 @@ export default function Pricing() {
                 const owned = purchasedCourseIds.has(course.id);
                 const price = course.price_dkk;
                 const isFree = price == null || Number(price) <= 0;
+                // Apply the 2026 launch promo when the course is for sale
+                const pricing = getCoursePricing(price);
+                const showDiscount =
+                  !isFree && pricing != null && pricing.discountActive;
                 // Alternate left/right rhythm so the column doesn't read like a grid
                 const flip = idx % 2 === 1;
 
@@ -232,17 +237,42 @@ export default function Pricing() {
                         </ul>
                       )}
 
+                      {/* Promo badge — only while the 2026 launch discount is live */}
+                      {showDiscount && pricing && (
+                        <div className="mb-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/15 border border-primary/40 text-primary text-[11px] font-bold uppercase tracking-[0.2em]">
+                          <span>−{pricing.discountPercent}%</span>
+                          <span className="text-primary/80">·</span>
+                          <span>{store.promoBadge}</span>
+                        </div>
+                      )}
+
                       {/* Price + CTA row */}
                       <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-8">
                         <div>
-                          {!isFree && price != null && (
+                          {!isFree && pricing && (
                             <>
                               <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-500 mb-1">
                                 {store.buyFor}
                               </p>
-                              <p className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
-                                {formatPrice(Number(price))}
-                              </p>
+                              {showDiscount ? (
+                                <div className="flex items-baseline gap-3 flex-wrap">
+                                  <p className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                                    {formatPrice(pricing.effectivePrice)}
+                                  </p>
+                                  <p className="text-xl sm:text-2xl font-medium text-gray-500 line-through tracking-tight">
+                                    {formatPrice(pricing.basePrice)}
+                                  </p>
+                                </div>
+                              ) : (
+                                <p className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                                  {formatPrice(pricing.basePrice)}
+                                </p>
+                              )}
+                              {showDiscount && (
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/90 mt-2">
+                                  {store.promoTagline}
+                                </p>
+                              )}
                             </>
                           )}
                           {isFree && (

@@ -23,6 +23,7 @@ import { supabase } from "../supabase/client";
 import type { Database } from "../types/database.types";
 import { getLessonThumbnail } from "../utils/courseImage";
 import { getTagLabel } from "../utils/tagLabel";
+import { getCoursePricing } from "../utils/coursePricing";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
@@ -251,26 +252,40 @@ export default function LessonPlayer() {
                     <p className="text-sm text-gray-300 max-w-md mb-5 leading-relaxed">
                       {t.lessonGate.lockedBody}
                     </p>
-                    <button
-                      onClick={() => {
-                        if (!user) {
-                          openLogin();
-                          return;
-                        }
-                        setBuyModalOpen(true);
-                      }}
-                      className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer flex items-center gap-2"
-                    >
-                      <Lock className="w-4 h-4" />
-                      {t.lessonGate.buyCta}
-                      {course.price_dkk != null && course.price_dkk > 0 && (
-                        <span className="opacity-90">
-                          · {language === "da"
-                            ? `${Number(course.price_dkk).toString().replace(".", ",")} kr`
-                            : `${Number(course.price_dkk)} kr`}
-                        </span>
-                      )}
-                    </button>
+                    {/* Lesson-gate CTA — reflects the active 2026 launch promo so
+                        the price on the button matches the pricing page exactly. */}
+                    {(() => {
+                      const gatePricing = getCoursePricing(course.price_dkk);
+                      const fmt = (n: number) =>
+                        language === "da"
+                          ? `${n.toString().replace(".", ",")} kr`
+                          : `${n} kr`;
+                      return (
+                        <button
+                          onClick={() => {
+                            if (!user) {
+                              openLogin();
+                              return;
+                            }
+                            setBuyModalOpen(true);
+                          }}
+                          className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer flex items-center gap-2"
+                        >
+                          <Lock className="w-4 h-4" />
+                          {t.lessonGate.buyCta}
+                          {gatePricing && (
+                            <span className="opacity-90 flex items-baseline gap-1.5">
+                              · {fmt(gatePricing.effectivePrice)}
+                              {gatePricing.discountActive && (
+                                <span className="text-xs line-through opacity-70">
+                                  {fmt(gatePricing.basePrice)}
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

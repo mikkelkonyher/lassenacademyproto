@@ -18,6 +18,7 @@ import { X, Check, ShieldAlert, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabase/client';
+import { getCoursePricing } from '../utils/coursePricing';
 
 interface BuyCourseModalProps {
   isOpen: boolean;
@@ -53,6 +54,9 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
   if (!isOpen || !course) return null;
 
   const bm = t.buyCourseModal;
+  // Apply the 2026 launch promo to the displayed price
+  const pricing = getCoursePricing(course.price_dkk);
+  const store = t.courseStore;
 
   // Locale-aware price formatting — Danish uses comma as decimal separator
   const isDa = language === 'da';
@@ -155,11 +159,27 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
               <p className="text-gray-400 text-sm">{course.title}</p>
             </div>
 
-            {/* Price */}
+            {/* Price — shows discounted total + struck-through original during the 2026 promo */}
             <div className="text-center mb-6">
-              <div className="text-4xl font-bold text-white">
-                {course.price_dkk != null ? formatPrice(course.price_dkk) : '—'}
-              </div>
+              {pricing && pricing.discountActive ? (
+                <>
+                  <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full bg-primary/15 border border-primary/40 text-primary text-[10px] font-bold uppercase tracking-[0.2em]">
+                    −{pricing.discountPercent}% · {store.promoBadge}
+                  </div>
+                  <div className="flex items-baseline justify-center gap-2.5">
+                    <div className="text-4xl font-bold text-white">
+                      {formatPrice(pricing.effectivePrice)}
+                    </div>
+                    <div className="text-lg font-medium text-gray-500 line-through">
+                      {formatPrice(pricing.basePrice)}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-4xl font-bold text-white">
+                  {pricing ? formatPrice(pricing.basePrice) : '—'}
+                </div>
+              )}
             </div>
 
             {/* Benefits */}

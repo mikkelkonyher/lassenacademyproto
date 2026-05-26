@@ -322,6 +322,10 @@ export const translations = {
       currency: "kr",
       testModeNotice: "TEST-tilstand — der gennemføres ingen rigtig betaling.",
       empty: "Ingen kurser tilgængelige endnu.",
+      // 2026 launch promotion strings
+      promoBadge: "Lancering 2026 — 35% rabat",
+      promoTagline: "Spar 35% i hele 2026",
+      originalPriceLabel: "Førpris",
     },
     // Locked-lesson panel shown when a non-preview lesson is opened by a non-buyer
     lessonGate: {
@@ -901,6 +905,10 @@ export const translations = {
       currency: "kr",
       testModeNotice: "TEST mode — no real payment is taken.",
       empty: "No courses available yet.",
+      // 2026 launch promotion strings
+      promoBadge: "2026 launch — 35% off",
+      promoTagline: "Save 35% all of 2026",
+      originalPriceLabel: "Original price",
     },
     lessonGate: {
       lockedTitle: "Unlock the rest of this course",
