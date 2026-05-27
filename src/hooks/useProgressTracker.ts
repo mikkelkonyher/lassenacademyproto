@@ -49,7 +49,7 @@ export function useProgressTracker({
   const lastSaveRef = useRef(0);
   // Guard against stale saves when rapidly switching lessons
   const lessonIdRef = useRef(lessonId);
-  lessonIdRef.current = lessonId;
+  useEffect(() => { lessonIdRef.current = lessonId; }, [lessonId]);
 
   // Persist current position to Supabase
   const flush = useCallback(() => {
@@ -105,14 +105,14 @@ export function useProgressTracker({
   );
 
   const onPause = useCallback(
-    (_evt: Event) => {
+    () => {
       flush();
     },
     [flush],
   );
 
   const onEnded = useCallback(
-    (_evt: Event) => {
+    () => {
       if (!user) return;
       const dur = durationRef.current;
       saveProgress({
