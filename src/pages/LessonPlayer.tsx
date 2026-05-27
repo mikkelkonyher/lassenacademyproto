@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen, Check } from "lucide-react";
+import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen } from "lucide-react";
 import MuxPlayer from "@mux/mux-player-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -435,9 +435,7 @@ export default function LessonPlayer() {
                                 className="w-3 h-3 text-gray-400 flex-shrink-0"
                                 aria-label={t.lessonGate.lockedTitle}
                               />
-                            ) : ownsCourse ? (
-                              <Check className="w-3 h-3 text-green-400 flex-shrink-0" />
-                            ) : l.is_free_preview ? (
+                            ) : !ownsCourse && l.is_free_preview ? (
                               <LockOpen
                                 className="w-3 h-3 text-green-400 flex-shrink-0"
                                 aria-label={t.lessonGate.freePreviewBadge}
