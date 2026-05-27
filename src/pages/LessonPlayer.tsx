@@ -8,7 +8,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen } from "lucide-react";
+import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen, CircleCheck } from "lucide-react";
+import { useProgressTracker } from "../hooks/useProgressTracker";
+import { useWatchProgress } from "../context/WatchProgressContext";
 import MuxPlayer from "@mux/mux-player-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -59,6 +61,29 @@ export default function LessonPlayer() {
 
   // Auto-scroll the active item into view when switching lessons on long lists
   const activeItemRef = useRef<HTMLAnchorElement | null>(null);
+
+  // Watch progress hooks — must be called unconditionally (before early returns).
+  // Derive a stable lesson/course reference for the tracker; defaults are safe
+  // because `enabled` will be false when data hasn't loaded yet.
+  const { isCompleted, getProgressFraction } = useWatchProgress();
+  const resolvedLesson = course
+    ? (() => {
+        const sorted = [...(course.lessons ?? [])].sort(
+          (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+        );
+        const idx = lessonSlug ? sorted.findIndex((l) => l.slug === lessonSlug) : 0;
+        return idx >= 0 ? sorted[idx] : null;
+      })()
+    : null;
+  const ownsCourse = course ? purchasedCourseIds.has(course.id) : false;
+  const canPlay = resolvedLesson
+    ? resolvedLesson.is_free_preview || ownsCourse
+    : false;
+  const { startTime, onTimeUpdate, onPause, onEnded } = useProgressTracker({
+    lessonId: resolvedLesson?.id ?? '',
+    courseId: course?.id ?? '',
+    enabled: canPlay,
+  });
 
   // Fetch the parent course with all published lessons in one round-trip.
   // The current lesson is found client-side from the embedded array — that
@@ -186,13 +211,6 @@ export default function LessonPlayer() {
     );
   }
 
-  // Ownership-based gating. Non-preview lessons require either ownership
-  // of the parent course OR the lesson being explicitly marked as a free
-  // preview. Today the gate is UI-only (Mux playback is still public) — when
-  // signed-playback lands, the same `canPlay` check will guard the token fetch.
-  const ownsCourse = purchasedCourseIds.has(course.id);
-  const canPlay = lesson.is_free_preview || ownsCourse;
-
   const courseTitle =
     language === "da" ? course.title_da : course.title_en || course.title_da;
   const lessonTitle =
@@ -227,11 +245,16 @@ export default function LessonPlayer() {
                 {canPlay ? (
                   lesson.mux_playback_id ? (
                     <MuxPlayer
+                      key={lesson.id}
                       playbackId={lesson.mux_playback_id}
                       streamType="on-demand"
                       accentColor="#fb923c"
+                      {...(startTime > 0 ? { startTime } : {})}
                       metadata={{ video_title: videoTitle }}
                       className="absolute inset-0 w-full h-full"
+                      onTimeUpdate={onTimeUpdate}
+                      onPause={onPause}
+                      onEnded={onEnded}
                     />
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
@@ -383,6 +406,7 @@ export default function LessonPlayer() {
                   // navigate to it on click so the locked panel can pitch the
                   // purchase in context.
                   const itemLocked = !l.is_free_preview && !ownsCourse;
+                  const itemProgress = getProgressFraction(l.id);
 
                   return (
                     <li key={l.id}>
@@ -435,6 +459,11 @@ export default function LessonPlayer() {
                                 className="w-3 h-3 text-gray-400 flex-shrink-0"
                                 aria-label={t.lessonGate.lockedTitle}
                               />
+                            ) : isCompleted(l.id) ? (
+                              <CircleCheck
+                                className="w-3 h-3 text-primary/70 flex-shrink-0"
+                                aria-label={t.progress.completed}
+                              />
                             ) : !ownsCourse && l.is_free_preview ? (
                               <LockOpen
                                 className="w-3 h-3 text-green-400 flex-shrink-0"
@@ -445,6 +474,15 @@ export default function LessonPlayer() {
                           <p className="text-xs text-gray-400 line-clamp-2 leading-snug break-words mt-0.5">
                             {itemTitle}
                           </p>
+                          {/* Mini progress bar — only for unlocked lessons with some watch history */}
+                          {!itemLocked && itemProgress > 0 && (
+                            <div className="mt-1.5 h-1 w-full rounded-full bg-white/10 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-primary/70 transition-all duration-300"
+                                style={{ width: `${Math.round(itemProgress * 100)}%` }}
+                              />
+                            </div>
+                          )}
                         </div>
                       </Link>
                     </li>

@@ -450,6 +450,57 @@ export type Database = {
           },
         ]
       }
+      user_lesson_progress: {
+        Row: {
+          completed: boolean
+          course_id: string
+          created_at: string
+          duration_seconds: number
+          id: string
+          lesson_id: string
+          position_seconds: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          course_id: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          lesson_id: string
+          position_seconds?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          course_id?: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          lesson_id?: string
+          position_seconds?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_lesson_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_watchlist: {
         Row: {
           course_id: string | null

@@ -14,6 +14,7 @@ import App from './App.tsx'
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { WatchlistProvider } from './context/WatchlistContext';
+import { WatchProgressProvider } from './context/WatchProgressContext';
 import { Analytics } from '@vercel/analytics/react';
 
 // Provider order matters: BrowserRouter must wrap everything that uses routing,
@@ -25,8 +26,10 @@ createRoot(document.getElementById('root')!).render(
       <LanguageProvider>
         <AuthProvider>
           <WatchlistProvider>
-            <App />
-            <Analytics />
+            <WatchProgressProvider>
+              <App />
+              <Analytics />
+            </WatchProgressProvider>
           </WatchlistProvider>
         </AuthProvider>
       </LanguageProvider>

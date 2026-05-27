@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, PlayCircle, Check } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
+import { useWatchProgress } from "../context/WatchProgressContext";
 import { useAuthModals } from "../hooks/useAuthModals";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -46,6 +47,7 @@ export default function AllCourses() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { purchasedCourseIds } = useAuth();
+  const { completedCountForCourse } = useWatchProgress();
   const {
     isRegisterOpen,
     isLoginOpen,
@@ -76,7 +78,7 @@ export default function AllCourses() {
       const { data } = await supabase
         .from("courses")
         .select(
-          "*, lessons(mux_playback_id, duration_seconds, sort_order, published)",
+          "*, lessons(id, mux_playback_id, duration_seconds, sort_order, published)",
         )
         .eq("published", true)
         .eq("lessons.published", true)
@@ -288,6 +290,11 @@ export default function AllCourses() {
                           <PlayCircle className="w-4 h-4 mr-2 text-primary drop-shadow-lg" />
                           {duration ?? "—"}
                         </span>
+                        {owned && course.lessons.length > 0 && (
+                          <span className="ml-auto text-xs text-white/70 font-medium">
+                            {completedCountForCourse(course.id)}/{course.lessons.length} {t.progress.lessonsCompleted}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </Link>

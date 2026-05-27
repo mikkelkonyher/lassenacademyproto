@@ -6,16 +6,34 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar, Bookmark, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar, Bookmark, ShoppingBag, Play } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
+import { useWatchProgress } from '../context/WatchProgressContext';
 import { supabase } from '../supabase/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RegisterModal from '../components/RegisterModal';
 import LoginModal from '../components/LoginModal';
 import WatchlistButton from '../components/WatchlistButton';
+
+// Shape for "Continue Watching" cards — lesson + parent course info
+type ContinueWatchingRow = {
+  lessonId: string;
+  lessonSlug: string;
+  titleDa: string;
+  titleEn: string;
+  courseSlug: string;
+  courseTitleDa: string;
+  courseTitleEn: string;
+  courseImageUrl: string;
+  sortOrder: number;
+  positionSeconds: number;
+  durationSeconds: number;
+  completed: boolean;
+  muxPlaybackId: string | null;
+};
 
 // Shape of the joined query backing the "My purchases" section
 type PurchaseRow = {
@@ -55,9 +73,12 @@ export default function MyProfile() {
   // disappear from the grid immediately on click (driven by the context's
   // optimistic toggle, no second fetch required)
   const { courses: watchlistCourses, loading: watchlistLoading } = useWatchlist();
+  const { progressEntries } = useWatchProgress();
   // Joined watchlist rows (with embedded course/lesson info) for rendering the
   // saved-items grids on this page
   const [watchlistRows, setWatchlistRows] = useState<WatchlistRow[]>([]);
+  // Continue watching — the single most recently watched in-progress lesson
+  const [continueRow, setContinueRow] = useState<ContinueWatchingRow | null>(null);
   // Joined purchase rows for the "My purchases" section
   const [purchaseRows, setPurchaseRows] = useState<PurchaseRow[]>([]);
   // Auth modal state
@@ -162,6 +183,47 @@ export default function MyProfile() {
       cancelled = true;
     };
   }, [user]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Find the single most recently watched in-progress lesson for "Continue Watching"
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing derived data */
+  useEffect(() => {
+    // Pick the most recent non-completed entry
+    const candidate = progressEntries
+      .filter((e) => !e.completed && e.positionSeconds > 0)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+    if (!user || !candidate) {
+      setContinueRow(null);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from('lessons')
+      .select('id, slug, title_da, title_en, sort_order, mux_playback_id, courses(slug, title_da, title_en, image_url)')
+      .eq('id', candidate.lessonId)
+      .maybeSingle()
+      .then(({ data: lesson }) => {
+        if (cancelled || !lesson) return;
+        const c = (lesson as unknown as { courses: { slug: string; title_da: string; title_en: string; image_url: string } }).courses;
+        if (!c) return;
+        setContinueRow({
+          lessonId: candidate.lessonId,
+          lessonSlug: lesson.slug,
+          titleDa: lesson.title_da,
+          titleEn: lesson.title_en,
+          courseSlug: c.slug,
+          courseTitleDa: c.title_da,
+          courseTitleEn: c.title_en,
+          courseImageUrl: c.image_url,
+          sortOrder: lesson.sort_order ?? 0,
+          positionSeconds: candidate.positionSeconds,
+          durationSeconds: candidate.durationSeconds,
+          completed: candidate.completed,
+          muxPlaybackId: lesson.mux_playback_id,
+        });
+      });
+    return () => { cancelled = true; };
+  }, [user, progressEntries]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // Filter the fetched rows against the context Set so optimistic removes
@@ -352,6 +414,53 @@ export default function MyProfile() {
 
           {/* Settings */}
           <div className="space-y-6">
+            {/* Continue Watching — single most recently watched in-progress lesson */}
+            {continueRow && (() => {
+              const moduleLabel = `${t.courseDetail.moduleLabel} ${continueRow.sortOrder + 1}`;
+              const title = language === 'da' ? continueRow.titleDa : continueRow.titleEn || continueRow.titleDa;
+              const courseTitle = language === 'da' ? continueRow.courseTitleDa : continueRow.courseTitleEn || continueRow.courseTitleDa;
+              const fraction = continueRow.durationSeconds > 0
+                ? Math.min(continueRow.positionSeconds / continueRow.durationSeconds, 1)
+                : 0;
+              const pct = Math.round(fraction * 100);
+              const thumb = continueRow.muxPlaybackId
+                ? `https://image.mux.com/${continueRow.muxPlaybackId}/thumbnail.webp?time=${Math.max(1, Math.floor(continueRow.positionSeconds))}&width=400`
+                : continueRow.courseImageUrl;
+              return (
+                <Link
+                  to={`/courses/${continueRow.courseSlug}/${continueRow.lessonSlug}`}
+                  className="glass border border-white/20 rounded-2xl p-6 block hover:border-primary/50 transition-all group"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <Play className="w-5 h-5 text-primary" />
+                    <h3 className="text-lg font-bold text-white">{t.progress.continueWatching}</h3>
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <div className="relative w-40 sm:w-48 aspect-video rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={thumb}
+                        alt={title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                        <div
+                          className="h-full bg-primary rounded-r-full"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-primary font-bold uppercase tracking-wider">{moduleLabel}</p>
+                      <p className="text-white font-bold leading-tight line-clamp-2 mt-0.5">{title}</p>
+                      <p className="text-sm text-gray-400 mt-1 line-clamp-1">{courseTitle}</p>
+                      <p className="text-xs text-primary mt-2 font-medium">{pct}% · {t.progress.resumeLesson} →</p>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })()}
+
             {/* My purchases — one-time-bought courses */}
             <div className="glass border border-white/20 rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-5">

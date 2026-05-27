@@ -336,6 +336,13 @@ export const translations = {
       freePreviewBadge: "Gratis prøve",
       ownedBadge: "Ejet",
     },
+    progress: {
+      completed: "Gennemført",
+      lessonsCompleted: "lektioner set",
+      continueWatching: "Fortsæt med at se",
+      continueWatchingEmpty: "Du har ikke set nogen lektioner endnu.",
+      resumeLesson: "Fortsæt",
+    },
     // Modal that opens when a user clicks "Buy course"
     buyCourseModal: {
       title: "Køb kursus",
@@ -917,6 +924,13 @@ export const translations = {
       buyCta: "Buy course",
       freePreviewBadge: "Free preview",
       ownedBadge: "Owned",
+    },
+    progress: {
+      completed: "Completed",
+      lessonsCompleted: "lessons watched",
+      continueWatching: "Continue Watching",
+      continueWatchingEmpty: "You haven't watched any lessons yet.",
+      resumeLesson: "Resume",
     },
     buyCourseModal: {
       title: "Buy course",
