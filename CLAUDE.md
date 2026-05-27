@@ -27,6 +27,8 @@ Lassen Music Academy — a React SPA for a Danish music education platform built
 
 **Supabase:** Client initialized in `src/supabase/client.ts` using `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` env vars. Currently a scaffold — not yet used for data fetching or auth.
 
+**Mux:** Video hosting for course content. Assets are managed via the Mux MCP (configured in local scope `~/.claude.json` as HTTP transport, **not** in `.mcp.json`). Playback IDs are currently public. `MUX_TOKEN_ID` and `MUX_TOKEN_SECRET` env vars store API credentials for direct API calls (e.g. track deletion, which the MCP's delete track tool doesn't handle reliably).
+
 **Data:** Teachers, courses, and testimonials are hardcoded arrays inside their respective components (`TeacherDetail.tsx`, `FeaturedSection.tsx`, `SocialProof.tsx`).
 
 ## Styling
