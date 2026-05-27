@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Globe, User, LogOut, Music } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,9 +18,15 @@ interface NavbarProps {
 export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
   // Controls the mobile hamburger menu open/close state
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
   const { t, language, toggleLanguage } = useLanguage();
   // Auth state determines which action buttons to show (login/register vs profile/logout)
   const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/10" style={{ position: 'fixed' }}>
@@ -84,7 +90,7 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
                     <User className="w-5 h-5" />
                   </Link>
                   <button
-                    onClick={signOut}
+                    onClick={handleSignOut}
                     title={t.navbar.logoutTooltip}
                     className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
@@ -154,7 +160,7 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
                     {t.myProfile.pageTitle}
                   </Link>
                   <button
-                    onClick={signOut}
+                    onClick={handleSignOut}
                     className="flex items-center gap-2 w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium"
                   >
                     <LogOut className="w-5 h-5" />
