@@ -70,6 +70,20 @@ vi.mock("../src/context/WatchlistContext", () => ({
   }),
 }));
 
+// WatchProgressContext stub — LessonPlayer uses useWatchProgress for progress tracking
+vi.mock("../src/context/WatchProgressContext", () => ({
+  WatchProgressProvider: ({ children }: { children: ReactNode }) => children,
+  useWatchProgress: () => ({
+    loading: false,
+    progressEntries: [],
+    isCompleted: () => false,
+    getPosition: () => 0,
+    getProgressFraction: () => 0,
+    completedCountForCourse: () => 0,
+    saveProgress: vi.fn(),
+  }),
+}));
+
 // ── Mux player mock ─────────────────────────────────────────
 
 const muxPlayerSpy = vi.fn();

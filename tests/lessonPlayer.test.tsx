@@ -4,6 +4,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "../src/context/LanguageContext";
 import { AuthProvider } from "../src/context/AuthContext";
 import { WatchlistProvider } from "../src/context/WatchlistContext";
+import { WatchProgressProvider } from "../src/context/WatchProgressContext";
 import LessonPlayer from "../src/pages/LessonPlayer";
 
 // ── Mock data ────────────────────────────────────────────────
@@ -144,10 +145,12 @@ function renderWithPath(slug: string, lessonSlug?: string) {
       <LanguageProvider>
         <AuthProvider>
           <WatchlistProvider>
+          <WatchProgressProvider>
             <Routes>
               <Route path="/courses/:slug" element={<LessonPlayer />} />
               <Route path="/courses/:slug/:lessonSlug" element={<LessonPlayer />} />
             </Routes>
+          </WatchProgressProvider>
           </WatchlistProvider>
         </AuthProvider>
       </LanguageProvider>
