@@ -446,7 +446,7 @@ export default function Admin() {
                 {/* Show preview if there's a new file or an existing image */}
                 {(imagePreview || existingImageUrl) ? (
                   <div className="relative rounded-xl overflow-hidden border border-white/10 mb-3">
-                    <img
+                    <img loading="lazy"
                       src={imagePreview ?? existingImageUrl!}
                       alt="Preview"
                       className="w-full max-h-64 object-cover"

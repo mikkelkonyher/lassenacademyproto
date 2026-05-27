@@ -96,7 +96,7 @@ export default function TeacherDetail() {
             {/* Left Side - Image */}
             <div className="relative">
               <div className="aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-2xl">
-                <img
+                <img loading="lazy"
                   src={teacher.image}
                   alt={teacher.name}
                   className="w-full h-full object-cover"

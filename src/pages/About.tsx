@@ -163,7 +163,7 @@ export default function About() {
                   className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden hover:border-white/20 transition-all group"
                 >
                   <div className="aspect-[4/3] overflow-hidden relative">
-                    <img
+                    <img loading="lazy"
                       src={member.image}
                       alt={member.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

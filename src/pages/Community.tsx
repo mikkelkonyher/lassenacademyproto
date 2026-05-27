@@ -540,7 +540,7 @@ export default function Community() {
                             >
                               <div className="flex gap-3">
                                 {notif.commenter?.image_url ? (
-                                  <img
+                                  <img loading="lazy"
                                     src={notif.commenter.image_url}
                                     alt={notif.commenter.full_name}
                                     className="w-8 h-8 rounded-full object-cover flex-shrink-0"
@@ -760,7 +760,7 @@ export default function Community() {
                         <div className="flex items-start gap-4">
                           {/* Avatar */}
                           {post.profiles?.image_url ? (
-                            <img
+                            <img loading="lazy"
                               src={post.profiles.image_url}
                               alt={post.profiles?.full_name ?? ""}
                               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
@@ -930,7 +930,7 @@ export default function Community() {
                                     className="flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5"
                                   >
                                     {comment.profiles?.image_url ? (
-                                      <img
+                                      <img loading="lazy"
                                         src={comment.profiles.image_url}
                                         alt={comment.profiles?.full_name ?? ""}
                                         className="w-8 h-8 rounded-full object-cover flex-shrink-0"

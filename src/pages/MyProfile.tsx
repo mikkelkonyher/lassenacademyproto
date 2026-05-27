@@ -365,7 +365,7 @@ export default function MyProfile() {
           <div className="glass border border-white/20 rounded-2xl p-8 mb-8">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <div className="relative group">
-                <img
+                <img loading="lazy"
                   src={profile?.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.full_name || 'U')}&size=200&background=f97316&color=fff&bold=true`}
                   alt={profile?.full_name ?? ''}
                   className="w-28 h-28 rounded-full object-cover border-2 border-primary/50 shadow-lg shadow-primary/20"
@@ -437,7 +437,7 @@ export default function MyProfile() {
                   </div>
                   <div className="flex gap-4 items-center">
                     <div className="relative w-40 sm:w-48 aspect-video rounded-lg overflow-hidden flex-shrink-0">
-                      <img
+                      <img loading="lazy"
                         src={thumb}
                         alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -498,7 +498,7 @@ export default function MyProfile() {
                         className="relative rounded-xl overflow-hidden border border-white/10 hover:border-primary/50 transition-all group"
                       >
                         <div className="aspect-video relative">
-                          <img
+                          <img loading="lazy"
                             src={c.image_url}
                             alt={title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -550,7 +550,7 @@ export default function MyProfile() {
                         className="relative rounded-xl overflow-hidden border border-white/10 hover:border-primary/50 transition-all group"
                       >
                         <div className="aspect-video relative">
-                          <img
+                          <img loading="lazy"
                             src={c.image_url}
                             alt={title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

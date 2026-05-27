@@ -105,7 +105,7 @@ export default function NewsArticle() {
             <article>
               {/* Hero image */}
               {article.image_url && (
-                <img
+                <img loading="lazy"
                   src={article.image_url}
                   alt={title}
                   className="w-[28rem] max-w-full mx-auto aspect-square object-cover rounded-2xl mb-8 block"

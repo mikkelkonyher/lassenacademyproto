@@ -64,6 +64,7 @@ export default function Hero({ onOpenRegister, onOpenVideo }: HeroProps) {
         <img
           src={heroBackground}
           alt="Music Studio"
+          fetchPriority="high"
           className="w-full h-full object-cover object-center md:object-[65%_25%] grayscale-[55%] brightness-[0.55] contrast-105"
         />
         {/* Left-side blur to hide the Svendborg Jazzfestival poster on wider screens; mask fades the blur out smoothly */}

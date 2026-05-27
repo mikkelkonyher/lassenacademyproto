@@ -262,7 +262,7 @@ export default function PodcastEpisode() {
                 {/* Artwork */}
                 <div className="md:w-72 md:flex-shrink-0">
                   <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border border-white/10">
-                    <img
+                    <img loading="lazy"
                       src={episode.image}
                       alt={episode.title}
                       className="w-full aspect-square object-cover"
@@ -403,7 +403,7 @@ export default function PodcastEpisode() {
                           <div className="relative flex items-center gap-4 p-4">
                             {/* Small thumbnail */}
                             <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                              <img
+                              <img loading="lazy"
                                 src={ep.image}
                                 alt={ep.title}
                                 className="w-full h-full object-cover"

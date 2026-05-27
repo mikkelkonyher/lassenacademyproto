@@ -176,7 +176,7 @@ export default function Podcast() {
                     <div className="relative flex flex-col sm:flex-row">
                       {/* Thumbnail */}
                       <div className="sm:w-48 sm:flex-shrink-0 aspect-video sm:aspect-square overflow-hidden relative">
-                        <img
+                        <img loading="lazy"
                           src={episode.image}
                           alt={episode.title}
                           className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"

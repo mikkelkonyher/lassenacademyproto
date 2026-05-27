@@ -118,7 +118,7 @@ export default function PublicProfile() {
 
           <div className="glass border border-white/20 rounded-2xl p-8 sm:p-12">
             <div className="flex flex-col items-center text-center">
-              <img
+              <img loading="lazy"
                 src={profile?.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.full_name || 'U')}&size=200&background=f97316&color=fff&bold=true`}
                 alt={profile?.full_name ?? ''}
                 className="w-32 h-32 rounded-full object-cover border-2 border-primary/50 shadow-lg shadow-primary/20 mb-6"

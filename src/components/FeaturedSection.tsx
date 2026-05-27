@@ -94,7 +94,7 @@ export default function FeaturedSection() {
     <section className="py-24 relative overflow-hidden">
       {/* Background Image Texture */}
       <div className="absolute inset-0 -z-10 bg-background">
-        <img
+        <img loading="lazy"
           src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2070&auto=format&fit=crop"
           alt="Background Texture"
           className="w-full h-full object-cover opacity-10 blur-sm"
@@ -158,7 +158,7 @@ export default function FeaturedSection() {
                         <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 transform -skew-x-12 group-hover:translate-x-full"></div>
 
                         <div className="relative aspect-video overflow-hidden">
-                          <img
+                          <img loading="lazy"
                             src={getCourseThumbnail(course)}
                             alt={title}
                             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
@@ -240,7 +240,7 @@ export default function FeaturedSection() {
                   className="group relative rounded-2xl glass-strong overflow-hidden border border-white/10 hover:border-primary/60 transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_-10px_rgba(251,146,60,0.5)] hover:shadow-primary/40 cursor-pointer"
                 >
                   <div className="aspect-[3/4] overflow-hidden relative">
-                    <img
+                    <img loading="lazy"
                       src={tutor.image}
                       alt={tutor.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

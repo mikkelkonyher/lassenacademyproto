@@ -174,7 +174,7 @@ export default function Pricing() {
                         to={`/courses/${course.slug}`}
                         className="block relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden rounded-2xl group"
                       >
-                        <img
+                        <img loading="lazy"
                           src={getCourseThumbnail(course)}
                           alt={title}
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"

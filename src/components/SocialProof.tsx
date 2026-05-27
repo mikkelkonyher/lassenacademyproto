@@ -177,7 +177,7 @@ export default function SocialProof() {
                       "{testimonial.content}"
                     </p>
                     <div className="flex items-center">
-                      <img
+                      <img loading="lazy"
                         className="h-10 w-10 rounded-full ring-2 ring-primary/30"
                         src={testimonial.image}
                         alt={testimonial.author}

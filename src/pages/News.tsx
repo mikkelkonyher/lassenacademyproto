@@ -125,7 +125,7 @@ export default function News() {
                     <article className="mb-12 last:mb-0">
                       {/* Hero image */}
                       {article.image_url && (
-                        <img
+                        <img loading="lazy"
                           src={article.image_url}
                           alt={getTitle(article)}
                           className="w-[28rem] max-w-full mx-auto aspect-square object-cover rounded-2xl mb-6 group-hover:opacity-90 transition-opacity block"
