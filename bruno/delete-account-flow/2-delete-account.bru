@@ -1,0 +1,28 @@
+meta {
+  name: Delete Account
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/delete-account
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{disposable_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "password": "{{disposable_password}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+}

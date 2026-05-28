@@ -32,6 +32,8 @@ interface AuthContextType {
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ error: string | null }>;
   resetPasswordRequest: (email: string) => Promise<{ error: string | null }>;
   resetPassword: (newPassword: string) => Promise<{ error: string | null }>;
+  /** Permanently delete the current user's account (requires password re-verification) */
+  deleteAccount: (password: string) => Promise<{ error: string | null }>;
   refreshProfile: () => Promise<void>;
   /** Re-fetch the user's course purchases (call after a successful purchase) */
   refreshPurchases: () => Promise<void>;
@@ -241,8 +243,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null };
   };
 
+  /**
+   * Permanently delete the current user's account via the delete-account Edge
+   * Function. The function re-verifies the password server-side, removes the
+   * avatar from Storage, and deletes the auth user (cascades wipe all owned
+   * data). On success we sign out and clear local state.
+   */
+  const deleteAccount = async (password: string) => {
+    // Get a fresh session to avoid using an expired token
+    const { data: { session: freshSession } } = await supabase.auth.getSession();
+    if (!freshSession) return { error: 'Not authenticated' };
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${freshSession.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ password }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      // Surface the function's error code so the UI can show a tailored message
+      return { error: result.code ?? result.error ?? 'Deletion failed' };
+    }
+
+    // Account is gone — tear down the local session like signOut does
+    await supabase.auth.signOut();
+    setProfile(null);
+    setPurchasedCourseIds(new Set());
+    return { error: null };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin, purchasedCourseIds, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, resetPasswordRequest, resetPassword, refreshProfile, refreshPurchases }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin, purchasedCourseIds, signUp, signIn, signOut, updateProfile, uploadAvatar, changePassword, resetPasswordRequest, resetPassword, deleteAccount, refreshProfile, refreshPurchases }}>
       {children}
     </AuthContext.Provider>
   );

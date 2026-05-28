@@ -46,7 +46,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     setIsLoading(false);
 
     if (signInError) {
-      setError(signInError);
+      // Map raw Supabase auth errors to friendly, translated messages
+      if (signInError.includes('Invalid login credentials')) {
+        setError(t.auth.loginErrorInvalid);
+      } else if (signInError.includes('Email not confirmed')) {
+        setError(t.auth.loginErrorUnconfirmed);
+      } else {
+        setError(t.auth.loginErrorGeneric);
+      }
     } else {
       setEmail('');
       setPassword('');

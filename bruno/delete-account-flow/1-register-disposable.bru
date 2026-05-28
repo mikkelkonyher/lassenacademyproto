@@ -1,0 +1,59 @@
+meta {
+  name: Register Disposable User
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{supabase_url}}/auth/v1/signup
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+}
+
+script:pre-request {
+  // Generate a unique disposable account for this run so we never touch the
+  // shared CI test user (deleting that would break the main e2e-flow).
+  bru.setVar("disposable_email", `delete-e2e-${Date.now()}@example.com`);
+  bru.setVar("disposable_password", "DeleteMe123!");
+}
+
+body:json {
+  {
+    "email": "{{disposable_email}}",
+    "password": "{{disposable_password}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // Capture the session token for the delete step. NOTE: this only yields a
+  // token when "Confirm email" is DISABLED in Supabase Auth. With confirmation
+  // enabled, signup returns no session and this destructive flow cannot run
+  // unattended — see the docs block below.
+  if (res.body.access_token) {
+    bru.setVar("disposable_token", res.body.access_token);
+  } else {
+    throw new Error("No session returned from signup — disable email confirmation to run this flow locally.");
+  }
+}
+
+docs {
+  # Delete Account Flow — LOCAL / MANUAL ONLY
+
+  This collection is intentionally **not** part of CI. Account deletion is
+  terminal: running it against the shared CI test user would delete that user
+  and break every other e2e-flow run. Instead it provisions a brand-new
+  disposable user, deletes it, and confirms login then fails.
+
+  Prerequisite: Supabase Auth "Confirm email" must be disabled so the signup in
+  step 1 returns a usable session token. Run with the `production` environment
+  locally: `bru run delete-account-flow --env production`.
+}

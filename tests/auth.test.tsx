@@ -375,7 +375,7 @@ describe("LoginModal", () => {
     });
   });
 
-  it("shows error message on login failure", async () => {
+  it("shows a friendly mapped error on invalid credentials", async () => {
     mockSignInWithPassword.mockResolvedValueOnce({
       error: { message: "Invalid login credentials" },
     });
@@ -398,8 +398,46 @@ describe("LoginModal", () => {
     const submitBtn = screen.getByRole("button", { name: "Log ind" });
     await user.click(submitBtn);
 
+    // Raw Supabase message is replaced by the translated, user-friendly one
     await waitFor(() => {
-      expect(screen.getByText("Invalid login credentials")).toBeInTheDocument();
+      expect(
+        screen.getByText("Forkert email eller adgangskode. Prøv igen."),
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText("Invalid login credentials"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a friendly mapped error when email is not confirmed", async () => {
+    mockSignInWithPassword.mockResolvedValueOnce({
+      error: { message: "Email not confirmed" },
+    });
+    const user = userEvent.setup();
+
+    await renderWithProviders(
+      <LoginModal
+        isOpen={true}
+        onClose={onClose}
+        onSwitchToRegister={onSwitchToRegister}
+      />,
+    );
+
+    await user.type(
+      screen.getByPlaceholderText("name@example.com"),
+      "test@test.com",
+    );
+    await user.type(screen.getByPlaceholderText("••••••••"), "password123");
+
+    const submitBtn = screen.getByRole("button", { name: "Log ind" });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "Din email er ikke bekræftet endnu. Tjek din indbakke for bekræftelseslinket.",
+        ),
+      ).toBeInTheDocument();
     });
   });
 

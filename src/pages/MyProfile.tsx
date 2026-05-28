@@ -6,7 +6,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar, Bookmark, ShoppingBag, Play } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Bell, Globe, Camera, ExternalLink, Calendar, Bookmark, ShoppingBag, Play, Trash2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
@@ -68,7 +68,7 @@ type WatchlistRow = {
 export default function MyProfile() {
   const navigate = useNavigate();
   const { t, language, toggleLanguage } = useLanguage();
-  const { user, profile, loading, updateProfile, uploadAvatar, changePassword } = useAuth();
+  const { user, profile, loading, updateProfile, uploadAvatar, changePassword, deleteAccount } = useAuth();
   // Watchlist Set — used to filter the locally-fetched rows so removed items
   // disappear from the grid immediately on click (driven by the context's
   // optimistic toggle, no second fetch required)
@@ -108,6 +108,12 @@ export default function MyProfile() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState('');
   const [passwordError, setPasswordError] = useState(false);
+
+  // Account deletion (danger zone) — modal visibility, password confirm, feedback
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState('');
 
   // Hidden file input triggered by the avatar overlay button
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -303,6 +309,27 @@ export default function MyProfile() {
       setConfirmNewPassword('');
       setTimeout(() => setPasswordMessage(''), 3000);
     }
+  };
+
+  // Permanently delete the account after password confirmation, then redirect home
+  const handleDeleteAccount = async () => {
+    setDeleteMessage('');
+    setIsDeleting(true);
+    const { error } = await deleteAccount(deletePassword);
+    setIsDeleting(false);
+
+    if (error) {
+      // INVALID_PASSWORD is returned by the edge function for a wrong password
+      setDeleteMessage(
+        error === 'INVALID_PASSWORD'
+          ? t.myProfile.settings.deleteWrongPassword
+          : t.myProfile.settings.deleteError,
+      );
+      return;
+    }
+
+    // Success — account and session are gone; send the user to the landing page
+    navigate('/');
   };
 
   // Redirect to login if not authenticated
@@ -758,6 +785,22 @@ export default function MyProfile() {
             >
               {isSaving ? '...' : t.myProfile.settings.saveChanges}
             </button>
+
+            {/* Danger zone — permanent account deletion */}
+            <div className="glass border border-red-500/30 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+                <h3 className="text-lg font-bold text-red-400">{t.myProfile.settings.dangerTitle}</h3>
+              </div>
+              <p className="text-sm text-gray-400 mb-5">{t.myProfile.settings.dangerWarning}</p>
+              <button
+                onClick={() => { setDeletePassword(''); setDeleteMessage(''); setIsDeleteModalOpen(true); }}
+                className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/40 text-red-300 font-bold py-3 px-5 rounded-lg hover:bg-red-500/20 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                {t.myProfile.settings.deleteAccountButton}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -765,6 +808,56 @@ export default function MyProfile() {
       <Footer />
       <RegisterModal isOpen={isRegisterOpen} onClose={closeRegister} onSwitchToLogin={openLogin} />
       <LoginModal isOpen={isLoginOpen} onClose={closeLogin} onSwitchToRegister={openRegister} />
+
+      {/* Delete-account confirmation modal — requires password re-entry */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="glass-strong border border-red-500/30 rounded-2xl p-8 w-full max-w-md">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="w-6 h-6 text-red-400" />
+              <h3 className="text-xl font-bold text-white">{t.myProfile.settings.deleteModalTitle}</h3>
+            </div>
+            <p className="text-sm text-gray-400 mb-5">{t.myProfile.settings.deleteModalBody}</p>
+
+            <label className="text-sm font-medium text-gray-300 ml-1 block mb-2">{t.myProfile.settings.deletePasswordLabel}</label>
+            <div className="relative group">
+              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-red-400 transition-colors" />
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                maxLength={128}
+                placeholder="••••••••"
+                autoFocus
+                className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white placeholder:text-gray-400 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30 transition-all"
+              />
+            </div>
+
+            {deleteMessage && (
+              <div className="mt-4 p-3 rounded-lg text-sm bg-red-500/20 border border-red-500/30 text-red-300">
+                {deleteMessage}
+              </div>
+            )}
+
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={isDeleting}
+                className="flex-1 glass border border-white/20 text-white font-bold py-3 rounded-lg hover:bg-white/10 transition-all disabled:opacity-50"
+              >
+                {t.myProfile.settings.deleteCancelButton}
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={isDeleting || !deletePassword}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? '...' : t.myProfile.settings.deleteConfirmButton}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
