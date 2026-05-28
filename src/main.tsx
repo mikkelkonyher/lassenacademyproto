@@ -2,7 +2,7 @@
  * Application entry point.
  * Mounts the React tree into the DOM with all global providers:
  * BrowserRouter (client-side routing), LanguageProvider (i18n),
- * and AuthProvider (Supabase authentication state).
+ * and AuthProvider (Supabase authentication state). tricker
  */
 
 import { StrictMode } from 'react'
