@@ -285,7 +285,7 @@ export const translations = {
     allCourses: {
       pageTitle: "Alle Kurser",
       pageSubtitle:
-        "Udforsk vores komplette kursusbibliotek og find det perfekte kursus til dig",
+        "Udforsk vores kursusbibliotek og find det perfekte kursus til dig",
       filterAll: "Alle",
       filterLabel: "Filtrer efter emne",
       showingResults: "Viser {count} kurser",
@@ -889,7 +889,7 @@ export const translations = {
     allCourses: {
       pageTitle: "All Courses",
       pageSubtitle:
-        "Explore our complete course library and find the perfect course for you",
+        "Explore our course library and find the perfect course for you",
       filterAll: "All",
       filterLabel: "Filter by topic",
       showingResults: "Showing {count} courses",
