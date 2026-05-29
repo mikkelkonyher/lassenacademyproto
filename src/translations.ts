@@ -101,9 +101,9 @@ export const translations = {
       },
     },
     socialProof: {
-      headline: "Elsket af musikere i hele Danmark",
+      headline: "Lær musik med Lassen Music Academy",
       subheadline:
-        "Slut dig til tusindvis af tilfredse elever på Lassen Music Academy.",
+        "Udvikl dit spil med kurser skabt af passionerede undervisere.",
     },
     videoSection: {
       subtitle: "Mød Stifteren",
@@ -706,9 +706,9 @@ export const translations = {
       },
     },
     socialProof: {
-      headline: "Loved by musicians across Denmark",
+      headline: "Learn music with Lassen Music Academy",
       subheadline:
-        "Join thousands of satisfied students at Lassen Music Academy.",
+        "Develop your playing with courses created by passionate teachers.",
     },
     videoSection: {
       subtitle: "Meet the Founder",
