@@ -125,14 +125,6 @@ export default function LearningPaths() {
             </div>
           ))}
         </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-12 text-center">
-          <button className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/30 glass hover:glass-strong text-white font-bold transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/30">
-            {t.learningPaths.viewAll}
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
       </div>
     </section>
   );

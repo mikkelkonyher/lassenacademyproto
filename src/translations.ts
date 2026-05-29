@@ -262,7 +262,6 @@ export const translations = {
           "Mester niveau læring for erfarne musikere der ønsker at perfektionere deres kunst og udforske nye dimensioner.",
       },
       cta: "Start stien",
-      viewAll: "Se alle læringsstier",
     },
     learningPath: {
       pickInstrument: "Vælg dit instrument",
@@ -862,7 +861,6 @@ export const translations = {
           "Master level learning for experienced musicians who want to perfect their craft and explore new dimensions.",
       },
       cta: "Start Path",
-      viewAll: "View All Learning Paths",
     },
     learningPath: {
       pickInstrument: "Pick your instrument",
