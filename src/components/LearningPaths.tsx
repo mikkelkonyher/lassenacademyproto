@@ -4,7 +4,7 @@
  * The middle card (intermediate) uses the accent color to stand out visually.
  * All text is i18n-driven via the translation context.
  */
-import { BookOpen, ArrowRight, CheckCircle, Sparkles, GraduationCap, TrendingUp, Award } from "lucide-react";
+import { BookOpen, ArrowRight, Sparkles, GraduationCap, TrendingUp, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 
@@ -18,8 +18,6 @@ export default function LearningPaths() {
       tier: "beginner",
       title: t.learningPaths.beginner.title,
       description: t.learningPaths.beginner.description,
-      duration: t.learningPaths.beginner.duration,
-      courses: t.learningPaths.beginner.courses,
       Icon: GraduationCap,
       gradientClass: "from-primary/20",
       bgClass: "bg-primary/20",
@@ -30,8 +28,6 @@ export default function LearningPaths() {
       tier: "intermediate",
       title: t.learningPaths.intermediate.title,
       description: t.learningPaths.intermediate.description,
-      duration: t.learningPaths.intermediate.duration,
-      courses: t.learningPaths.intermediate.courses,
       Icon: TrendingUp,
       gradientClass: "from-accent/20",
       bgClass: "bg-accent/20",
@@ -42,8 +38,6 @@ export default function LearningPaths() {
       tier: "advanced",
       title: t.learningPaths.advanced.title,
       description: t.learningPaths.advanced.description,
-      duration: t.learningPaths.advanced.duration,
-      courses: t.learningPaths.advanced.courses,
       Icon: Award,
       gradientClass: "from-primary/20",
       bgClass: "bg-primary/20",
@@ -111,18 +105,6 @@ export default function LearningPaths() {
                 <p className="text-gray-300 mb-6 leading-relaxed">
                   {path.description}
                 </p>
-
-                {/* Stats */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center text-sm text-gray-300">
-                    <CheckCircle className="w-4 h-4 mr-2 text-primary" />
-                    <span className="font-medium">{path.duration}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-300">
-                    <CheckCircle className="w-4 h-4 mr-2 text-primary" />
-                    <span className="font-medium">{path.courses}</span>
-                  </div>
-                </div>
 
                 {/* CTA — routes to the tier-scoped learning path page */}
                 <Link

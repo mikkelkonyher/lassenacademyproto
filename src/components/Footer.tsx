@@ -4,10 +4,22 @@
  * to the parent company (Kristian Lassen Musik ApS) and a copyright line.
  */
 import { Facebook, Instagram, Youtube, Mail, Music } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Footer() {
   const { t } = useLanguage();
+  const { user } = useAuth();
+
+  // "Start Her": logged-in users go straight to the catalogue; guests are
+  // prompted to sign up. The Footer is mounted on every route and can't
+  // receive a modal callback, so it asks App to open the register modal
+  // via a global window event (see App.tsx listener).
+  const handleStartHere = () => {
+    if (user) return; // already logged in — let the Link navigate to /courses
+    window.dispatchEvent(new CustomEvent('open-register'));
+  };
 
   return (
     <footer className="bg-background border-t border-white/10 pt-12 pb-8 relative">
@@ -47,19 +59,23 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">{t.footer.explore}</h3>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.startHere}</a></li>
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.allCourses}</a></li>
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.learningPaths}</a></li>
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.prices}</a></li>
+              {/* Start Her: guests get the sign-up modal; logged-in users go to /courses */}
+              <li>
+                {user ? (
+                  <Link to="/courses" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.startHere}</Link>
+                ) : (
+                  <button onClick={handleStartHere} className="hover:text-primary transition-all hover:translate-x-1 inline-block text-left">{t.footer.links.startHere}</button>
+                )}
+              </li>
+              <li><Link to="/courses" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.allCourses}</Link></li>
+              <li><Link to="/pricing" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.prices}</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-white font-semibold mb-4">{t.footer.community}</h3>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.forum}</a></li>
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.events}</a></li>
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.showcase}</a></li>
-              <li><a href="#" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.support}</a></li>
+              <li><Link to="/community" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.forum}</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-all hover:translate-x-1 inline-block">{t.footer.links.support}</Link></li>
             </ul>
           </div>
           <div>
@@ -67,9 +83,9 @@ export default function Footer() {
              <ul className="space-y-2 text-gray-300 text-sm">
                 <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary/70" /> info@lassenmusik.com</li>
                 <li className="flex gap-4 mt-4">
-                  <a href="#" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Facebook className="h-5 w-5" /></a>
-                  <a href="#" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Instagram className="h-5 w-5" /></a>
-                  <a href="#" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Youtube className="h-5 w-5" /></a>
+                  <a href="https://www.facebook.com/lassenmusicacademy" target="_blank" rel="noreferrer" aria-label="Facebook" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Facebook className="h-5 w-5" /></a>
+                  <a href="https://www.instagram.com/lassenmusicacademy/" target="_blank" rel="noreferrer" aria-label="Instagram" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Instagram className="h-5 w-5" /></a>
+                  <a href="https://www.youtube.com/@lassenmusicacademy" target="_blank" rel="noreferrer" aria-label="YouTube" className="text-gray-400 hover:text-primary transition-all hover:scale-110"><Youtube className="h-5 w-5" /></a>
                 </li>
              </ul>
           </div>

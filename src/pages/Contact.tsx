@@ -3,7 +3,7 @@
  *
  * Left column: a contact form (name, email, subject, message) — currently
  * client-side only with no backend submission wired up.
- * Right column: email, phone, physical address, and social media links.
+ * Right column: email, physical address, and social media links.
  * All labels come from i18n translations.
  */
 
@@ -12,7 +12,6 @@ import {
   ArrowLeft,
   Mail,
   MapPin,
-  Phone,
   Send,
   Facebook,
   Instagram,
@@ -141,24 +140,6 @@ export default function Contact() {
                 </a>
               </div>
 
-              {/* Phone */}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Phone className="w-5 h-5 text-primary" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-white">
-                    {ct.info.phoneTitle}
-                  </h3>
-                </div>
-                <a
-                  href="tel:+4542323096"
-                  className="text-sm text-gray-400 hover:text-primary transition-colors"
-                >
-                  +45 42 32 30 96
-                </a>
-              </div>
-
               {/* Address */}
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                 <div className="flex items-center gap-3 mb-3">
@@ -185,19 +166,28 @@ export default function Contact() {
                 </h3>
                 <div className="flex gap-3">
                   <a
-                    href="#"
+                    href="https://www.facebook.com/lassenmusicacademy"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Facebook"
                     className="w-10 h-10 rounded-xl bg-white/5 hover:bg-primary/20 flex items-center justify-center text-gray-400 hover:text-primary transition-all"
                   >
                     <Facebook className="w-5 h-5" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.instagram.com/lassenmusicacademy/"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Instagram"
                     className="w-10 h-10 rounded-xl bg-white/5 hover:bg-primary/20 flex items-center justify-center text-gray-400 hover:text-primary transition-all"
                   >
                     <Instagram className="w-5 h-5" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.youtube.com/@lassenmusicacademy"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="YouTube"
                     className="w-10 h-10 rounded-xl bg-white/5 hover:bg-primary/20 flex items-center justify-center text-gray-400 hover:text-primary transition-all"
                   >
                     <Youtube className="w-5 h-5" />

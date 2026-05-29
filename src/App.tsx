@@ -5,7 +5,7 @@
  * is assembled from section components; other routes render full pages.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -56,6 +56,15 @@ function App() {
   const openVideo = () => setIsVideoOpen(true);
   const closeVideo = () => setIsVideoOpen(false);
 
+  // The site-wide Footer ("Start Her") lives on every route and can't easily
+  // receive a callback prop, so it asks for the register modal via a global
+  // window event. We listen here so the root-level modal opens on any page.
+  useEffect(() => {
+    const handleOpenRegister = () => openRegister();
+    window.addEventListener("open-register", handleOpenRegister);
+    return () => window.removeEventListener("open-register", handleOpenRegister);
+  }, []);
+
   return (
     <>
       {/* Scrolls to top on every route change so users don't land mid-page */}
@@ -72,16 +81,6 @@ function App() {
               <VideoSection />
               <SocialProof />
               <Footer />
-              <RegisterModal
-                isOpen={isRegisterOpen}
-                onClose={closeRegister}
-                onSwitchToLogin={openLogin}
-              />
-              <LoginModal
-                isOpen={isLoginOpen}
-                onClose={closeLogin}
-                onSwitchToRegister={openRegister}
-              />
               <VideoModal
                 isOpen={isVideoOpen}
                 onClose={closeVideo}
@@ -109,6 +108,19 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/terms" element={<Terms />} />
       </Routes>
+
+      {/* Root-level auth modals — available on every route (e.g. opened by the
+          site-wide Footer's "Start Her" link via the open-register event). */}
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={closeRegister}
+        onSwitchToLogin={openLogin}
+      />
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={closeLogin}
+        onSwitchToRegister={openRegister}
+      />
     </>
   );
 }

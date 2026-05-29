@@ -7,73 +7,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 
-// Hardcoded student testimonials (Danish). Each entry includes a quote, author, role, and avatar.
-const testimonials = [
-  {
-    content:
-      "Jeg har lært mere på 3 måneder her end jeg gjorde på 3 år med tilfældige videoer. Struktureren gør hele forskellen!",
-    author: "Anders Jørgensen",
-    role: "Guitarist",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    content:
-      "Fællesskabet er fantastisk. At få feedback fra både instruktører og andre elever har virkelig løftet mit spil.",
-    author: "Sofie Nielsen",
-    role: "Bassist",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    content:
-      "Kvaliteten af undervisningen er i top. Det føles som at have en privatlærer i lommen 24/7.",
-    author: "Mads Hansen",
-    role: "Trommeslager",
-    image:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    content:
-      "Jazz improvisation kurset har åbnet nye døre for mig. Jeg føler mig meget mere selvsikker på scenen nu.",
-    author: "Emma Christensen",
-    role: "Pianist",
-    image:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    content:
-      "Bass teknikken jeg har lært her har forandret mit spil fuldstændigt. Kristian er en fantastisk lærer!",
-    author: "Thomas Andersen",
-    role: "Bassist",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    content:
-      "Musikteorien er forklaret på en måde, der faktisk giver mening. Endelig forstår jeg harmoni!",
-    author: "Lars Mikkelsen",
-    role: "Guitarist",
-    image:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    content:
-      "Groove og rytme kurset har taget mit spil til næste niveau. Jeg kan mærke forskellen hver gang jeg spiller.",
-    author: "Maria Larsen",
-    role: "Trommeslager",
-    image:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    content:
-      "At kunne lære i mit eget tempo og få personlig feedback har været en game-changer for min udvikling.",
-    author: "Jonas Pedersen",
-    role: "Multi-instrumentalist",
-    image:
-      "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-];
+// Student testimonials shown in the carousel.
+// Intentionally empty until we have real testimonials to display — the
+// previous entries were fabricated placeholders and have been removed.
+type Testimonial = {
+  content: string;
+  author: string;
+  role: string;
+  image: string;
+};
+const testimonials: Testimonial[] = [];
 
 export default function SocialProof() {
   const { t } = useLanguage();

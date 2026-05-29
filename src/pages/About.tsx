@@ -41,11 +41,9 @@ export default function About() {
     { icon: <GraduationCap className="w-6 h-6" />, title: at.values.growth.title, description: at.values.growth.description },
   ];
 
-  // Highlight metrics shown in a 4-column stat bar
+  // Highlight metric — only the factual founding year is shown.
+  // Student/course/instructor counts were removed until there is real data to back them.
   const stats = [
-    { value: "500+", label: at.stats.students },
-    { value: "50+", label: at.stats.courses },
-    { value: "6+", label: at.stats.instructors },
     { value: "2024", label: at.stats.founded },
   ];
 
@@ -112,11 +110,11 @@ export default function About() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-16">
+          <div className="flex justify-center mb-16">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center"
+                className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center min-w-[10rem]"
               >
                 <div className="text-3xl font-bold text-primary mb-1">
                   {stat.value}
