@@ -7,12 +7,14 @@
  * All labels come from i18n translations.
  */
 
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Mail,
   MapPin,
   Send,
+  CheckCircle,
   Facebook,
   Instagram,
   Youtube,
@@ -30,6 +32,84 @@ export default function Contact() {
   const { isRegisterOpen, isLoginOpen, openRegister, closeRegister, openLogin, closeLogin } = useAuthModals();
 
   const ct = t.contactPage; // shorthand alias for contact page translations
+
+  // Controlled form fields. `company` is a honeypot — hidden from real users;
+  // bots that fill it get a fake-success response and no email is sent.
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [company, setCompany] = useState("");
+
+  // Submission lifecycle: idle → sending → success | error
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Maps an Edge Function error code to a friendly, translated message
+  const messageForCode = (code?: string): string => {
+    switch (code) {
+      case "INVALID_EMAIL":
+        return ct.invalidEmail;
+      case "INVALID_INPUT":
+        return ct.requiredFields;
+      case "SPAM_DETECTED":
+        return ct.spamDetected;
+      default:
+        return ct.errorMessage;
+    }
+  };
+
+  // Submit the contact form to the public send-contact-message Edge Function.
+  // Mirrors the anon-key/no-Authorization pattern used for fetch-podcast-feed.
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Light client-side validation before hitting the network
+    if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
+      setStatus("error");
+      setErrorMsg(ct.requiredFields);
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setStatus("error");
+      setErrorMsg(ct.invalidEmail);
+      return;
+    }
+
+    setStatus("sending");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contact-message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ name, email, subject, message, company }),
+        },
+      );
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setStatus("error");
+        setErrorMsg(messageForCode(result.code));
+        return;
+      }
+
+      // Success — clear the fields so the form is ready for another message
+      setStatus("success");
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+    } catch {
+      setStatus("error");
+      setErrorMsg(ct.errorMessage);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -60,11 +140,7 @@ export default function Contact() {
               <h2 className="text-lg font-bold text-white mb-6">
                 {ct.formTitle}
               </h2>
-              {/* Form submit is a no-op placeholder — backend integration pending */}
-              <form
-                onSubmit={(e) => e.preventDefault()}
-                className="space-y-5"
-              >
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">
@@ -72,6 +148,8 @@ export default function Contact() {
                     </label>
                     <input
                       type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all text-sm"
                       placeholder={ct.namePlaceholder}
                     />
@@ -82,6 +160,8 @@ export default function Contact() {
                     </label>
                     <input
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all text-sm"
                       placeholder={ct.emailPlaceholder}
                     />
@@ -94,6 +174,8 @@ export default function Contact() {
                   </label>
                   <input
                     type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all text-sm"
                     placeholder={ct.subjectPlaceholder}
                   />
@@ -105,17 +187,46 @@ export default function Contact() {
                   </label>
                   <textarea
                     rows={5}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all text-sm resize-none"
                     placeholder={ct.messagePlaceholder}
                   />
                 </div>
 
+                {/* Honeypot: hidden from humans; only bots fill it. Off-screen
+                    rather than display:none so some bots still see it. */}
+                <input
+                  type="text"
+                  name="company"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute -left-[9999px] w-px h-px opacity-0"
+                />
+
+                {/* Success / error feedback */}
+                {status === "success" && (
+                  <div className="flex items-center gap-2 text-sm text-green-400 bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-3">
+                    <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{ct.successMessage}</span>
+                  </div>
+                )}
+                {status === "error" && (
+                  <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+                    {errorMsg}
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-semibold transition-all shadow-lg shadow-primary/30 hover:scale-[1.02]"
+                  disabled={status === "sending"}
+                  className="flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-all shadow-lg shadow-primary/30 hover:scale-[1.02]"
                 >
                   <Send className="w-4 h-4" />
-                  {ct.sendButton}
+                  {status === "sending" ? ct.sending : ct.sendButton}
                 </button>
               </form>
             </div>

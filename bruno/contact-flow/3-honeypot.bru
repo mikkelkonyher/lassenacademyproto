@@ -1,0 +1,36 @@
+meta {
+  name: Contact - Honeypot Drops Silently
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/send-contact-message
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "name": "Bot",
+    "email": "bot@example.com",
+    "subject": "Automated",
+    "message": "This looks like a bot submission.",
+    "company": "AcmeCorp"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+}
+
+docs {
+  The honeypot "company" field is filled, which only bots do. The function
+  returns a fake success (200) WITHOUT sending any email.
+}

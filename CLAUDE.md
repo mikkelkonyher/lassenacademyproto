@@ -53,6 +53,8 @@ Supabase Edge Functions live in `supabase/functions/<function-name>/index.ts`. T
 
 Database safety net: `forum_rate_limits` table tracks actions, `CHECK` constraints enforce text limits, RLS policies enforce ownership.
 
+**Contact form** (`send-contact-message`): **public** Edge Function (no JWT — deploy with JWT verification OFF, like `fetch-podcast-feed`). Relays a contact-form submission to `CONTACT_TO_EMAIL` over **Gmail SMTP** (`denomailer`), reusing the same Gmail account configured in Supabase Auth → SMTP. Abuse protection: hidden honeypot field, spam-pattern detection, best-effort in-memory per-IP throttle. Secrets: `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `CONTACT_TO_EMAIL`. Consumed by `src/pages/Contact.tsx` (POST with `apikey` header, no `Authorization`).
+
 ## Testing
 
 **Unit/Component tests:** Vitest + React Testing Library. Test files live in `tests/` with `.test.tsx` extension. Config in `tsconfig.test.json`.
@@ -63,6 +65,7 @@ Mutations in the Community page go through Edge Functions via `fetch()` + `callE
 
 **E2E API tests:** Bruno collection in `bruno/`. Run locally via Bruno GUI or CLI (`bru run e2e-flow --env production`).
 - `bruno/e2e-flow/` — 13-step sequential flow: Login → Create Post → GET verify → Update Post → GET verify → Create Comment → GET verify → Update Comment → GET verify → Delete Comment → GET verify → Delete Post → GET verify
+- `bruno/contact-flow/` — Contact form (`send-contact-message`) checks. **Manual-only, NOT in CI** (like `delete-account-flow`) because a valid send dispatches a real email. Covers: missing-fields → 400, spam → 400, honeypot → 200 (no send), and a manual-only valid-send.
 - `bruno/environments/production.bru` — Contains test user credentials (gitignored)
 - `bruno/environments/ci.bru` — Empty placeholders for CI (committed, secrets injected via GitHub Actions)
 

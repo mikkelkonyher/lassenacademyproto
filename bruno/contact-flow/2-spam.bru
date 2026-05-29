@@ -1,0 +1,35 @@
+meta {
+  name: Contact - Spam Rejected
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/send-contact-message
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "name": "Spammer",
+    "email": "spam@example.com",
+    "subject": "Great offer",
+    "message": "buy now click here free money casino viagra crypto airdrop send btc"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.code: eq SPAM_DETECTED
+}
+
+docs {
+  Message contains known spam phrases, so the function rejects with
+  SPAM_DETECTED and sends no email.
+}

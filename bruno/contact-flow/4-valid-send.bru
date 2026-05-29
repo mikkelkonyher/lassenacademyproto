@@ -1,0 +1,35 @@
+meta {
+  name: Contact - Valid Send (REAL EMAIL)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/send-contact-message
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "name": "Bruno Test",
+    "email": "bruno-test@example.com",
+    "subject": "E2E test message",
+    "message": "This is an automated end-to-end test of the contact form."
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+}
+
+docs {
+  WARNING: this sends a REAL email to CONTACT_TO_EMAIL via Gmail SMTP.
+  Run by hand only — never in CI. Replies would go to the fake address above.
+}
