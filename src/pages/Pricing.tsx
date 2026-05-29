@@ -19,6 +19,7 @@ import {
   Check,
   Lock,
   ShieldAlert,
+  Loader2,
 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
@@ -53,6 +54,9 @@ export default function Pricing() {
   } = useAuthModals();
 
   const [courses, setCourses] = useState<CourseWithLessons[]>([]);
+  // True while the initial course fetch is in flight; gates the spinner so we
+  // never flash the empty state before data has loaded (there is always ≥1 course)
+  const [loading, setLoading] = useState(true);
   // Course currently being purchased (drives BuyCourseModal); null = closed
   const [pendingCourse, setPendingCourse] = useState<CourseWithLessons | null>(null);
 
@@ -66,6 +70,8 @@ export default function Pricing() {
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       if (data) setCourses(data as CourseWithLessons[]);
+      // Clear the loading flag once the request settles (success or empty)
+      setLoading(false);
     };
     fetchCourses();
   }, []);
@@ -131,7 +137,12 @@ export default function Pricing() {
           </div>
 
           {/* Course Showcase */}
-          {courses.length === 0 ? (
+          {loading ? (
+            // Loading State — courses always exist, so show a spinner until the fetch resolves
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            </div>
+          ) : courses.length === 0 ? (
             <div className="text-center py-24 border border-white/10 rounded-3xl bg-white/[0.02]">
               <p className="text-gray-400 text-lg">{store.empty}</p>
             </div>

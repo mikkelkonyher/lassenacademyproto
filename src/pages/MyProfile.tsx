@@ -81,6 +81,9 @@ export default function MyProfile() {
   const [continueRow, setContinueRow] = useState<ContinueWatchingRow | null>(null);
   // Joined purchase rows for the "My purchases" section
   const [purchaseRows, setPurchaseRows] = useState<PurchaseRow[]>([]);
+  // True until the purchases fetch settles; gates the spinner so we don't flash
+  // the "no purchases yet" empty state before the user's courses have loaded
+  const [purchasesLoading, setPurchasesLoading] = useState(true);
   // Auth modal state
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -172,9 +175,11 @@ export default function MyProfile() {
   useEffect(() => {
     if (!user) {
       setPurchaseRows([]);
+      setPurchasesLoading(false);
       return;
     }
     let cancelled = false;
+    setPurchasesLoading(true);
     supabase
       .from('user_course_purchases')
       .select(
@@ -182,8 +187,10 @@ export default function MyProfile() {
       )
       .order('purchased_at', { ascending: false })
       .then(({ data }) => {
-        if (cancelled || !data) return;
-        setPurchaseRows(data as unknown as PurchaseRow[]);
+        if (cancelled) return;
+        if (data) setPurchaseRows(data as unknown as PurchaseRow[]);
+        // Clear the loading flag once the request settles (success or empty)
+        setPurchasesLoading(false);
       });
     return () => {
       cancelled = true;
@@ -495,7 +502,13 @@ export default function MyProfile() {
                 <h3 className="text-lg font-bold text-white">{t.myPurchases.title}</h3>
               </div>
 
-              {purchaseRows.length === 0 ? (
+              {purchasesLoading ? (
+                // Loading State — show a spinner before deciding whether the user has purchases,
+                // so we never flash the "no purchases yet" message while the fetch is in flight
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : purchaseRows.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-400 mb-4">{t.myPurchases.empty}</p>
                   <Link

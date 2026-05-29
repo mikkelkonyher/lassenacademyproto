@@ -9,7 +9,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, PlayCircle, Check } from "lucide-react";
+import { ArrowLeft, PlayCircle, Check, Loader2 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { useWatchProgress } from "../context/WatchProgressContext";
@@ -68,6 +68,9 @@ export default function AllCourses() {
   };
 
   const [courses, setCourses] = useState<CourseWithLessons[]>([]);
+  // True while the initial course fetch is in flight; gates the spinner so we
+  // never flash "Viser 0 kurser" before data has loaded (there is always ≥1 course)
+  const [loading, setLoading] = useState(true);
   // Tracks which filter tags the user has toggled on; empty means "show all"
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
@@ -85,6 +88,8 @@ export default function AllCourses() {
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       if (data) setCourses(data as CourseWithLessons[]);
+      // Clear the loading flag once the request settles (success or empty)
+      setLoading(false);
     };
     fetchCourses();
   }, []);
@@ -159,8 +164,8 @@ export default function AllCourses() {
             </p>
           </div>
 
-          {/* Tag Filter Bar — only render when we have tags to offer */}
-          {allTags.length > 0 && (
+          {/* Tag Filter Bar — only render when we have tags to offer (and not loading) */}
+          {!loading && allTags.length > 0 && (
             <div className="mb-8">
               <p className="text-sm text-gray-400 mb-3 font-medium">
                 {t.allCourses.filterLabel}
@@ -193,11 +198,16 @@ export default function AllCourses() {
             </div>
           )}
 
-          {/* Result Count */}
-          <p className="text-sm text-gray-500 mb-6">{resultText}</p>
+          {/* Result Count — hidden during the initial load so we never flash "Viser 0 kurser" */}
+          {!loading && <p className="text-sm text-gray-500 mb-6">{resultText}</p>}
 
-          {/* Course Grid */}
-          {filteredCourses.length === 0 ? (
+          {/* Loading State — courses always exist, so show a spinner until the fetch resolves */}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            </div>
+          ) : /* Course Grid */
+          filteredCourses.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-gray-400 text-lg">{t.allCourses.noCourses}</p>
             </div>
