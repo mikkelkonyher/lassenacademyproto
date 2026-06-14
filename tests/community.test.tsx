@@ -202,8 +202,8 @@ function getMain() {
   // The main content is inside pt-24 pb-16 div
   const headings = screen.getAllByText("Fællesskab");
   const h1 = headings.find((el) => el.tagName === "H1");
-  // Return the closest container
-  return h1!.closest(".max-w-4xl") as HTMLElement;
+  // Return the closest container (max-w-7xl matches the page width on Community)
+  return h1!.closest(".max-w-7xl") as HTMLElement;
 }
 
 // ── Tests ────────────────────────────────────────────────────
