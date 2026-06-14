@@ -123,7 +123,7 @@ export default function Podcast() {
 
           {/* Page Header */}
           <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 uppercase">
               {t.podcastPage.pageTitle}
             </h1>
             <p className="text-lg text-gray-400 mb-4">

@@ -1,12 +1,12 @@
 /**
  * Navbar.tsx
- * Fixed top navigation bar for the site. Handles desktop and mobile layouts,
- * DA/EN language toggle, and auth-aware rendering (login/register vs profile/logout).
+ * Fixed top navigation bar for the site. Handles desktop and mobile layouts
+ * and auth-aware rendering (login/register vs profile/logout).
  */
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Globe, User, LogOut, Music } from 'lucide-react';
+import { Menu, X, User, LogOut, Music } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,7 +18,7 @@ interface NavbarProps {
 export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
   // Controls the mobile hamburger menu open/close state
   const [isOpen, setIsOpen] = useState(false);
-  const { t, language, toggleLanguage } = useLanguage();
+  const { t } = useLanguage();
   // Auth state determines which action buttons to show (login/register vs profile/logout)
   const { user, signOut } = useAuth();
 
@@ -54,6 +54,8 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
               <Link to="/community" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.community}</Link>
               <Link to="/pricing" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.pricing}</Link>
               <Link to="/nyheder" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.news}</Link>
+              {/* External link to the music store (lassenmusik.com) */}
+              <a href="https://www.lassenmusik.com/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.shop}</a>
               <Link to="/about" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.about}</Link>
               <Link to="/contact" className="text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5">{t.navbar.contact}</Link>
             </div>
@@ -64,15 +66,6 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
           {/* Action Buttons — visible on tablets (md+) and above so login/logout stays in the navbar on iPads */}
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={toggleLanguage}
-                title={t.navbar.switchLanguageTooltip}
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <Globe className="w-4 h-4" />
-                {language === 'da' ? 'EN' : 'DA'}
-              </button>
-
               {/* Conditionally render profile/logout for authenticated users, or login/register for guests */}
               {user ? (
                 <>
@@ -115,13 +108,6 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
 
           {/* Burger menu button — shown below 1400px so all iPads (incl. iPad Pro 12.9" landscape) get a hamburger */}
           <div className="-mr-2 flex min-[1400px]:hidden gap-2">
-            {/* Compact language toggle next to burger — only on phones; tablets/desktop have the larger one in the action group */}
-            <button
-                onClick={toggleLanguage}
-                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
-              >
-                <span className="text-xs font-bold">{language === 'da' ? 'EN' : 'DA'}</span>
-            </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
@@ -143,6 +129,8 @@ export default function Navbar({ onOpenRegister, onOpenLogin }: NavbarProps) {
             <Link to="/community" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.community}</Link>
             <Link to="/pricing" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.pricing}</Link>
             <Link to="/nyheder" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.news}</Link>
+            {/* External link to the music store (lassenmusik.com) */}
+            <a href="https://www.lassenmusik.com/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.shop}</a>
             <Link to="/about" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.about}</Link>
             <Link to="/contact" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">{t.navbar.contact}</Link>
             {/* Auth section in dropdown — only shown on phones; tablets/desktop show login/logout directly in the navbar */}

@@ -12,6 +12,7 @@ export const translations = {
       about: "Om",
       contact: "Kontakt",
       news: "Nyheder",
+      shop: "Shop",
       login: "Log ind",
       freeTrial: "Prøv Gratis",
       switchLanguageTooltip: "Skift til engelsk",
@@ -22,8 +23,8 @@ export const translations = {
     },
     hero: {
       newMasterclass: "Nyhed: Masterclass med Kristian Lassen",
-      headline: "Undervisning der udvikler.",
-      subheadline: "Find din lyd.",
+      headline: "Undervisning der udvikler",
+      subheadline: "Find din lyd",
       description: "It's all about the music we love",
       ctaMain: "Kom i gang",
       ctaMainLoggedIn: "Gå til kurser",
@@ -367,7 +368,7 @@ export const translations = {
     storeDiscount: {
       title: "Medlemsfordel i butikken",
       description:
-        "Når du har købt et kursus, får du også 20% rabat på udvalgte varer — bl.a. tunere og guitarremme — når du besøger Kristian Lassen Musik ApS i Svendborg.",
+        "Køb et kursus og hent en Pulse Tuner til halv pris i butikken i Svendborg. 50% fratrækkes ved kassen. Du skal blot fremvise navn og medlemsnummer.",
       cta: "Find butikken",
     },
     communityPage: {
@@ -612,6 +613,7 @@ export const translations = {
       about: "About",
       contact: "Contact",
       news: "News",
+      shop: "Shop",
       login: "Log in",
       freeTrial: "Try for Free",
       switchLanguageTooltip: "Switch to Danish",
@@ -622,8 +624,8 @@ export const translations = {
     },
     hero: {
       newMasterclass: "New: Masterclass with Kristian Lassen",
-      headline: "Teaching that develops you.",
-      subheadline: "Find your sound.",
+      headline: "Teaching that develops you",
+      subheadline: "Find your sound",
       description: "It's all about the music we love",
       ctaMain: "Get Started",
       ctaMainLoggedIn: "Go to courses",
@@ -963,7 +965,7 @@ export const translations = {
     storeDiscount: {
       title: "In-store discount",
       description:
-        "Once you've bought a course, you also get 20% off selected items — including tuners and guitar straps — when you visit Kristian Lassen Musik ApS in Svendborg.",
+        "Buy a course and pick up a Pulse Tuner for half price at the store in Svendborg. 50% is deducted at checkout. Just show your name and membership number.",
       cta: "Find the store",
     },
     communityPage: {

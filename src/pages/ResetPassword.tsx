@@ -61,7 +61,7 @@ export default function ResetPassword() {
               )}
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3">{t.auth.resetPasswordTitle}</h2>
+          <h2 className="text-3xl font-bold text-white mb-3 uppercase">{t.auth.resetPasswordTitle}</h2>
           {!success && (
             <p className="text-gray-300 text-base leading-relaxed max-w-sm mx-auto">{t.auth.resetPasswordSubtitle}</p>
           )}

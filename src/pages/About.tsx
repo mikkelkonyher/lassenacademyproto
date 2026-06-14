@@ -70,7 +70,7 @@ export default function About() {
       <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
@@ -90,7 +90,7 @@ export default function About() {
                 {at.tagline}
               </span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight uppercase">
               {at.pageTitle}
             </h1>
             <p className="text-lg text-gray-400 leading-relaxed max-w-2xl">

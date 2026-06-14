@@ -156,7 +156,7 @@ export default function AllCourses() {
 
           {/* Page Header */}
           <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 uppercase">
               {t.allCourses.pageTitle}
             </h1>
             <p className="text-lg text-gray-400">

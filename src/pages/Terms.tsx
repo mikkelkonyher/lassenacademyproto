@@ -37,7 +37,7 @@ export default function Terms() {
           </button>
 
           {/* Page title and last updated */}
-          <h1 className="text-4xl font-bold text-white mb-2">{tp.title}</h1>
+          <h1 className="text-4xl font-bold text-white mb-2 uppercase">{tp.title}</h1>
           <p className="text-gray-400 text-sm mb-10">{tp.lastUpdated}</p>
 
           {/* Terms sections */}

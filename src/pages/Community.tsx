@@ -518,7 +518,7 @@ export default function Community() {
       <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
@@ -531,7 +531,7 @@ export default function Community() {
           {/* Page Header */}
           <div className="flex items-start justify-between mb-8 gap-4">
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 uppercase">
                 {ct.pageTitle}
               </h1>
               <p className="text-lg text-gray-400">{ct.pageSubtitle}</p>

@@ -122,7 +122,7 @@ export default function Pricing() {
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary mb-4">
               {t.navbar.pricing}
             </p>
-            <h1 className="text-4xl sm:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-5">
+            <h1 className="text-4xl sm:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-5 uppercase">
               {store.pageTitle}
             </h1>
             <p className="text-lg text-gray-400 max-w-xl leading-relaxed">

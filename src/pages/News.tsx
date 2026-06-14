@@ -69,7 +69,7 @@ export default function News() {
       <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back button */}
           <button
             onClick={() => navigate(-1)}
@@ -89,7 +89,7 @@ export default function News() {
                 {nt.pageTitle}
               </span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2 uppercase">
               {nt.pageTitle}
             </h1>
             <p className="text-lg text-gray-400">{nt.pageSubtitle}</p>
