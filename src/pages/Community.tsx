@@ -80,6 +80,9 @@ interface ForumNotification {
   forum_posts: { title: string } | null;
 }
 
+// Number of posts fetched per page (keeps the forum query bounded as it grows)
+const PAGE_SIZE = 20;
+
 // Map each forum category to its Lucide icon for use in tags and filters
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   general: <Users className="w-4 h-4" />,
@@ -145,6 +148,13 @@ export default function Community() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Pagination: load posts in pages instead of fetching the entire forum at once.
+  // This keeps the query bounded as the forum grows (avoids loading thousands of
+  // posts + comments on every visit).
+  const [page, setPage] = useState(0); // highest page index currently loaded
+  const [hasMore, setHasMore] = useState(false); // true when more pages remain
+  const [loadingMore, setLoadingMore] = useState(false); // spinner for "Load more"
+
   // New post form state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -193,31 +203,69 @@ export default function Community() {
     { key: "theory", label: ct.categories.theory },
   ];
 
-  // Fetch all posts with nested comments and author profiles from Supabase.
-  // Comments are sorted oldest-first so the conversation reads chronologically.
-  const fetchPosts = useCallback(async () => {
-    const { data, error: fetchError } = await supabase
-      .from("forum_posts")
-      .select(
-        "*, profiles(full_name, image_url), forum_comments(*, profiles(full_name, image_url))"
-      )
-      .order("created_at", { ascending: false });
+  // Fetch posts with nested comments and author profiles from Supabase, one page
+  // at a time. Page argument is passed explicitly (not read from state) so this
+  // callback stays stable and the mount effect doesn't loop on page changes.
+  //   - "first":  load page 0 (initial load / refresh)
+  //   - "more":   append the next page (Load more button)
+  //   - "reload": refetch every page currently loaded (after a create/edit/delete,
+  //               so the user keeps their place instead of snapping back to the top)
+  // Comments are sorted oldest-first so each conversation reads chronologically.
+  const fetchPosts = useCallback(
+    async (mode: "first" | "more" | "reload", currentPage: number) => {
+      if (mode === "more") setLoadingMore(true);
 
-    if (fetchError) {
-      setError(ct.errorLoading);
-    } else {
-      const sorted = (data as unknown as ForumPost[]).map((post) => ({
-        ...post,
-        forum_comments: [...post.forum_comments].sort(
-          (a, b) =>
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        ),
-      }));
-      setPosts(sorted);
-      setError("");
-    }
-    setLoading(false);
-  }, [ct.errorLoading]);
+      // Compute the row range for this fetch based on the mode.
+      let from: number;
+      let to: number;
+      let targetPage: number;
+      if (mode === "more") {
+        targetPage = currentPage + 1;
+        from = targetPage * PAGE_SIZE;
+        to = from + PAGE_SIZE - 1;
+      } else if (mode === "reload") {
+        targetPage = currentPage;
+        from = 0;
+        to = (currentPage + 1) * PAGE_SIZE - 1;
+      } else {
+        targetPage = 0;
+        from = 0;
+        to = PAGE_SIZE - 1;
+      }
+
+      const { data, error: fetchError } = await supabase
+        .from("forum_posts")
+        .select(
+          "*, profiles(full_name, image_url), forum_comments(*, profiles(full_name, image_url))"
+        )
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (fetchError) {
+        setError(ct.errorLoading);
+      } else {
+        const sorted = (data as unknown as ForumPost[]).map((post) => ({
+          ...post,
+          forum_comments: [...post.forum_comments].sort(
+            (a, b) =>
+              new Date(a.created_at).getTime() -
+              new Date(b.created_at).getTime()
+          ),
+        }));
+        // Append for "more", replace for "first"/"reload".
+        setPosts((prev) => (mode === "more" ? [...prev, ...sorted] : sorted));
+        setPage(targetPage);
+        // More pages remain only if this fetch filled the window it requested.
+        const expected =
+          mode === "reload" ? (currentPage + 1) * PAGE_SIZE : PAGE_SIZE;
+        setHasMore(sorted.length === expected);
+        setError("");
+      }
+      setLoading(false);
+      setLoadingMore(false);
+    },
+    [ct.errorLoading]
+  );
 
   // Fetch the 20 most recent notifications for the current user.
   // Joins commenter profile and post title for display in the dropdown.
@@ -240,7 +288,7 @@ export default function Community() {
 
   /* eslint-disable react-hooks/set-state-in-effect -- data fetching on mount is a valid effect pattern */
   useEffect(() => {
-    fetchPosts();
+    fetchPosts("first", 0);
   }, [fetchPosts]);
 
   useEffect(() => {
@@ -354,7 +402,7 @@ export default function Community() {
       setNewBody("");
       setNewCategory("general");
       setShowCreateForm(false);
-      await fetchPosts();
+      await fetchPosts("reload", page);
     } else {
       setError(getValidationError(result.code, result.error));
     }
@@ -376,7 +424,7 @@ export default function Community() {
 
     if (result.success) {
       setEditingPostId(null);
-      await fetchPosts();
+      await fetchPosts("reload", page);
     } else {
       setError(getValidationError(result.code, result.error));
     }
@@ -392,7 +440,7 @@ export default function Community() {
 
     if (result.success) {
       setExpandedPost(null);
-      await fetchPosts();
+      await fetchPosts("reload", page);
     }
     setDeletingPostId(null);
   };
@@ -411,7 +459,7 @@ export default function Community() {
 
     if (result.success) {
       setCommentText((prev) => ({ ...prev, [postId]: "" }));
-      await fetchPosts();
+      await fetchPosts("reload", page);
     } else {
       setError(getValidationError(result.code, result.error));
     }
@@ -431,7 +479,7 @@ export default function Community() {
 
     if (result.success) {
       setEditingCommentId(null);
-      await fetchPosts();
+      await fetchPosts("reload", page);
     } else {
       setError(getValidationError(result.code, result.error));
     }
@@ -446,7 +494,7 @@ export default function Community() {
     const result = await callEdgeFunction("delete-forum-comment", { comment_id: commentId });
 
     if (result.success) {
-      await fetchPosts();
+      await fetchPosts("reload", page);
     }
     setDeletingCommentId(null);
   };
@@ -1099,6 +1147,25 @@ export default function Community() {
                   );
                 })}
               </div>
+
+              {/* Load more: fetches the next page of posts and appends them.
+                  Shown whenever more pages remain on the server. */}
+              {hasMore && (
+                <div className="flex justify-center mt-8">
+                  <button
+                    onClick={() => fetchPosts("more", page)}
+                    disabled={loadingMore}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {loadingMore
+                      ? ct.loadingPosts
+                      : language === "da"
+                        ? "Indlæs flere"
+                        : "Load more"}
+                  </button>
+                </div>
+              )}
 
               {filteredPosts.length === 0 && (
                 <div className="text-center py-16">

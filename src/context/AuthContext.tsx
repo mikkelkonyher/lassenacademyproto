@@ -52,9 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /** Fetch the user's profile row from the profiles table */
   const fetchProfile = async (userId: string) => {
+    // Note: `email` is intentionally NOT selected — the column is hidden from the
+    // public API (column-level grant) to prevent PII harvesting. Read the current
+    // user's own email from the auth session (user.email) instead.
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, email, bio, image_url, role, notify_email, notify_course_updates, notify_newsletter, created_at')
+      .select('id, full_name, bio, image_url, role, notify_email, notify_course_updates, notify_newsletter, created_at')
       .eq('id', userId)
       .single();
 

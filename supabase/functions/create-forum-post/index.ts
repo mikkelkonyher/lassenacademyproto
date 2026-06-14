@@ -72,7 +72,7 @@ function isSpammy(text: string): boolean {
   }
 
   // Flag repeated characters like "aaaaaaaaa"
-  if (/(.)\\1{9,}/.test(text)) return true;
+  if (/(.)\1{9,}/.test(text)) return true;
 
   // Flag common spam phrases
   const spamPhrases = [

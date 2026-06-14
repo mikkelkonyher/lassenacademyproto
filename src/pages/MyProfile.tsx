@@ -425,7 +425,7 @@ export default function MyProfile() {
               </div>
               <div className="text-center sm:text-left flex-1">
                 <h1 className="text-3xl font-bold text-white mb-1">{profile?.full_name}</h1>
-                <p className="text-gray-400 mb-1">{profile?.email}</p>
+                <p className="text-gray-400 mb-1">{user?.email}</p>
                 {profile?.created_at && (
                   <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-3">
                     <Calendar className="w-3.5 h-3.5" />
@@ -640,7 +640,7 @@ export default function MyProfile() {
                     <input
                       type="email"
                       readOnly
-                      value={profile?.email ?? ''}
+                      value={user?.email ?? ''}
                       className="w-full glass border border-white/20 rounded-lg py-3 pl-10 pr-4 text-white/60 placeholder:text-gray-400 focus:outline-none cursor-not-allowed"
                     />
                   </div>

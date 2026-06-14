@@ -65,9 +65,19 @@ function buildChain(resolvedData: unknown = [], resolvedError: unknown = null) {
   const limitFn = vi
     .fn()
     .mockReturnValue({ data: resolvedData, error: resolvedError });
+  // Posts query ends in .order(...).range(from, to); notifications query ends in
+  // .order(...).limit(n) — so the order() mock must expose both range and limit.
+  const rangeFn = vi
+    .fn()
+    .mockReturnValue({ data: resolvedData, error: resolvedError });
   const orderFn = vi
     .fn()
-    .mockReturnValue({ data: resolvedData, error: resolvedError, limit: limitFn });
+    .mockReturnValue({
+      data: resolvedData,
+      error: resolvedError,
+      limit: limitFn,
+      range: rangeFn,
+    });
   const eqFn = vi
     .fn()
     .mockReturnValue({ data: resolvedData, error: resolvedError, order: orderFn });
@@ -275,7 +285,11 @@ describe("Community Page", () => {
 
     it("shows loading state", () => {
       chain.selectFn.mockReturnValue({
-        order: vi.fn().mockReturnValue(new Promise(() => {})),
+        // Posts fetch is .order(...).range(...); make range() never resolve so the
+        // component stays in its loading state for this assertion.
+        order: vi.fn().mockReturnValue({
+          range: vi.fn().mockReturnValue(new Promise(() => {})),
+        }),
       });
 
       renderCommunity();
