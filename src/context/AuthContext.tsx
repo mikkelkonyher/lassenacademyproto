@@ -186,11 +186,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return { error: 'Not authenticated', url: null };
 
     const fileExt = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
-    const filePath = `${user.id}/avatar.${fileExt}`;
+    // Use a unique filename per upload so this is always a fresh INSERT.
+    // Overwriting a fixed path via upsert would require a SELECT storage policy
+    // (so the storage service can find the existing row); a unique name avoids that.
+    const filePath = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+
+    // Remember the previous avatar's path (if any) so we can clean it up afterwards
+    const previousUrl = profile?.image_url ?? null;
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file);
 
     if (uploadError) {
       return { error: uploadError.message, url: null };
@@ -200,11 +206,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from('avatars')
       .getPublicUrl(filePath);
 
-    // Add cache-busting param
-    const url = `${publicUrl}?t=${Date.now()}`;
+    // The unique filename already busts any cache, so the bare public URL is enough
+    const url = publicUrl;
 
     // Update profile with new image URL
     const { error: updateError } = await updateProfile({ image_url: url });
+
+    // Best-effort cleanup of the old avatar file so stale uploads don't accumulate.
+    // Derive its storage path from the previous public URL; ignore any failure.
+    if (!updateError && previousUrl) {
+      const marker = '/avatars/';
+      const idx = previousUrl.indexOf(marker);
+      if (idx !== -1) {
+        const oldPath = previousUrl.slice(idx + marker.length).split('?')[0];
+        if (oldPath && oldPath !== filePath) {
+          await supabase.storage.from('avatars').remove([oldPath]);
+        }
+      }
+    }
+
     return { error: updateError, url };
   };
 
