@@ -8,6 +8,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
+import * as Sentry from '@sentry/react';
 import { supabase } from '../supabase/client';
 import type { Database } from '../types/database.types';
 
@@ -140,6 +141,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Log failed sign-in attempts to Sentry as a warning so we can spot
+    // brute-force patterns or recurring credential problems.
+    if (error) {
+      Sentry.logger.warn('Failed login attempt', { email });
+    }
     return { error: error?.message ?? null };
   };
 
