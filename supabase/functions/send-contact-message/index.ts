@@ -15,6 +15,7 @@
  */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { reportError } from "../_shared/sentry.ts";
 
 // Gmail SMTP credentials + destination inbox, supplied as Edge Function secrets
 const GMAIL_USER = Deno.env.get("GMAIL_USER")!;
@@ -278,6 +279,7 @@ Deno.serve(async (req: Request) => {
     });
   } catch (err) {
     console.error("send-contact-message error:", err);
+    await reportError("send-contact-message", err); // report to Sentry (backend project)
     return jsonError(
       "Failed to send message. Please try again later.",
       "EMAIL_FAILED",

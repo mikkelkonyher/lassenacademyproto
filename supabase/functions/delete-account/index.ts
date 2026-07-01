@@ -13,6 +13,7 @@
  */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { reportError } from "../_shared/sentry.ts";
 
 // Supabase connection — service role bypasses RLS for admin operations
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -119,6 +120,7 @@ Deno.serve(async (req: Request) => {
     });
   } catch (err) {
     console.error("Unexpected error:", err);
+    await reportError("delete-account", err); // report to Sentry (backend project)
     return jsonError("Internal server error", "INTERNAL_ERROR", 500, corsHeaders);
   }
 });

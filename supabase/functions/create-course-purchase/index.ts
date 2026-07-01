@@ -17,6 +17,7 @@
  */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { reportError } from "../_shared/sentry.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -288,6 +289,7 @@ Deno.serve(async (req: Request) => {
     );
   } catch (err) {
     console.error("Unexpected error:", err);
+    await reportError("create-course-purchase", err); // report to Sentry (backend project)
     return jsonError("Internal server error", "INTERNAL_ERROR", 500, corsHeaders);
   }
 });
