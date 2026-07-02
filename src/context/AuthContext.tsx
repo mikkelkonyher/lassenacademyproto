@@ -97,6 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
+      // Attach the user to Sentry by ID only — never email/PII (GDPR). The ID can
+      // be resolved back to an account in Supabase when investigating an issue.
+      Sentry.setUser(currentSession?.user ? { id: currentSession.user.id } : null);
       if (currentSession?.user) {
         fetchProfile(currentSession.user.id);
         fetchPurchases(currentSession.user.id);
@@ -108,6 +111,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
+      // Keep Sentry's user context in sync — ID only, cleared on sign-out.
+      Sentry.setUser(newSession?.user ? { id: newSession.user.id } : null);
       if (newSession?.user) {
         fetchProfile(newSession.user.id);
         fetchPurchases(newSession.user.id);
@@ -141,10 +146,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    // Log failed sign-in attempts to Sentry as a warning so we can spot
-    // brute-force patterns or recurring credential problems.
+    // Log failed sign-in attempts to Sentry as a warning so we can spot recurring
+    // credential problems. No email/PII is included (GDPR) — and a failed login
+    // has no authenticated user, so there is no user ID to attach either.
     if (error) {
-      Sentry.logger.warn('Failed login attempt', { email });
+      Sentry.logger.warn('Failed login attempt');
     }
     return { error: error?.message ?? null };
   };
