@@ -11,6 +11,7 @@
  */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { reportError } from "../_shared/sentry.ts";
 
 // Allowed origins for CORS — restrict to known frontends only (matches the
 // forum/contact functions instead of a wildcard origin).
@@ -172,6 +173,7 @@ Deno.serve(async (req: Request) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
+    await reportError("update-profile", err); // report to Sentry (backend project)
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

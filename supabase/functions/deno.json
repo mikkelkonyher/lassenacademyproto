@@ -4,7 +4,6 @@
     "lib": ["deno.ns", "deno.unstable"]
   },
   "imports": {
-    "@supabase/supabase-js": "jsr:@supabase/supabase-js@2",
-    "@sentry/deno": "npm:@sentry/deno@10"
+    "@supabase/supabase-js": "jsr:@supabase/supabase-js@2"
   }
 }

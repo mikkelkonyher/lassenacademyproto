@@ -7,6 +7,7 @@
  * hammering the RSS endpoint on every page load.
  */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { reportError } from "../_shared/sentry.ts";
 
 // Buzzsprout RSS feed URL
 const RSS_FEED_URL = "https://feeds.buzzsprout.com/2324855.rss";
@@ -225,6 +226,7 @@ Deno.serve(async (req: Request) => {
     });
   } catch (error) {
     console.error("Error fetching podcast feed:", error);
+    await reportError("fetch-podcast-feed", error); // report to Sentry (backend project)
     return new Response(
       JSON.stringify({ error: "Failed to fetch podcast feed" }),
       {

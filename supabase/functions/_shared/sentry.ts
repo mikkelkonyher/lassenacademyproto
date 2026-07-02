@@ -7,7 +7,10 @@
  * init + flush boilerplate. Dirs prefixed with `_` are ignored by Supabase's
  * function deploy; relative imports here are bundled into each function.
  */
-import * as Sentry from "@sentry/deno";
+// Direct npm specifier (not an import-map alias) so both the CLI bundler and the
+// MCP deploy resolve it without a separate import map. npm compatibility is GA on
+// the Supabase Edge runtime.
+import * as Sentry from "npm:@sentry/deno@10";
 
 // Initialize once at module load. No-ops gracefully if SENTRY_DSN is unset
 // (e.g. local dev or before the secret is configured), so functions never break
