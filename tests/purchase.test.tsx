@@ -187,7 +187,7 @@ vi.mock("../src/supabase/client", () => ({
   },
 }));
 
-// ── Fetch mock — covers create-course-purchase ───────────────
+// ── Fetch mock — covers create-checkout-session ──────────────
 
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);

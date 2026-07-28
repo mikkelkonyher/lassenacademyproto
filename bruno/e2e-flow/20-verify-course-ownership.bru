@@ -1,0 +1,61 @@
+meta {
+  name: GET - Precondition, test user owns the test course
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/user_course_purchases?course_id=eq.{{test_course_id}}&select=id,course_id,user_id,payment_provider,price_paid_dkk,payment_reference
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: length 1
+  res.body[0].course_id: eq {{test_course_id}}
+}
+
+script:post-response {
+  // This used to be three steps that called the mock `create-course-purchase`
+  // function to grant the course. That function is retired: the Stripe webhook
+  // is now the only writer, and `user_course_purchases` has no INSERT policy —
+  // RLS exposes SELECT only, so nothing but the service role can create a row.
+  //
+  // The purchase is therefore a durable fixture, created by the real sandbox
+  // checkout on 27 July, and this step just asserts it is still there. Steps
+  // 26, 28 and 32 all depend on it: without ownership the Mux token request
+  // returns 403 and the checkout request returns 200 instead of 409.
+  if (!Array.isArray(res.body) || res.body.length !== 1) {
+    throw new Error(
+      "Test user no longer owns the test course. Restore with a service-role " +
+      "insert into user_course_purchases (user_id, course_id, price_paid_dkk, " +
+      "payment_provider, payment_reference), or run a fresh sandbox checkout. " +
+      `Got: ${JSON.stringify(res.body)}`,
+    );
+  }
+
+  const row = res.body[0];
+
+  // RLS already scopes the query to the caller, but assert it explicitly —
+  // this catches a policy change that let one user see another's purchases.
+  const userId = bru.getVar("user_id");
+  if (row.user_id !== userId) {
+    throw new Error(`user_id mismatch: expected ${userId}, got ${row.user_id}`);
+  }
+
+  if (!["mock", "stripe"].includes(row.payment_provider)) {
+    throw new Error(`Unexpected payment_provider: ${row.payment_provider}`);
+  }
+
+  if (Number(row.price_paid_dkk) <= 0) {
+    throw new Error(`price_paid_dkk should be > 0, got ${row.price_paid_dkk}`);
+  }
+
+  bru.setVar("test_purchase_id", row.id);
+}
