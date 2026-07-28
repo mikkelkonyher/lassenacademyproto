@@ -262,6 +262,7 @@ export type Database = {
           published: boolean | null
           slug: string
           sort_order: number | null
+          thumbnail_url: string | null
           title_da: string
           title_en: string
           updated_at: string | null
@@ -281,6 +282,7 @@ export type Database = {
           published?: boolean | null
           slug: string
           sort_order?: number | null
+          thumbnail_url?: string | null
           title_da: string
           title_en: string
           updated_at?: string | null
@@ -300,6 +302,7 @@ export type Database = {
           published?: boolean | null
           slug?: string
           sort_order?: number | null
+          thumbnail_url?: string | null
           title_da?: string
           title_en?: string
           updated_at?: string | null

@@ -37,7 +37,7 @@ import { getCoursePricing } from "../utils/coursePricing";
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 type CourseWithLessons = Course & {
-  lessons: Pick<Lesson, "mux_playback_id" | "sort_order" | "published">[];
+  lessons: Pick<Lesson, "mux_playback_id" | "mux_playback_policy" | "thumbnail_url" | "sort_order" | "published">[];
 };
 
 export default function Pricing() {
@@ -65,7 +65,7 @@ export default function Pricing() {
     const fetchCourses = async () => {
       const { data } = await supabase
         .from("courses")
-        .select("*, lessons(mux_playback_id, sort_order, published)")
+        .select("*, lessons(mux_playback_id, mux_playback_policy, thumbnail_url, sort_order, published)")
         .eq("published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });

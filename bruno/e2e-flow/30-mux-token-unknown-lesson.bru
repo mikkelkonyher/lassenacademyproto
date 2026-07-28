@@ -1,0 +1,36 @@
+meta {
+  name: Mux Token - Unknown lesson is 404
+  type: http
+  seq: 30
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/get-mux-token
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "lesson_id": "00000000-0000-0000-0000-000000000000"
+  }
+}
+
+assert {
+  res.status: eq 404
+  res.body.code: eq NOT_FOUND
+}
+
+script:post-response {
+  // A well-formed but unknown id must not leak whether the lesson exists but
+  // is unpublished versus never existed — both are a plain NOT_FOUND.
+  if (res.body.tokens) {
+    throw new Error(`Unknown lesson returned tokens: ${JSON.stringify(res.body)}`);
+  }
+}

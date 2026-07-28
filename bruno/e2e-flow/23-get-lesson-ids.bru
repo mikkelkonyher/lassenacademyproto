@@ -1,0 +1,53 @@
+meta {
+  name: GET - Lesson IDs for Mux token tests
+  type: http
+  seq: 23
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/lessons?course_id=eq.{{test_course_id}}&published=eq.true&select=id,slug,is_free_preview,mux_playback_policy&order=sort_order
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+  Authorization: Bearer {{auth_token}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // Resolve lesson IDs at runtime rather than hardcoding UUIDs, so the flow
+  // survives lessons being re-created and needs no extra environment vars
+  // (which would also have to be mirrored into ci.bru + GitHub Secrets).
+  const lessons = res.body;
+  if (!Array.isArray(lessons) || lessons.length === 0) {
+    throw new Error(`No published lessons for the test course: ${JSON.stringify(lessons)}`);
+  }
+
+  // A free-preview lesson that needs no token (still on the public policy)
+  const preview = lessons.find(
+    (l) => l.is_free_preview === true && l.mux_playback_policy !== "signed",
+  );
+  if (!preview) {
+    throw new Error(
+      `Expected a public free-preview lesson: ${JSON.stringify(lessons)}`,
+    );
+  }
+
+  // A paid lesson behind signed playback — the one the paywall protects
+  const signed = lessons.find(
+    (l) => l.is_free_preview === false && l.mux_playback_policy === "signed",
+  );
+  if (!signed) {
+    throw new Error(
+      `Expected a signed non-preview lesson: ${JSON.stringify(lessons)}`,
+    );
+  }
+
+  bru.setVar("preview_lesson_id", preview.id);
+  bru.setVar("signed_lesson_id", signed.id);
+}

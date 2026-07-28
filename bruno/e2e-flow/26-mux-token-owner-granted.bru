@@ -1,0 +1,94 @@
+meta {
+  name: Mux Token - Owner granted on signed lesson
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/get-mux-token
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "lesson_id": "{{signed_lesson_id}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.reason: eq signed
+}
+
+script:post-response {
+  // The test user bought the course in steps 20-22, so they must get tokens.
+  const tokens = res.body.tokens;
+  if (!tokens || !tokens.playback || !tokens.storyboard) {
+    throw new Error(`Owner did not receive both tokens: ${JSON.stringify(res.body)}`);
+  }
+
+  // Decode without verifying — we only own the private half of the key pair,
+  // so asserting on the claims is the strongest check available here. Mux
+  // itself verifies the signature; that path is exercised by the playback
+  // check further down.
+  // Bruno's QuickJS sandbox has Buffer but not the "base64url" encoding, so
+  // translate the URL-safe alphabet by hand before decoding.
+  const fromBase64Url = (s) =>
+    Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString();
+
+  const decode = (jwt) => {
+    const parts = jwt.split(".");
+    if (parts.length !== 3) throw new Error(`Not a JWT: ${jwt.slice(0, 20)}…`);
+    return {
+      header: JSON.parse(fromBase64Url(parts[0])),
+      claims: JSON.parse(fromBase64Url(parts[1])),
+    };
+  };
+
+  const playback = decode(tokens.playback);
+  const storyboard = decode(tokens.storyboard);
+
+  // Mux requires RS256 and a `kid` naming the signing key.
+  for (const [name, t] of [["playback", playback], ["storyboard", storyboard]]) {
+    if (t.header.alg !== "RS256") {
+      throw new Error(`${name}: expected alg RS256, got ${t.header.alg}`);
+    }
+    if (!t.header.kid) {
+      throw new Error(`${name}: missing kid header`);
+    }
+  }
+
+  // Audience: 'v' for video, 's' for the storyboard used by hover-scrub.
+  if (playback.claims.aud !== "v") {
+    throw new Error(`playback: expected aud 'v', got ${playback.claims.aud}`);
+  }
+  if (storyboard.claims.aud !== "s") {
+    throw new Error(`storyboard: expected aud 's', got ${storyboard.claims.aud}`);
+  }
+
+  // Both tokens must address the same playback ID and carry a future expiry.
+  if (playback.claims.sub !== storyboard.claims.sub) {
+    throw new Error(
+      `sub mismatch: ${playback.claims.sub} vs ${storyboard.claims.sub}`,
+    );
+  }
+  const now = Math.floor(Date.now() / 1000);
+  if (!playback.claims.exp || playback.claims.exp <= now) {
+    throw new Error(`Token already expired: exp=${playback.claims.exp}, now=${now}`);
+  }
+  if (res.body.expires_at !== playback.claims.exp) {
+    throw new Error(
+      `expires_at (${res.body.expires_at}) disagrees with exp (${playback.claims.exp})`,
+    );
+  }
+
+  bru.setVar("mux_playback_token", tokens.playback);
+  bru.setVar("mux_playback_id", playback.claims.sub);
+}

@@ -19,10 +19,19 @@ assert {
   res.status: eq 200
   res.body: length 1
   res.body[0].course_id: eq {{test_course_id}}
-  res.body[0].payment_provider: eq mock
 }
 
 script:post-response {
+  // payment_provider is NOT asserted to be "mock". Step 20 is idempotent: once
+  // the test user owns the course it returns the existing row, whoever wrote
+  // it. That row now says "stripe" because the real sandbox checkout created
+  // it — the mock function never touched it. Pinning this to "mock" made CI
+  // fail the moment Stripe fulfilment went live.
+  const provider = res.body[0].payment_provider;
+  if (!["mock", "stripe"].includes(provider)) {
+    throw new Error(`Unexpected payment_provider: ${provider}`);
+  }
+
   // Verify user_id matches the logged-in user (RLS already guarantees this,
   // but the explicit check catches a misconfiguration that lets the wrong
   // user see another user's purchases)

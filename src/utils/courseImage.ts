@@ -1,55 +1,76 @@
 /**
  * Course thumbnail helper.
  *
- * Prefers the explicit `courses.image_url` — that lets an admin pick a
- * specific frame (e.g. `?time=39`) or use any external image. When
- * image_url is empty, falls back to auto-deriving the thumbnail from the
- * first published lesson's Mux poster.
+ * Posters are served from Supabase Storage (`course-thumbnails` bucket) via
+ * `courses.image_url` and `lessons.thumbnail_url`.
+ *
+ * Why not derive them from Mux? Because a `signed` playback ID refuses
+ * unsigned image requests, and Mux requires thumbnail options (width/time) to
+ * be claims inside the JWT rather than URL query parameters. The viewers who
+ * see these posters — anonymous visitors on the catalogue, and non-owners
+ * looking at the locked lessons in the LessonPlayer sidebar — are precisely
+ * the ones who cannot hold a token. So the image.mux.com derivation below is
+ * only a fallback for assets that are still `public`.
  */
 import type { Database } from "../types/database.types";
 
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 
-type LessonCoverInput = Pick<Lesson, "mux_playback_id" | "sort_order">;
+type LessonCoverInput = Pick<
+  Lesson,
+  "mux_playback_id" | "mux_playback_policy" | "thumbnail_url" | "sort_order"
+>;
 type CourseWithLessons = Pick<Course, "image_url"> & {
   lessons?: LessonCoverInput[] | null;
 };
 
 /**
- * Returns the playback ID of the first published lesson that has a Mux asset.
- * "First" = lowest sort_order, treating null as 0.
+ * Returns the first published lesson, ordered by sort_order (null treated
+ * as 0). Used to borrow a poster for courses with no explicit image_url.
  */
-function firstLessonPlaybackId(lessons: LessonCoverInput[] | null | undefined): string | null {
+function firstLesson(
+  lessons: LessonCoverInput[] | null | undefined,
+): LessonCoverInput | null {
   if (!lessons || lessons.length === 0) return null;
   const sorted = [...lessons].sort(
     (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
   );
-  return sorted.find((l) => l.mux_playback_id)?.mux_playback_id ?? null;
+  return sorted[0] ?? null;
+}
+
+/**
+ * Derives a poster URL straight from Mux. Only valid while the asset's
+ * playback policy is still `public` — returns null for signed assets, which
+ * would otherwise render as a broken image.
+ */
+function muxFallback(lesson: LessonCoverInput, width: number): string | null {
+  if (!lesson.mux_playback_id) return null;
+  if (lesson.mux_playback_policy === "signed") return null;
+  return `https://image.mux.com/${lesson.mux_playback_id}/thumbnail.webp?width=${width}`;
 }
 
 export function getCourseThumbnail(course: CourseWithLessons): string {
-  // Explicit image_url wins — admin can pick a custom Mux frame
-  // (e.g. `?time=39`) or use any external image.
+  // Explicit image_url wins — an admin-chosen poster in Supabase Storage.
   if (course.image_url) return course.image_url;
-  // Fallback: auto-derive from the first published lesson's Mux poster.
-  const playbackId = firstLessonPlaybackId(course.lessons);
-  if (playbackId) {
-    return `https://image.mux.com/${playbackId}/thumbnail.webp?width=800`;
-  }
-  return "";
+  // Otherwise borrow the first lesson's stored poster.
+  const lesson = firstLesson(course.lessons);
+  if (!lesson) return "";
+  if (lesson.thumbnail_url) return lesson.thumbnail_url;
+  // Last resort, and only for assets that are still public.
+  return muxFallback(lesson, 800) ?? "";
 }
 
 /**
  * Returns the thumbnail URL for a single lesson (used in the course
- * overview's lesson list). Returns null when the lesson has no uploaded
- * video yet — caller can render a placeholder.
+ * overview's lesson list). Returns null when the lesson has no poster and no
+ * public Mux asset — the caller renders a placeholder.
  */
 export function getLessonThumbnail(
-  lesson: Pick<Lesson, "mux_playback_id">,
+  lesson: LessonCoverInput,
 ): string | null {
-  if (!lesson.mux_playback_id) return null;
-  return `https://image.mux.com/${lesson.mux_playback_id}/thumbnail.webp?width=600`;
+  if (lesson.thumbnail_url) return lesson.thumbnail_url;
+  return muxFallback(lesson, 600);
 }
 
 /**

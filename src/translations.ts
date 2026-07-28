@@ -330,6 +330,13 @@ export const translations = {
       buyCta: "Køb kursus",
       freePreviewBadge: "Gratis prøve",
       ownedBadge: "Købt",
+      // Shown when the signed-playback token couldn't be fetched (network or
+      // server error) — distinct from "you don't own this", which is expected.
+      tokenErrorTitle: "Videoen kunne ikke indlæses",
+      tokenErrorBody:
+        "Der opstod en fejl under afspilningen. Prøv at genindlæse siden.",
+      tokenRetry: "Genindlæs",
+      loadingVideo: "Indlæser video…",
     },
     progress: {
       completed: "Gennemført",
@@ -930,6 +937,13 @@ export const translations = {
       buyCta: "Buy course",
       freePreviewBadge: "Free preview",
       ownedBadge: "Purchased",
+      // Shown when the signed-playback token couldn't be fetched (network or
+      // server error) — distinct from "you don't own this", which is expected.
+      tokenErrorTitle: "Couldn't load the video",
+      tokenErrorBody:
+        "Something went wrong while starting playback. Try reloading the page.",
+      tokenRetry: "Reload",
+      loadingVideo: "Loading video…",
     },
     progress: {
       completed: "Completed",

@@ -1,0 +1,27 @@
+meta {
+  name: Mux Stream - Accepts our signed token
+  type: http
+  seq: 28
+}
+
+get {
+  url: https://stream.mux.com/{{mux_playback_id}}.m3u8?token={{mux_playback_token}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // Proves the signature Mux verifies matches the key we sign with — the one
+  // thing step 26 cannot check, since it only sees the token, not the
+  // verification. A failure here means MUX_SIGNING_KEY_ID and
+  // MUX_SIGNING_KEY_PRIVATE disagree, or the key was rotated in the Mux
+  // dashboard without updating the Supabase secrets.
+  const body = typeof res.body === "string" ? res.body : String(res.body);
+  if (!body.includes("#EXTM3U")) {
+    throw new Error(`Expected an HLS manifest, got: ${body.slice(0, 120)}`);
+  }
+}

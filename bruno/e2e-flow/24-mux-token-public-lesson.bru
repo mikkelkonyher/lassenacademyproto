@@ -1,0 +1,40 @@
+meta {
+  name: Mux Token - Public lesson needs none
+  type: http
+  seq: 24
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/get-mux-token
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "lesson_id": "{{preview_lesson_id}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.reason: eq public
+}
+
+script:post-response {
+  // Lessons still on the `public` playback policy must resolve without a
+  // token. This is the transitional path that lets lessons be migrated to
+  // signed one at a time — if it ever started returning tokens, every
+  // unmigrated lesson would break.
+  if (res.body.tokens !== null) {
+    throw new Error(
+      `Public lesson should return tokens:null, got ${JSON.stringify(res.body.tokens)}`,
+    );
+  }
+}

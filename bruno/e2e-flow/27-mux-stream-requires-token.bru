@@ -1,0 +1,27 @@
+meta {
+  name: Mux Stream - Rejects unsigned request
+  type: http
+  seq: 27
+}
+
+get {
+  url: https://stream.mux.com/{{mux_playback_id}}.m3u8
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 403
+}
+
+script:post-response {
+  // The whole point of the migration: hitting the playback URL directly,
+  // without a token, must be refused by Mux itself. If this ever returns 200
+  // the asset has a public playback ID again and the paywall is bypassable
+  // regardless of what the app does.
+  if (res.status === 200) {
+    throw new Error(
+      "Mux served the paid lesson without a token — playback policy is not signed",
+    );
+  }
+}

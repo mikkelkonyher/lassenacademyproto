@@ -30,7 +30,7 @@ import { getTagLabel } from "../utils/tagLabel";
 type Course = Database["public"]["Tables"]["courses"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 type CourseWithLessons = Course & {
-  lessons: Pick<Lesson, "mux_playback_id" | "duration_seconds" | "sort_order" | "published">[];
+  lessons: Pick<Lesson, "mux_playback_id" | "mux_playback_policy" | "thumbnail_url" | "duration_seconds" | "sort_order" | "published">[];
 };
 
 /** Format duration in seconds as "Xt YYm" (DA) / "Xh YYm" (EN); null if unknown */
@@ -81,7 +81,7 @@ export default function AllCourses() {
       const { data } = await supabase
         .from("courses")
         .select(
-          "*, lessons(id, mux_playback_id, duration_seconds, sort_order, published)",
+          "*, lessons(id, mux_playback_id, mux_playback_policy, thumbnail_url, duration_seconds, sort_order, published)",
         )
         .eq("published", true)
         .eq("lessons.published", true)

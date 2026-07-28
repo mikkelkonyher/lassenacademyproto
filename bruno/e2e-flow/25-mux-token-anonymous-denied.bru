@@ -1,0 +1,39 @@
+meta {
+  name: Mux Token - Anonymous denied on signed lesson
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/get-mux-token
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "lesson_id": "{{signed_lesson_id}}"
+  }
+}
+
+assert {
+  res.status: eq 401
+  res.body.code: eq AUTH_REQUIRED
+}
+
+script:post-response {
+  // Deliberately no Authorization header. A paid lesson must never hand a
+  // token to an anonymous caller — this is the core paywall assertion, and
+  // the one that would silently regress if the ownership gate were reordered
+  // or the function were redeployed with verify_jwt on.
+  if (res.body.tokens) {
+    throw new Error(
+      `Anonymous caller received tokens for a paid lesson: ${JSON.stringify(res.body)}`,
+    );
+  }
+}

@@ -32,7 +32,9 @@ type ContinueWatchingRow = {
   positionSeconds: number;
   durationSeconds: number;
   completed: boolean;
-  muxPlaybackId: string | null;
+  // Stored poster from Supabase Storage. Replaces the old image.mux.com URL,
+  // which cannot be built for a lesson using signed playback.
+  lessonThumbnailUrl: string | null;
 };
 
 // Shape of the joined query backing the "My purchases" section
@@ -212,7 +214,7 @@ export default function MyProfile() {
     let cancelled = false;
     supabase
       .from('lessons')
-      .select('id, slug, title_da, title_en, sort_order, mux_playback_id, courses(slug, title_da, title_en, image_url)')
+      .select('id, slug, title_da, title_en, sort_order, thumbnail_url, courses(slug, title_da, title_en, image_url)')
       .eq('id', candidate.lessonId)
       .maybeSingle()
       .then(({ data: lesson }) => {
@@ -232,7 +234,7 @@ export default function MyProfile() {
           positionSeconds: candidate.positionSeconds,
           durationSeconds: candidate.durationSeconds,
           completed: candidate.completed,
-          muxPlaybackId: lesson.mux_playback_id,
+          lessonThumbnailUrl: lesson.thumbnail_url,
         });
       });
     return () => { cancelled = true; };
@@ -457,9 +459,12 @@ export default function MyProfile() {
                 ? Math.min(continueRow.positionSeconds / continueRow.durationSeconds, 1)
                 : 0;
               const pct = Math.round(fraction * 100);
-              const thumb = continueRow.muxPlaybackId
-                ? `https://image.mux.com/${continueRow.muxPlaybackId}/thumbnail.webp?time=${Math.max(1, Math.floor(continueRow.positionSeconds))}&width=400`
-                : continueRow.courseImageUrl;
+              // The lesson's stored poster, falling back to the course cover.
+              // This used to pull a frame at the viewer's exact playback
+              // position, but that needs a per-position Mux token once the
+              // asset is signed — the progress bar below already conveys
+              // "where you left off".
+              const thumb = continueRow.lessonThumbnailUrl ?? continueRow.courseImageUrl;
               return (
                 <Link
                   to={`/courses/${continueRow.courseSlug}/${continueRow.lessonSlug}`}

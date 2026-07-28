@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen, CircleCheck } from "lucide-react";
 import { useProgressTracker } from "../hooks/useProgressTracker";
+import { useMuxToken } from "../hooks/useMuxToken";
 import { useWatchProgress } from "../context/WatchProgressContext";
 import MuxPlayer from "@mux/mux-player-react";
 import Navbar from "../components/Navbar";
@@ -84,6 +85,15 @@ export default function LessonPlayer() {
     courseId: course?.id ?? '',
     enabled: canPlay,
   });
+
+  // Server-side half of the paywall. Only makes a request for lessons whose
+  // Mux asset is `signed`; public lessons resolve to "ready" with no tokens,
+  // so nothing changes for assets that haven't been migrated yet.
+  const {
+    tokens: muxTokens,
+    status: tokenStatus,
+    errorCode: tokenErrorCode,
+  } = useMuxToken(resolvedLesson, canPlay);
 
   // Fetch the parent course with all published lessons in one round-trip.
   // The current lesson is found client-side from the embedded array — that
@@ -228,6 +238,76 @@ export default function LessonPlayer() {
   const instructorSlug = course.instructor.toLowerCase().replace(/[\s-]+/g, "-");
   const videoTitle = `${course.title_en || course.title_da} — ${lesson.title_en || lesson.title_da}`;
 
+  // The server refused to mint a token. It re-checks ownership on every
+  // request, so it outranks the client-side `canPlay` gate — this catches a
+  // purchase that was revoked while the page was open.
+  const serverRefused =
+    tokenStatus === "error" &&
+    (tokenErrorCode === "NOT_OWNED" || tokenErrorCode === "AUTH_REQUIRED");
+
+  // Which of the five states the 16:9 player frame is in. Computed here rather
+  // than as nested ternaries inside the JSX.
+  const playerView: "player" | "coming-soon" | "locked" | "loading" | "token-error" =
+    !canPlay || serverRefused
+      ? "locked"
+      : !lesson.mux_playback_id
+        ? "coming-soon"
+        : tokenStatus === "loading"
+          ? "loading"
+          : tokenStatus === "error"
+            ? "token-error"
+            : "player";
+
+  // Paywall panel. Defined once here because it is rendered both when the UI
+  // gate fails and when the token endpoint returns NOT_OWNED / AUTH_REQUIRED.
+  const lockedPanel = (
+    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
+      <div className="p-4 rounded-full bg-primary/15 border border-primary/30 mb-4">
+        <Lock className="w-7 h-7 text-primary" />
+      </div>
+      <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+        {t.lessonGate.lockedTitle}
+      </h3>
+      <p className="text-sm text-gray-300 max-w-md mb-5 leading-relaxed">
+        {t.lessonGate.lockedBody}
+      </p>
+      {/* Lesson-gate CTA — reflects the active 2026 launch promo so
+          the price on the button matches the pricing page exactly. */}
+      {(() => {
+        const gatePricing = getCoursePricing(course.price_dkk);
+        const fmt = (n: number) =>
+          language === "da"
+            ? `${n.toString().replace(".", ",")} kr`
+            : `${n} kr`;
+        return (
+          <button
+            onClick={() => {
+              if (!user) {
+                openLogin();
+                return;
+              }
+              setBuyModalOpen(true);
+            }}
+            className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer flex items-center gap-2"
+          >
+            <Lock className="w-4 h-4" />
+            {t.lessonGate.buyCta}
+            {gatePricing && (
+              <span className="opacity-90 flex items-baseline gap-1.5">
+                · {fmt(gatePricing.effectivePrice)}
+                {gatePricing.discountActive && (
+                  <span className="text-xs line-through opacity-70">
+                    {fmt(gatePricing.basePrice)}
+                  </span>
+                )}
+              </span>
+            )}
+          </button>
+        );
+      })()}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background text-white">
       <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
@@ -238,79 +318,64 @@ export default function LessonPlayer() {
           <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
             {/* Main column — player + title + description (3/4 width on lg+) */}
             <div className="lg:col-span-3 min-w-0">
-              {/* Player block:
-                  - canPlay (free preview OR user owns the course): Mux player, falling back to a "coming soon" panel if Mux isn't set up.
-                  - Otherwise: locked panel that prompts the user to buy the course (or log in first). */}
+              {/* Player block — see `playerView` above for the five states. */}
               <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.4)] border border-primary/30">
-                {canPlay ? (
-                  lesson.mux_playback_id ? (
-                    <MuxPlayer
-                      key={lesson.id}
-                      playbackId={lesson.mux_playback_id}
-                      streamType="on-demand"
-                      accentColor="#fb923c"
-                      {...(startTime > 0 ? { startTime } : {})}
-                      metadata={{ video_title: videoTitle }}
-                      className="absolute inset-0 w-full h-full"
-                      onTimeUpdate={onTimeUpdate}
-                      onPause={onPause}
-                      onEnded={onEnded}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
-                      <Sparkles className="w-12 h-12 text-primary mb-4" />
-                      <p className="text-xl font-semibold text-white">
-                        {t.courseDetail.comingSoon}
-                      </p>
-                    </div>
-                  )
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
-                    <div className="p-4 rounded-full bg-primary/15 border border-primary/30 mb-4">
-                      <Lock className="w-7 h-7 text-primary" />
-                    </div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                      {t.lessonGate.lockedTitle}
-                    </h3>
-                    <p className="text-sm text-gray-300 max-w-md mb-5 leading-relaxed">
-                      {t.lessonGate.lockedBody}
+                {/* `tokens` is spread in only for signed assets; public ones
+                    play unsigned exactly as before. */}
+                {playerView === "player" && (
+                  <MuxPlayer
+                    key={lesson.id}
+                    playbackId={lesson.mux_playback_id!}
+                    streamType="on-demand"
+                    accentColor="#fb923c"
+                    {...(startTime > 0 ? { startTime } : {})}
+                    {...(muxTokens ? { tokens: muxTokens } : {})}
+                    metadata={{ video_title: videoTitle }}
+                    className="absolute inset-0 w-full h-full"
+                    onTimeUpdate={onTimeUpdate}
+                    onPause={onPause}
+                    onEnded={onEnded}
+                  />
+                )}
+
+                {playerView === "loading" && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-primary/10 via-background to-accent/10">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                    <p className="text-sm text-gray-300">
+                      {t.lessonGate.loadingVideo}
                     </p>
-                    {/* Lesson-gate CTA — reflects the active 2026 launch promo so
-                        the price on the button matches the pricing page exactly. */}
-                    {(() => {
-                      const gatePricing = getCoursePricing(course.price_dkk);
-                      const fmt = (n: number) =>
-                        language === "da"
-                          ? `${n.toString().replace(".", ",")} kr`
-                          : `${n} kr`;
-                      return (
-                        <button
-                          onClick={() => {
-                            if (!user) {
-                              openLogin();
-                              return;
-                            }
-                            setBuyModalOpen(true);
-                          }}
-                          className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer flex items-center gap-2"
-                        >
-                          <Lock className="w-4 h-4" />
-                          {t.lessonGate.buyCta}
-                          {gatePricing && (
-                            <span className="opacity-90 flex items-baseline gap-1.5">
-                              · {fmt(gatePricing.effectivePrice)}
-                              {gatePricing.discountActive && (
-                                <span className="text-xs line-through opacity-70">
-                                  {fmt(gatePricing.basePrice)}
-                                </span>
-                              )}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })()}
                   </div>
                 )}
+
+                {playerView === "coming-soon" && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
+                    <Sparkles className="w-12 h-12 text-primary mb-4" />
+                    <p className="text-xl font-semibold text-white">
+                      {t.courseDetail.comingSoon}
+                    </p>
+                  </div>
+                )}
+
+                {/* Token fetch failed for a reason that isn't the paywall —
+                    a reload is the honest suggestion, not "buy the course". */}
+                {playerView === "token-error" && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                      {t.lessonGate.tokenErrorTitle}
+                    </h3>
+                    <p className="text-sm text-gray-300 max-w-md mb-5 leading-relaxed">
+                      {t.lessonGate.tokenErrorBody}
+                    </p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer"
+                    >
+                      {t.lessonGate.tokenRetry}
+                    </button>
+                  </div>
+                )}
+
+                {playerView === "locked" && lockedPanel}
               </div>
 
               {/* Title block — lesson name in white, course name in primary below */}
