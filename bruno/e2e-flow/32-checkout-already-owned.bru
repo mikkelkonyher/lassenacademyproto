@@ -1,0 +1,41 @@
+meta {
+  name: Checkout - Already owned returns 409
+  type: http
+  seq: 32
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-checkout-session
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "{{test_course_id}}",
+    "locale": "da"
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.code: eq ALREADY_OWNED
+}
+
+script:post-response {
+  // The test user bought this course back in steps 20-22, so the server must
+  // refuse to open a second checkout rather than charge them twice.
+  //
+  // Note this is a behaviour change from the mock function it replaces, which
+  // answered 200 { already_owned: true }. BuyCourseModal keys off the 409 to
+  // show its "you already own this" panel.
+  if (res.body.url) {
+    throw new Error(`Got a checkout URL for an owned course: ${res.body.url}`);
+  }
+}

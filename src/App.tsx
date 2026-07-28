@@ -7,7 +7,6 @@
 
 import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import * as Sentry from "@sentry/react"; // TEMP: for the Sentry test button below
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import VideoSection from "./components/VideoSection";
@@ -68,30 +67,6 @@ function App() {
 
   return (
     <>
-      {/* TEMP — Sentry verification button. Sends a log, then throws an error so we can
-          confirm both Issues and Logs arrive in the Sentry dashboard. REMOVE after testing. */}
-      <button
-        onClick={() => {
-          Sentry.logger.info("User triggered test error", {
-            action: "test_error_button_click",
-          });
-          throw new Error("This is your first error!");
-        }}
-        style={{
-          position: "fixed",
-          bottom: 16,
-          right: 16,
-          zIndex: 9999,
-          padding: "10px 14px",
-          background: "#e11d48",
-          color: "#fff",
-          borderRadius: 8,
-          fontSize: 14,
-        }}
-      >
-        Break the world
-      </button>
-
       {/* Scrolls to top on every route change so users don't land mid-page */}
       <ScrollToTop />
       <Routes>

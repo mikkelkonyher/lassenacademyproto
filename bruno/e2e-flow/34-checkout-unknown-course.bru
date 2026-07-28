@@ -1,0 +1,36 @@
+meta {
+  name: Checkout - Unknown course is 404
+  type: http
+  seq: 34
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-checkout-session
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "00000000-0000-0000-0000-000000000000"
+  }
+}
+
+assert {
+  res.status: eq 404
+  res.body.code: eq NOT_FOUND
+}
+
+script:post-response {
+  // Reaching the course lookup at all proves the ownership check ran first and
+  // found nothing — the user obviously doesn't own a course that doesn't exist.
+  if (res.body.url) {
+    throw new Error(`Got a checkout URL for a nonexistent course: ${res.body.url}`);
+  }
+}

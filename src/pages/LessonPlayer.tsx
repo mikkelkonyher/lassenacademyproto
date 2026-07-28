@@ -8,9 +8,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen, CircleCheck } from "lucide-react";
+import { PlayCircle, Sparkles, Loader2, User, Lock, LockOpen, CircleCheck, CircleAlert, CircleX, X } from "lucide-react";
 import { useProgressTracker } from "../hooks/useProgressTracker";
 import { useMuxToken } from "../hooks/useMuxToken";
+import { usePurchaseReturn } from "../hooks/usePurchaseReturn";
 import { useWatchProgress } from "../context/WatchProgressContext";
 import MuxPlayer from "@mux/mux-player-react";
 import Navbar from "../components/Navbar";
@@ -94,6 +95,11 @@ export default function LessonPlayer() {
     status: tokenStatus,
     errorCode: tokenErrorCode,
   } = useMuxToken(resolvedLesson, canPlay);
+
+  // Stripe Checkout returns the customer to this route with ?purchase=…
+  // The hook strips those params and polls for the webhook's purchase row.
+  const { status: purchaseReturnStatus, dismiss: dismissPurchaseReturn } =
+    usePurchaseReturn(course?.id);
 
   // Fetch the parent course with all published lessons in one round-trip.
   // The current lesson is found client-side from the embedded array — that
@@ -308,12 +314,83 @@ export default function LessonPlayer() {
     </div>
   );
 
+  // Post-Checkout banner. `confirming` is the only state the customer should
+  // normally see for more than an instant — Stripe waits for our webhook's 2xx
+  // before redirecting, so the purchase is usually already recorded on arrival.
+  const pr = t.purchaseReturn;
+  const purchaseBanner =
+    purchaseReturnStatus === "idle"
+      ? null
+      : {
+          confirming: {
+            Icon: Loader2,
+            spin: true,
+            tone: "border-primary/40 bg-primary/10",
+            iconTone: "text-primary",
+            title: pr.confirmingTitle,
+            body: pr.confirmingBody,
+          },
+          confirmed: {
+            Icon: CircleCheck,
+            spin: false,
+            tone: "border-green-500/40 bg-green-500/10",
+            iconTone: "text-green-400",
+            title: pr.confirmedTitle,
+            body: pr.confirmedBody,
+          },
+          timeout: {
+            Icon: CircleAlert,
+            spin: false,
+            tone: "border-amber-500/40 bg-amber-500/10",
+            iconTone: "text-amber-300",
+            title: pr.timeoutTitle,
+            body: pr.timeoutBody,
+          },
+          cancelled: {
+            Icon: CircleX,
+            spin: false,
+            tone: "border-white/20 bg-white/5",
+            iconTone: "text-gray-400",
+            title: pr.cancelledTitle,
+            body: pr.cancelledBody,
+          },
+        }[purchaseReturnStatus];
+
   return (
     <div className="min-h-screen bg-background text-white">
       <Navbar onOpenRegister={openRegister} onOpenLogin={openLogin} />
 
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Stripe Checkout return banner */}
+          {purchaseBanner && (
+            <div
+              role="status"
+              className={`mb-6 flex items-start gap-3 rounded-xl border px-4 py-3.5 ${purchaseBanner.tone}`}
+            >
+              <purchaseBanner.Icon
+                className={`w-5 h-5 flex-shrink-0 mt-0.5 ${purchaseBanner.iconTone} ${
+                  purchaseBanner.spin ? "animate-spin" : ""
+                }`}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-white text-sm">
+                  {purchaseBanner.title}
+                </p>
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  {purchaseBanner.body}
+                </p>
+              </div>
+              <button
+                onClick={dismissPurchaseReturn}
+                className="text-gray-400 hover:text-white transition-colors cursor-pointer"
+                aria-label={pr.dismiss}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {/* Two-column layout: wider player on the left, slimmer playlist on the right */}
           <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
             {/* Main column — player + title + description (3/4 width on lg+) */}

@@ -315,7 +315,7 @@ export const translations = {
       free: "Gratis",
       notForSale: "Kommer snart",
       currency: "kr",
-      testModeNotice: "TEST-tilstand — der gennemføres ingen rigtig betaling.",
+      testModeNotice: "Stripe testtilstand — der trækkes ingen rigtige penge.",
       empty: "Ingen kurser tilgængelige endnu.",
       // 2026 launch promotion strings
       promoBadge: "Lancering 2026 — 35% rabat",
@@ -352,15 +352,29 @@ export const translations = {
       benefit1: "Adgang til alle lektioner i kurset",
       benefit2: "Køb én gang — beholde for altid",
       benefit3: "Adgang til community og kursusmateriale",
-      payButton: "Betal (test)",
-      paying: "Behandler…",
+      payButton: "Gå til betaling",
+      paying: "Videresender…",
       successTitle: "Tak for dit køb!",
       successBody: "Kurset er nu låst op. God fornøjelse.",
       close: "Luk",
+      alreadyOwnedTitle: "Du ejer allerede kurset",
       alreadyOwned: "Du ejer allerede dette kursus.",
       genericError: "Noget gik galt. Prøv igen.",
       testModeNotice:
-        "TEST-tilstand: dette er en simulering. Når Stripe er klar, vil rigtige betalinger blive aktiveret.",
+        "Stripe testtilstand. Du sendes videre til Stripes betalingsside — brug testkortet 4242 4242 4242 4242.",
+    },
+    // Banner shown after returning from Stripe Checkout to /courses/:slug
+    purchaseReturn: {
+      confirmingTitle: "Bekræfter dit køb…",
+      confirmingBody: "Det tager kun et øjeblik.",
+      confirmedTitle: "Betalingen gik igennem",
+      confirmedBody: "Kurset er låst op — du kan se alle lektioner nu.",
+      timeoutTitle: "Betalingen er modtaget",
+      timeoutBody:
+        "Adgangen er ikke registreret endnu. Den kommer typisk inden for et minut — genindlæs siden. Skriv til os, hvis den udebliver.",
+      cancelledTitle: "Betaling annulleret",
+      cancelledBody: "Der er ikke trukket nogen penge. Du kan prøve igen når som helst.",
+      dismiss: "Luk",
     },
     // Purchases list shown on the user's profile
     myPurchases: {
@@ -923,7 +937,7 @@ export const translations = {
       free: "Free",
       notForSale: "Coming soon",
       currency: "kr",
-      testModeNotice: "TEST mode — no real payment is taken.",
+      testModeNotice: "Stripe test mode — no real money is charged.",
       empty: "No courses available yet.",
       // 2026 launch promotion strings
       promoBadge: "2026 launch — 35% off",
@@ -958,15 +972,29 @@ export const translations = {
       benefit1: "Access to every lesson in this course",
       benefit2: "Buy once — keep forever",
       benefit3: "Community access and course materials",
-      payButton: "Pay (test)",
-      paying: "Processing…",
+      payButton: "Continue to payment",
+      paying: "Redirecting…",
       successTitle: "Thanks for your purchase!",
       successBody: "The course is now unlocked. Enjoy.",
       close: "Close",
+      alreadyOwnedTitle: "You already own this course",
       alreadyOwned: "You already own this course.",
       genericError: "Something went wrong. Please try again.",
       testModeNotice:
-        "TEST mode: this is a simulation. Real payments will be enabled once Stripe is wired up.",
+        "Stripe test mode. You'll be sent to Stripe's payment page — use test card 4242 4242 4242 4242.",
+    },
+    // Banner shown after returning from Stripe Checkout to /courses/:slug
+    purchaseReturn: {
+      confirmingTitle: "Confirming your purchase…",
+      confirmingBody: "This only takes a moment.",
+      confirmedTitle: "Payment went through",
+      confirmedBody: "The course is unlocked — every lesson is available now.",
+      timeoutTitle: "Payment received",
+      timeoutBody:
+        "Access hasn't registered yet. It usually lands within a minute — try reloading. Get in touch if it doesn't.",
+      cancelledTitle: "Payment cancelled",
+      cancelledBody: "Nothing was charged. You can try again whenever you like.",
+      dismiss: "Dismiss",
     },
     myPurchases: {
       title: "My purchases",

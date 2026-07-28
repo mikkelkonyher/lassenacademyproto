@@ -130,7 +130,8 @@ export default function Pricing() {
             </p>
           </div>
 
-          {/* Test-mode banner — small, subtle. Remove once Stripe is live. */}
+          {/* Stripe test-mode banner — small, subtle. Remove when the live key
+              is swapped in, not before: checkout only accepts test cards. */}
           <div className="mb-12 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-200 text-[11px] font-semibold uppercase tracking-wider">
             <ShieldAlert className="w-3.5 h-3.5" />
             {store.testModeNotice}

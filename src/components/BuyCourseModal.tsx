@@ -1,15 +1,19 @@
 /**
  * BuyCourseModal.tsx
  *
- * One-time-purchase checkout modal. Today it runs in MOCK mode: clicking
- * "Pay" hits the `create-course-purchase` edge function, which simulates a
- * successful payment and writes a row to `user_course_purchases`. When
- * Stripe lands, only the edge function changes — this component stays.
+ * One-time-purchase modal. Clicking "Continue to payment" asks
+ * `create-checkout-session` for a Stripe Checkout Session and sends the
+ * browser to Stripe's hosted page — there is no Stripe.js and no publishable
+ * key in this app at all.
+ *
+ * This modal never confirms a purchase. Access is granted by the
+ * `stripe-webhook` edge function; the customer comes back to
+ * `/courses/:slug?purchase=success`, which `usePurchaseReturn` handles.
  *
  * Behavior:
- *  - Idle → form state (price + benefits + Pay button)
- *  - Submitting → loading state on the button
- *  - Success → confirmation panel (close-only)
+ *  - Idle → form state (price + benefits + pay button)
+ *  - Submitting → button locked while we fetch the session and navigate away
+ *  - Already owned → confirmation panel (the server answers 409)
  *  - Error → inline error, retryable
  */
 
@@ -36,16 +40,16 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
   const { refreshPurchases } = useAuth();
 
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Reset transient state whenever the modal closes/reopens so it always
-  // opens fresh (no stale success or error from a previous course).
+  // opens fresh (no stale panel or error from a previous course).
   /* eslint-disable react-hooks/set-state-in-effect -- syncing local UI state to the open/closed prop */
   useEffect(() => {
     if (!isOpen) {
       setSubmitting(false);
-      setSuccess(false);
+      setAlreadyOwned(false);
       setError(null);
     }
   }, [isOpen]);
@@ -83,7 +87,7 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-course-purchase`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`,
         {
           method: 'POST',
           headers: {
@@ -91,22 +95,39 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
             Authorization: `Bearer ${session.access_token}`,
             apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ course_id: course.id }),
+          // `locale` makes Stripe render its checkout page in the same
+          // language as the app. The price is NOT sent — the edge function
+          // computes it from courses.price_dkk so a client can't dictate it.
+          body: JSON.stringify({ course_id: course.id, locale: language }),
         }
       );
 
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
+        // The server re-checks ownership and answers 409 if the user already
+        // bought this course — show the owned panel rather than an error.
+        if (result.code === 'ALREADY_OWNED') {
+          await refreshPurchases();
+          setAlreadyOwned(true);
+          setSubmitting(false);
+          return;
+        }
         setError(result.error ?? bm.genericError);
         setSubmitting(false);
         return;
       }
 
-      // Refresh the user's purchase set so gating UI flips immediately
-      await refreshPurchases();
-      setSuccess(true);
-      setSubmitting(false);
+      if (!result.url) {
+        setError(bm.genericError);
+        setSubmitting(false);
+        return;
+      }
+
+      // Hand off to Stripe's hosted checkout. `submitting` deliberately stays
+      // true: the navigation is in flight and the button must not be clickable
+      // again in the meantime.
+      window.location.href = result.url;
     } catch {
       setError(bm.genericError);
       setSubmitting(false);
@@ -129,16 +150,16 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
           <X className="w-6 h-6" />
         </button>
 
-        {success ? (
-          // --- Success state ---
+        {alreadyOwned ? (
+          // --- Already-owned state (server answered 409) ---
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
               <div className="p-3 rounded-full bg-green-500/20 border border-green-500/30">
                 <Check className="w-6 h-6 text-green-400" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-3">{bm.successTitle}</h2>
-            <p className="text-gray-300 text-base leading-relaxed mb-6">{bm.successBody}</p>
+            <h2 className="text-2xl font-bold text-white mb-3">{bm.alreadyOwnedTitle}</h2>
+            <p className="text-gray-300 text-base leading-relaxed mb-6">{bm.alreadyOwned}</p>
             <button
               onClick={onClose}
               className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 transition-all cursor-pointer"
@@ -203,7 +224,9 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
               </ul>
             </div>
 
-            {/* TEST mode notice — remove once Stripe is wired up */}
+            {/* Stripe test-mode notice. Stripe is wired up but still on
+                sandbox keys, so this stays until STRIPE_SECRET_KEY is swapped
+                for a live key — see .claude/plans/StripePayment.md. */}
             <div className="mb-4 flex items-start gap-2 px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200">
               <ShieldAlert className="w-4 h-4 flex-shrink-0 mt-0.5" />
               <p className="text-xs leading-relaxed">{bm.testModeNotice}</p>

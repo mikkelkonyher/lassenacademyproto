@@ -1,0 +1,28 @@
+meta {
+  name: Checkout - Rejects malformed course_id
+  type: http
+  seq: 33
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-checkout-session
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "not-a-uuid"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.code: eq INVALID_INPUT
+}

@@ -1,12 +1,14 @@
 /**
  * Purchase-flow tests.
  *
- * Covers two surfaces of the per-course purchase model:
- *  - BuyCourseModal: POSTs to create-course-purchase, surfaces the test-mode
- *    notice, and refreshes purchases on success.
+ * Covers three surfaces of the per-course purchase model:
+ *  - BuyCourseModal: POSTs to create-checkout-session and hands off to
+ *    Stripe's hosted page, surfaces the test-mode notice, and shows the
+ *    owned panel when the server answers 409.
  *  - LessonPlayer: gates non-preview lessons behind ownership — free preview
  *    plays for everyone, locked lessons show the buy CTA, owned courses
  *    play locked lessons.
+ *  - The return trip from Stripe Checkout (?purchase=success|cancelled).
  *
  * Approach: mock useAuth (avoiding real Supabase auth wiring) and mock fetch
  * for the edge function call. Supabase client is mocked at module level so
@@ -210,10 +212,11 @@ function renderModal(props?: Partial<React.ComponentProps<typeof BuyCourseModal>
   );
 }
 
-function renderPlayer(lessonSlug?: string) {
-  const path = lessonSlug
-    ? `/courses/${COURSE.slug}/${lessonSlug}`
-    : `/courses/${COURSE.slug}`;
+function renderPlayer(lessonSlug?: string, search = "") {
+  const path =
+    (lessonSlug
+      ? `/courses/${COURSE.slug}/${lessonSlug}`
+      : `/courses/${COURSE.slug}`) + search;
   return render(
     <MemoryRouter initialEntries={[path]}>
       <LanguageProvider>
@@ -226,6 +229,10 @@ function renderPlayer(lessonSlug?: string) {
   );
 }
 
+// Handing off to Stripe is `window.location.href = url`. happy-dom would try
+// to navigate, so swap in a plain object the tests can assert against.
+const locationMock = { href: "" };
+
 beforeEach(() => {
   mockUserRef.current = null;
   mockPurchasedRef.current = new Set();
@@ -234,6 +241,12 @@ beforeEach(() => {
   mockFetch.mockReset();
   mockCourseRow = COURSE;
   coursesChain = buildCoursesChain();
+  locationMock.href = "";
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    writable: true,
+    value: locationMock,
+  });
 });
 
 // ── BuyCourseModal tests ─────────────────────────────────────
@@ -245,61 +258,110 @@ describe("BuyCourseModal", () => {
 
     expect(screen.getByText("Test Course")).toBeInTheDocument();
     expect(screen.getByText("199 kr")).toBeInTheDocument();
-    // Test-mode notice should be visible while we're on mock payments
-    expect(screen.getByText(/TEST-tilstand/i)).toBeInTheDocument();
+    // Stays visible until STRIPE_SECRET_KEY is swapped for a live key —
+    // checkout still only accepts test cards.
+    expect(screen.getByText(/Stripe testtilstand/i)).toBeInTheDocument();
   });
 
-  it("POSTs to create-course-purchase and refreshes purchases on success", async () => {
+  it("creates a checkout session and hands off to Stripe", async () => {
     mockUserRef.current = { id: "u1", email: "u@test.com" };
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        purchase: { id: "p1", course_id: COURSE_ID },
-        already_owned: false,
+        url: "https://checkout.stripe.com/c/pay/cs_test_123",
+        session_id: "cs_test_123",
       }),
     });
 
     renderModal();
 
-    await userEvent.click(screen.getByRole("button", { name: /Betal/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /Gå til betaling/i }),
+    );
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
 
-    // Verify the edge-function URL, auth header and body
     const [url, opts] = mockFetch.mock.calls[0];
     expect(url).toBe(
-      "https://test.supabase.co/functions/v1/create-course-purchase",
+      "https://test.supabase.co/functions/v1/create-checkout-session",
     );
     expect((opts as RequestInit).method).toBe("POST");
     const headers = (opts as RequestInit).headers as Record<string, string>;
     expect(headers.Authorization).toBe("Bearer test-token");
+    // Only the course id and locale travel — never a price. The edge function
+    // reads courses.price_dkk so a client cannot dictate what it pays.
     expect(JSON.parse((opts as RequestInit).body as string)).toEqual({
       course_id: COURSE_ID,
+      locale: "da",
     });
 
-    // Success state should render and purchases should be refreshed
+    // The browser must end up on Stripe's hosted page.
     await waitFor(() =>
-      expect(screen.getByText(/Tak for dit køb/i)).toBeInTheDocument(),
+      expect(locationMock.href).toBe(
+        "https://checkout.stripe.com/c/pay/cs_test_123",
+      ),
     );
-    expect(refreshPurchasesSpy).toHaveBeenCalledTimes(1);
+    // The modal never grants access itself — that's the webhook's job.
+    expect(refreshPurchasesSpy).not.toHaveBeenCalled();
   });
 
-  it("surfaces a server error to the user without flipping to success", async () => {
+  it("shows the owned panel when the server answers 409 ALREADY_OWNED", async () => {
     mockUserRef.current = { id: "u1", email: "u@test.com" };
     mockFetch.mockResolvedValueOnce({
       ok: false,
+      status: 409,
+      json: async () => ({
+        error: "You already own this course",
+        code: "ALREADY_OWNED",
+      }),
+    });
+
+    renderModal();
+    await userEvent.click(
+      screen.getByRole("button", { name: /Gå til betaling/i }),
+    );
+
+    // A 409 is an expected outcome, not an error the user should puzzle over.
+    await waitFor(() =>
+      expect(screen.getByText(/Du ejer allerede kurset/i)).toBeInTheDocument(),
+    );
+    expect(refreshPurchasesSpy).toHaveBeenCalledTimes(1);
+    expect(locationMock.href).toBe("");
+  });
+
+  it("surfaces a server error without navigating away", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
       json: async () => ({ error: "Course not for sale", code: "NOT_FOR_SALE" }),
     });
 
     renderModal();
-    await userEvent.click(screen.getByRole("button", { name: /Betal/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /Gå til betaling/i }),
+    );
 
     await waitFor(() =>
       expect(screen.getByText("Course not for sale")).toBeInTheDocument(),
     );
     expect(refreshPurchasesSpy).not.toHaveBeenCalled();
-    // Still on the purchase form, not the success state
-    expect(screen.queryByText(/Tak for dit køb/i)).not.toBeInTheDocument();
+    expect(locationMock.href).toBe("");
+  });
+
+  it("does not navigate when the response omits a checkout url", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+
+    renderModal();
+    await userEvent.click(
+      screen.getByRole("button", { name: /Gå til betaling/i }),
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText(/Noget gik galt/i)).toBeInTheDocument(),
+    );
+    expect(locationMock.href).toBe("");
   });
 });
 
@@ -356,5 +418,78 @@ describe("LessonPlayer gating", () => {
     expect(
       screen.queryByText(/Lås resten af kurset op/i),
     ).not.toBeInTheDocument();
+  });
+});
+
+// ── Return trip from Stripe Checkout ─────────────────────────
+
+describe("Stripe Checkout return", () => {
+  it("shows nothing when the route has no purchase params", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    mockPurchasedRef.current = new Set([COURSE_ID]);
+
+    renderPlayer("lektion-1");
+
+    await waitFor(() =>
+      expect(screen.getByTestId("mux-player")).toBeInTheDocument(),
+    );
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("confirms immediately when the webhook already recorded the purchase", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    mockPurchasedRef.current = new Set([COURSE_ID]);
+
+    renderPlayer("lektion-1", "?purchase=success&session_id=cs_test_123");
+
+    // The normal case: Stripe waits for our webhook's 2xx before redirecting,
+    // so ownership is already known by the time the browser lands here.
+    await waitFor(() =>
+      expect(screen.getByText(/Betalingen gik igennem/i)).toBeInTheDocument(),
+    );
+    expect(refreshPurchasesSpy).not.toHaveBeenCalled();
+  });
+
+  it("polls while the purchase has not landed yet", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    mockPurchasedRef.current = new Set();
+
+    renderPlayer("lektion-1", "?purchase=success&session_id=cs_test_123");
+
+    // Fallback path — a slow webhook (cold starts have exceeded 5 s) means
+    // Stripe redirects before fulfilment completes.
+    await waitFor(() =>
+      expect(screen.getByText(/Bekræfter dit køb/i)).toBeInTheDocument(),
+    );
+    await waitFor(() => expect(refreshPurchasesSpy).toHaveBeenCalled(), {
+      timeout: 4000,
+    });
+  });
+
+  it("reports a cancelled checkout without alarming the user", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    mockPurchasedRef.current = new Set();
+
+    renderPlayer("lektion-1", "?purchase=cancelled");
+
+    await waitFor(() =>
+      expect(screen.getByText(/Betaling annulleret/i)).toBeInTheDocument(),
+    );
+    // Nothing to poll for — a cancel never reaches the webhook.
+    expect(refreshPurchasesSpy).not.toHaveBeenCalled();
+  });
+
+  it("can be dismissed", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    mockPurchasedRef.current = new Set();
+
+    renderPlayer("lektion-1", "?purchase=cancelled");
+
+    await waitFor(() =>
+      expect(screen.getByText(/Betaling annulleret/i)).toBeInTheDocument(),
+    );
+    await userEvent.click(screen.getByRole("button", { name: /Luk/i }));
+
+    expect(screen.queryByText(/Betaling annulleret/i)).not.toBeInTheDocument();
   });
 });

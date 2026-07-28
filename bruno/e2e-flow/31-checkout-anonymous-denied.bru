@@ -1,0 +1,36 @@
+meta {
+  name: Checkout - Anonymous denied
+  type: http
+  seq: 31
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-checkout-session
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "{{test_course_id}}"
+  }
+}
+
+assert {
+  res.status: eq 401
+}
+
+script:post-response {
+  // No Authorization header. This function is deployed with verify_jwt ON, so
+  // the platform gateway rejects the request before our code runs — the body
+  // is Supabase's, not ours, which is why only the status is asserted.
+  // Guards against an accidental redeploy with --no-verify-jwt.
+  if (res.body && res.body.url) {
+    throw new Error(`Anonymous caller got a checkout URL: ${JSON.stringify(res.body)}`);
+  }
+}
