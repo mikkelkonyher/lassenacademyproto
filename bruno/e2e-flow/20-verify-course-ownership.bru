@@ -49,7 +49,9 @@ script:post-response {
     throw new Error(`user_id mismatch: expected ${userId}, got ${row.user_id}`);
   }
 
-  if (!["mock", "stripe"].includes(row.payment_provider)) {
+  // 'stripe' is now the only value the CHECK constraint permits — the legacy
+  // 'mock' provider was dropped with the function that wrote it.
+  if (row.payment_provider !== "stripe") {
     throw new Error(`Unexpected payment_provider: ${row.payment_provider}`);
   }
 
