@@ -212,6 +212,15 @@ function renderModal(props?: Partial<React.ComponentProps<typeof BuyCourseModal>
   );
 }
 
+/**
+ * Ticks the withdrawal-right consent box and clicks pay. The button stays
+ * disabled until consent is given, so every happy-path test goes through here.
+ */
+async function acceptTermsAndPay() {
+  await userEvent.click(screen.getByRole("checkbox"));
+  await userEvent.click(screen.getByRole("button", { name: /Gå til betaling/i }));
+}
+
 function renderPlayer(lessonSlug?: string, search = "") {
   const path =
     (lessonSlug
@@ -275,9 +284,7 @@ describe("BuyCourseModal", () => {
 
     renderModal();
 
-    await userEvent.click(
-      screen.getByRole("button", { name: /Gå til betaling/i }),
-    );
+    await acceptTermsAndPay();
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
 
@@ -288,11 +295,13 @@ describe("BuyCourseModal", () => {
     expect((opts as RequestInit).method).toBe("POST");
     const headers = (opts as RequestInit).headers as Record<string, string>;
     expect(headers.Authorization).toBe("Bearer test-token");
-    // Only the course id and locale travel — never a price. The edge function
-    // reads courses.price_dkk so a client cannot dictate what it pays.
+    // Only the course id, locale and consent flag travel — never a price. The
+    // edge function reads courses.price_dkk so a client cannot dictate what it
+    // pays, and it re-checks the consent flag itself.
     expect(JSON.parse((opts as RequestInit).body as string)).toEqual({
       course_id: COURSE_ID,
       locale: "da",
+      terms_accepted: true,
     });
 
     // The browser must end up on Stripe's hosted page.
@@ -317,9 +326,7 @@ describe("BuyCourseModal", () => {
     });
 
     renderModal();
-    await userEvent.click(
-      screen.getByRole("button", { name: /Gå til betaling/i }),
-    );
+    await acceptTermsAndPay();
 
     // A 409 is an expected outcome, not an error the user should puzzle over.
     await waitFor(() =>
@@ -338,9 +345,7 @@ describe("BuyCourseModal", () => {
     });
 
     renderModal();
-    await userEvent.click(
-      screen.getByRole("button", { name: /Gå til betaling/i }),
-    );
+    await acceptTermsAndPay();
 
     await waitFor(() =>
       expect(screen.getByText("Course not for sale")).toBeInTheDocument(),
@@ -349,14 +354,93 @@ describe("BuyCourseModal", () => {
     expect(locationMock.href).toBe("");
   });
 
+  // ── Withdrawal-right consent ───────────────────────────────
+  // Danish consumer law only lets the 14-day right lapse for digital content
+  // when the customer expressly consents before delivery, so the box must be
+  // an active choice and the request must not leave without it.
+
+  it("keeps the pay button disabled until consent is given", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    renderModal();
+
+    const checkbox = screen.getByRole("checkbox");
+    const payButton = screen.getByRole("button", { name: /Gå til betaling/i });
+
+    // Never pre-checked — consent has to be an act, not a default.
+    expect(checkbox).not.toBeChecked();
+    expect(payButton).toBeDisabled();
+
+    await userEvent.click(checkbox);
+
+    expect(checkbox).toBeChecked();
+    expect(payButton).toBeEnabled();
+  });
+
+  it("sends no request while consent is missing", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    renderModal();
+
+    await userEvent.click(
+      screen.getByRole("button", { name: /Gå til betaling/i }),
+    );
+
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(locationMock.href).toBe("");
+  });
+
+  it("states that the withdrawal right lapses and links to the terms", () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    renderModal();
+
+    // A bare "I accept the terms" is not enough under Danish law — the
+    // consequence has to be spelled out next to the box.
+    expect(screen.getByText(/fortrydelsesret dermed bortfalder/i))
+      .toBeInTheDocument();
+
+    const link = screen.getByRole("link", { name: /handelsbetingelserne/i });
+    expect(link).toHaveAttribute("href", "/terms");
+    // Opens in a new tab so an in-progress checkout isn't thrown away.
+    expect(link).toHaveAttribute("target", "_blank");
+  });
+
+  it("clears consent when the modal is reopened", async () => {
+    mockUserRef.current = { id: "u1", email: "u@test.com" };
+    const { rerender } = renderModal();
+
+    await userEvent.click(screen.getByRole("checkbox"));
+    expect(screen.getByRole("checkbox")).toBeChecked();
+
+    // Close, then reopen: the next purchase needs its own consent.
+    rerender(
+      <LanguageProvider>
+        <BuyCourseModal
+          isOpen={false}
+          onClose={vi.fn()}
+          course={{ id: COURSE_ID, title: "Test Course", price_dkk: 199 }}
+        />
+      </LanguageProvider>,
+    );
+    rerender(
+      <LanguageProvider>
+        <BuyCourseModal
+          isOpen={true}
+          onClose={vi.fn()}
+          course={{ id: COURSE_ID, title: "Test Course", price_dkk: 199 }}
+        />
+      </LanguageProvider>,
+    );
+
+    expect(screen.getByRole("checkbox")).not.toBeChecked();
+    expect(screen.getByRole("button", { name: /Gå til betaling/i }))
+      .toBeDisabled();
+  });
+
   it("does not navigate when the response omits a checkout url", async () => {
     mockUserRef.current = { id: "u1", email: "u@test.com" };
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
     renderModal();
-    await userEvent.click(
-      screen.getByRole("button", { name: /Gå til betaling/i }),
-    );
+    await acceptTermsAndPay();
 
     await waitFor(() =>
       expect(screen.getByText(/Noget gik galt/i)).toBeInTheDocument(),

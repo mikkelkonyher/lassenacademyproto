@@ -42,6 +42,9 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
   const [submitting, setSubmitting] = useState(false);
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Consent to immediate delivery, which waives the 14-day withdrawal right.
+  // Must be an active choice every time — never pre-checked, never remembered.
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Reset transient state whenever the modal closes/reopens so it always
   // opens fresh (no stale panel or error from a previous course).
@@ -51,6 +54,7 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
       setSubmitting(false);
       setAlreadyOwned(false);
       setError(null);
+      setTermsAccepted(false);
     }
   }, [isOpen]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -74,6 +78,12 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
 
   const handlePay = async () => {
     if (!course || submitting) return;
+    // Belt and braces: the button is disabled without consent, but never let a
+    // request leave without it. The server rejects it too.
+    if (!termsAccepted) {
+      setError(bm.termsRequired);
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -98,7 +108,13 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
           // `locale` makes Stripe render its checkout page in the same
           // language as the app. The price is NOT sent — the edge function
           // computes it from courses.price_dkk so a client can't dictate it.
-          body: JSON.stringify({ course_id: course.id, locale: language }),
+          // `terms_accepted` records the withdrawal-right waiver; the server
+          // requires it and stamps the time onto the Stripe session metadata.
+          body: JSON.stringify({
+            course_id: course.id,
+            locale: language,
+            terms_accepted: true,
+          }),
         }
       );
 
@@ -232,6 +248,37 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
               <p className="text-xs leading-relaxed">{bm.testModeNotice}</p>
             </div>
 
+            {/* Withdrawal-right waiver. Danish consumer law only allows the
+                14-day right to lapse for digital content if the customer gives
+                prior express consent AND acknowledges the consequence, so this
+                is a required, never pre-checked box rather than fine print.
+                The link opens in a new tab so an in-progress checkout survives. */}
+            <div className="mb-4 flex items-start gap-2.5">
+              <input
+                type="checkbox"
+                id="terms-consent"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-shrink-0 cursor-pointer accent-primary"
+              />
+              <label
+                htmlFor="terms-consent"
+                className="text-xs leading-relaxed text-gray-300 cursor-pointer"
+              >
+                {bm.termsConsentBefore}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline hover:text-primary/80"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {bm.termsConsentLink}
+                </a>
+                {bm.termsConsentAfter}
+              </label>
+            </div>
+
             {error && (
               <div className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-300 text-sm">
                 {error}
@@ -240,7 +287,7 @@ export default function BuyCourseModal({ isOpen, onClose, course }: BuyCourseMod
 
             <button
               onClick={handlePay}
-              disabled={submitting || course.price_dkk == null}
+              disabled={submitting || course.price_dkk == null || !termsAccepted}
               className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
             >
               {submitting ? bm.paying : bm.payButton}

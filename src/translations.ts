@@ -161,7 +161,7 @@ export const translations = {
     },
     termsPage: {
       title: "Vilkår og betingelser",
-      lastUpdated: "Sidst opdateret: 15. april 2026",
+      lastUpdated: "Sidst opdateret: 3. august 2026",
       sections: [
         {
           heading: "1. Generelt",
@@ -192,8 +192,8 @@ export const translations = {
           body: "Vi indsamler og behandler persondata i overensstemmelse med EU's databeskyttelsesforordning (GDPR) og dansk databeskyttelseslovgivning. Vi opbevarer dit navn, e-mail og brugsdata for at levere vores tjenester. Du kan til enhver tid anmode om indsigt i, rettelse eller sletning af dine persondata ved at kontakte os.",
         },
         {
-          heading: "8. Opsigelse",
-          body: "Du kan til enhver tid opsige dit abonnement via din profilside. Ved opsigelse bevarer du adgang til udgangen af den betalte periode. Vi forbeholder os retten til at suspendere eller permanent opsige din konto uden varsel, hvis du overtræder disse vilkår, community-reglerne eller på anden vis misbruger platformen. Ved suspension eller opsigelse grundet overtrædelser ydes der ingen refusion for resterende abonnementsperiode.",
+          heading: "8. Sletning af konto og ophør",
+          body: "Så længe din konto består, bevarer du adgang til de kurser du har købt, uden tidsbegrænsning. Du kan til enhver tid slette din konto via din profilside; det kræver at du bekræfter din adgangskode. Vær opmærksom på at sletning er permanent: dine købsoplysninger slettes sammen med kontoen, og du mister dermed adgangen til de kurser du har købt. Adgangen kan ikke gendannes, og der ydes ikke refusion, jf. dog fortrydelsesretten i afsnit 3. Vi forbeholder os retten til at suspendere eller permanent lukke din konto uden varsel, hvis du overtræder disse vilkår, community-reglerne eller på anden vis misbruger platformen. Ved lukning grundet overtrædelser ydes der ingen refusion for allerede gennemførte køb.",
         },
         {
           heading: "9. Ændringer af vilkår",
@@ -362,6 +362,14 @@ export const translations = {
       genericError: "Noget gik galt. Prøv igen.",
       testModeNotice:
         "Stripe testtilstand. Du sendes videre til Stripes betalingsside — brug testkortet 4242 4242 4242 4242.",
+      // Split in three so the link can be rendered inline between the parts.
+      // Wording follows forbrugeraftaleloven: the customer must both consent to
+      // immediate delivery AND acknowledge that this waives the withdrawal right.
+      termsConsentBefore: "Jeg accepterer ",
+      termsConsentLink: "handelsbetingelserne",
+      termsConsentAfter:
+        " og samtykker til, at jeg får adgang til kurset med det samme. Jeg er indforstået med, at min fortrydelsesret dermed bortfalder.",
+      termsRequired: "Du skal acceptere handelsbetingelserne for at fortsætte.",
     },
     // Banner shown after returning from Stripe Checkout to /courses/:slug
     purchaseReturn: {
@@ -782,7 +790,7 @@ export const translations = {
     },
     termsPage: {
       title: "Terms and Conditions",
-      lastUpdated: "Last updated: April 15, 2026",
+      lastUpdated: "Last updated: August 3, 2026",
       sections: [
         {
           heading: "1. General",
@@ -813,8 +821,8 @@ export const translations = {
           body: "We collect and process personal data in accordance with the EU General Data Protection Regulation (GDPR) and Danish data protection legislation. We store your name, email, and usage data to provide our services. You may request access to, correction of, or deletion of your personal data at any time by contacting us.",
         },
         {
-          heading: "8. Cancellation",
-          body: "You may cancel your subscription at any time via your profile page. Upon cancellation, you retain access until the end of the paid period. We reserve the right to suspend or permanently terminate your account without notice if you violate these terms, community guidelines, or otherwise misuse the platform. No refunds will be issued for any remaining subscription period in the event of suspension or termination due to violations.",
+          heading: "8. Account Deletion and Termination",
+          body: "For as long as your account exists, you retain access to the courses you have purchased, with no time limit. You may delete your account at any time via your profile page; this requires confirming your password. Please note that deletion is permanent: your purchase records are deleted along with the account, and you will therefore lose access to the courses you have bought. Access cannot be restored and no refund is given, without prejudice to the right of withdrawal described in section 3. We reserve the right to suspend or permanently close your account without notice if you violate these terms, the community guidelines, or otherwise misuse the platform. No refunds will be issued for completed purchases in the event of closure due to violations.",
         },
         {
           heading: "9. Changes to Terms",
@@ -982,6 +990,12 @@ export const translations = {
       genericError: "Something went wrong. Please try again.",
       testModeNotice:
         "Stripe test mode. You'll be sent to Stripe's payment page — use test card 4242 4242 4242 4242.",
+      // Split in three so the link can be rendered inline between the parts.
+      termsConsentBefore: "I accept the ",
+      termsConsentLink: "terms and conditions",
+      termsConsentAfter:
+        " and consent to receiving access to the course immediately. I understand that my right of withdrawal lapses as a result.",
+      termsRequired: "You must accept the terms and conditions to continue.",
     },
     // Banner shown after returning from Stripe Checkout to /courses/:slug
     purchaseReturn: {

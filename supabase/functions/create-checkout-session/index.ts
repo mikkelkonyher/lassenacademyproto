@@ -144,6 +144,20 @@ Deno.serve(async (req: Request) => {
       return jsonError("Invalid course_id", "INVALID_INPUT", 400, corsHeaders);
     }
 
+    // Consent to immediate delivery, which waives the 14-day withdrawal right
+    // under Danish consumer law. BuyCourseModal disables its pay button without
+    // it, but the UI is not the enforcement point — this is. Checked here among
+    // the input validations (i.e. before the ownership lookup) so it can never
+    // be skipped, and so the branch stays reachable for an owning test user.
+    if (body.terms_accepted !== true) {
+      return jsonError(
+        "Terms must be accepted before payment",
+        "TERMS_NOT_ACCEPTED",
+        400,
+        corsHeaders,
+      );
+    }
+
     // --- Already owned? Don't let the user pay twice ---
     const { data: existing, error: existingErr } = await supabaseAdmin
       .from("user_course_purchases")
@@ -232,6 +246,9 @@ Deno.serve(async (req: Request) => {
     );
     const siteUrl = getSiteUrl(req);
     const title = locale === "en" ? course.title_en : course.title_da;
+    // One timestamp for both copies of the metadata, so the session and the
+    // PaymentIntent can never disagree about when consent was given.
+    const termsAcceptedAt = new Date().toISOString();
 
     // Price is passed inline rather than as a Stripe Price object so
     // `courses.price_dkk` + the promo logic above stay the single source of
@@ -260,15 +277,20 @@ Deno.serve(async (req: Request) => {
       ],
       // The webhook reads these to decide who gets which course. Keeping the
       // identifiers here means the webhook never has to expand `line_items`.
+      // `terms_accepted_at` is the audit trail for the withdrawal-right waiver:
+      // storing it on the payment means it survives account deletion, which
+      // wipes user_course_purchases via ON DELETE CASCADE.
       metadata: {
         user_id: user.id,
         course_id: course.id,
+        terms_accepted_at: termsAcceptedAt,
       },
       // Mirror onto the PaymentIntent so refunds/disputes carry the same context
       payment_intent_data: {
         metadata: {
           user_id: user.id,
           course_id: course.id,
+          terms_accepted_at: termsAcceptedAt,
         },
       },
       // {CHECKOUT_SESSION_ID} is substituted by Stripe, letting the return page

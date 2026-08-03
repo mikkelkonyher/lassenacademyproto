@@ -1,0 +1,49 @@
+meta {
+  name: Checkout - Missing terms consent is 400
+  type: http
+  seq: 35
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/create-checkout-session
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "{{test_course_id}}",
+    "locale": "da"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.code: eq TERMS_NOT_ACCEPTED
+}
+
+script:post-response {
+  // Danish consumer law only lets the 14-day withdrawal right lapse for digital
+  // content when the customer expressly consents up front. BuyCourseModal keeps
+  // its pay button disabled until the box is ticked, but the UI is not the
+  // enforcement point — this asserts the server refuses on its own.
+  //
+  // Note the request is otherwise valid AND the test user owns this course, so
+  // a 409 here would mean the consent check had been moved after the ownership
+  // lookup, leaving it unreachable for any owner.
+  if (res.body.url) {
+    throw new Error(`Got a checkout URL without terms consent: ${res.body.url}`);
+  }
+}
+
+docs {
+  Sends a well-formed checkout request that simply omits `terms_accepted`.
+  Anything other than 400 TERMS_NOT_ACCEPTED means a customer could reach
+  Stripe without having waived the withdrawal right.
+}
