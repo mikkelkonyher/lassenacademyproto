@@ -71,7 +71,15 @@ Consumed by `src/hooks/useMuxToken.ts`, which skips the request entirely for `pu
 
 > **Deno specifics:** use `Stripe.createFetchHttpClient()` and `constructEventAsync` + `Stripe.createSubtleCryptoProvider()` — the synchronous `constructEvent` relies on Node crypto and throws in this runtime.
 
-Secrets: `STRIPE_SECRET_KEY` (restricted key, `Checkout Sessions: Write` only), `STRIPE_WEBHOOK_SECRET`.
+**Purchase emails.** After a successful fulfilment `stripe-webhook` sends two mails over the same Gmail SMTP account as the contact form: a welcome mail to the buyer (course title, payment summary, button to `/courses/:slug`, `Reply-To: CONTACT_TO_EMAIL`) and a Danish "new sale" notification to `CONTACT_TO_EMAIL`.
+
+- They run inside **`EdgeRuntime.waitUntil()`**, i.e. *after* the 2xx. Stripe waits for our response before redirecting the customer and gives up after ~10 s, and a cold start already costs >5 s — an SMTP handshake must not sit in that budget.
+- Gated on `fulfilPurchase` returning a `purchase` object, which only happens on a **fresh insert**. A Stripe redelivery hits the unique constraint and sends nothing.
+- A mail failure **never** affects fulfilment: the whole background task is wrapped in try/catch → Sentry. The purchase row is already written and access already granted.
+- Language comes from `profiles.preferred_language` (fallback `da`), not from the Stripe session locale. The mail is transactional, so it is deliberately **not** gated on `profiles.notify_email`.
+- Templates live in `supabase/functions/_shared/purchaseEmail.ts`, which is deliberately **pure** — no imports, no `Deno.*` — so Vitest can import it (see Testing). Sending lives in `_shared/email.ts` (`sendMail()`), a denomailer wrapper. `send-contact-message` predates that helper and still builds its own `SMTPClient`.
+
+Secrets: `STRIPE_SECRET_KEY` (restricted key, `Checkout Sessions: Write` only), `STRIPE_WEBHOOK_SECRET`, plus `GMAIL_USER` / `GMAIL_APP_PASSWORD` / `CONTACT_TO_EMAIL` (already set for `send-contact-message`; Supabase secrets are project-wide). Optional `SITE_URL` — the webhook has no `Origin` header to derive links from, so it falls back to the production URL; only set it to test links against localhost with `stripe listen`.
 
 **Deploy note:** after `supabase functions deploy`, warm isolates keep serving the previous bundle for up to ~60 s. A stack trace whose line numbers don't match the file means you're looking at the old version, not a failed deploy — check `version` via `list_edge_functions`.
 
@@ -82,6 +90,7 @@ Secrets: `STRIPE_SECRET_KEY` (restricted key, `Checkout Sessions: Write` only), 
 - `tests/community.test.tsx` — Community page (rendering, search/filter, post/comment CRUD, ownership checks)
 - `tests/muxToken.test.tsx` — `useMuxToken` hook (no request for public lessons or a closed gate, token fetch + headers, NOT_OWNED / AUTH_REQUIRED / NETWORK_ERROR handling, stale-token invalidation on lesson switch, refresh before expiry)
 - `tests/purchase.test.tsx` — BuyCourseModal (checkout session + handoff to Stripe, 409 owned panel, error paths), LessonPlayer ownership gating, and the `?purchase=success|cancelled` return banner
+- `tests/purchaseEmail.test.ts` — the purchase-email templates in `supabase/functions/_shared/purchaseEmail.ts` (DA/EN copy, price + date formatting, course URL in both bodies, HTML escaping of course titles and names, neutral greeting when `full_name` is null, sale notification always Danish). This is the **only** automated coverage of any edge-function code: the repo has no Deno test runner, so the module is kept free of imports and `Deno.*` purely so Vitest can load it. Don't add runtime globals to it.
 
 Mutations in the Community page go through Edge Functions via `fetch()` + `callEdgeFunction()`, **not** through `supabase.from().insert()`. Tests mock `fetch` and `supabase.auth.getSession` for mutation assertions.
 
@@ -90,6 +99,7 @@ Mutations in the Community page go through Edge Functions via `fetch()` + `callE
   - The happy path of `create-checkout-session` (a session URL is returned) is **not** in CI: the test user owns the only course, so every authenticated request correctly answers 409. Verified manually with a real sandbox checkout on 27 July.
   - Steps 27–28 hit Mux directly, so CI depends on Mux being reachable. They are the only checks that prove the paywall holds at the CDN rather than just in our code.
   - `user_course_purchases.payment_provider` is constrained to `'stripe'` only. The legacy `'mock'` value was dropped along with the `create-course-purchase` function and its five rows (28 July).
+  - **`stripe-webhook` has no Bruno coverage at all** — without a valid Stripe signature it answers 400, and a `.bru` file can't produce one. Step 20 asserting the durable purchase row is the closest proxy. The purchase emails inherit that limitation *and* would dispatch real mail (same reason `bruno/contact-flow/4-valid-send.bru` is manual-only), so they are verified by hand with a sandbox checkout, not in CI.
 - `bruno/contact-flow/` — Contact form (`send-contact-message`) checks. **Manual-only, NOT in CI** (like `delete-account-flow`) because a valid send dispatches a real email. Covers: missing-fields → 400, spam → 400, honeypot → 200 (no send), and a manual-only valid-send.
 - `bruno/environments/production.bru` — Contains test user credentials (gitignored)
 - `bruno/environments/ci.bru` — Empty placeholders for CI (committed, secrets injected via GitHub Actions)
