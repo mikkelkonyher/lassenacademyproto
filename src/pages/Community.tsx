@@ -182,18 +182,23 @@ export default function Community() {
             <span>{t.auth.goBack}</span>
           </button>
 
-          {/* Page Header */}
-          <div className="flex items-start justify-between mb-8 gap-4">
+          {/* Page Header — stacks on mobile so the action buttons never get
+              pushed off the right edge by the large uppercase title. */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-8 gap-4">
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 uppercase">
                 {ct.pageTitle}
               </h1>
               <p className="text-lg text-gray-400">{ct.pageSubtitle}</p>
             </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
+            {/* On mobile the bell is ordered last so it sits flush against the
+                right edge — its dropdown is anchored right-0 and would spill off
+                the left of the screen from any other position. */}
+            <div className="flex items-center justify-end gap-3 sm:flex-shrink-0">
               {/* Notifications Bell */}
               {user && (
                 <NotificationBell
+                  className="order-2 sm:order-1"
                   notifications={notifications}
                   unreadCount={unreadCount}
                   showNotifications={showNotifications}
@@ -208,7 +213,7 @@ export default function Community() {
               {user ? (
                 <button
                   onClick={() => setShowCreateForm(!showCreateForm)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors"
+                  className="order-1 sm:order-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors"
                 >
                   {showCreateForm ? (
                     <X className="w-4 h-4" />
@@ -220,7 +225,7 @@ export default function Community() {
               ) : (
                 <button
                   onClick={openLogin}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 text-sm font-medium transition-colors"
+                  className="order-1 sm:order-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 text-sm font-medium transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   {ct.loginToPost}

@@ -68,14 +68,16 @@ export default function CommentItem({
           )}
         </div>
 
+        {/* The edit row wraps so the two buttons drop below the field on
+            narrow screens instead of squeezing it out of the card */}
         {isEditing ? (
-          <div className="flex gap-2 mt-1">
+          <div className="flex flex-wrap gap-2 mt-1">
             <input
               type="text"
               value={editText}
               onChange={(e) => onEditTextChange(e.target.value)}
               maxLength={2000}
-              className="flex-1 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-primary/40 transition-colors"
+              className="flex-1 min-w-0 basis-full sm:basis-auto px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-primary/40 transition-colors"
             />
             <button
               onClick={onCancelEdit}

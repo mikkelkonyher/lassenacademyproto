@@ -38,7 +38,9 @@ export default function CreatePostForm({
       onSubmit={onSubmit}
       className="mb-8 p-6 rounded-2xl border border-white/10 bg-white/[0.03] space-y-4"
     >
-      <div className="flex gap-3">
+      {/* Stacks on mobile — the category select has a wide intrinsic width and
+          would otherwise squeeze the title field to nothing. */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <select
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}

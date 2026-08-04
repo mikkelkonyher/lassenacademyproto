@@ -155,7 +155,8 @@ export default function PostCard({
           {/* Edit Post Form */}
           {isEditing ? (
             <div className="mt-4 space-y-3">
-              <div className="flex gap-3">
+              {/* Stacks on mobile, same reason as the create form */}
+              <div className="flex flex-col sm:flex-row gap-3">
                 <select
                   value={editCategory}
                   onChange={(e) => onEditCategoryChange(e.target.value)}
@@ -280,12 +281,12 @@ export default function PostCard({
                   }}
                   placeholder={ct.replyPlaceholder}
                   maxLength={2000}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary/40 transition-colors"
+                  className="flex-1 min-w-0 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary/40 transition-colors"
                 />
                 <button
                   onClick={onSubmitComment}
                   disabled={submittingComment || !commentDraft.trim()}
-                  className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="flex-shrink-0 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {submittingComment ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

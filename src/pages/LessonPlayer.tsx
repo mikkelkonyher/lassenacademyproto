@@ -267,7 +267,11 @@ export default function LessonPlayer() {
   // Paywall panel. Defined once here because it is rendered both when the UI
   // gate fails and when the token endpoint returns NOT_OWNED / AUTH_REQUIRED.
   const lockedPanel = (
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
+    // On mobile this sits in normal flow so the panel can be as tall as its
+    // content — the 16:9 box is shorter than the icon + heading + body + CTA
+    // stack on a phone, and `overflow-hidden` on the parent would clip the
+    // button. From sm: up the box is tall enough, so it goes back to filling it.
+    <div className="relative sm:absolute sm:inset-0 flex flex-col items-center justify-center px-6 py-10 sm:py-0 text-center bg-gradient-to-br from-primary/10 via-background to-accent/10">
       <div className="p-4 rounded-full bg-primary/15 border border-primary/30 mb-4">
         <Lock className="w-7 h-7 text-primary" />
       </div>
@@ -294,9 +298,9 @@ export default function LessonPlayer() {
               }
               setBuyModalOpen(true);
             }}
-            className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer flex items-center gap-2"
+            className="max-w-full px-5 sm:px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/30 transition-all cursor-pointer flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
           >
-            <Lock className="w-4 h-4" />
+            <Lock className="w-4 h-4 flex-shrink-0" />
             {t.lessonGate.buyCta}
             {gatePricing && (
               <span className="opacity-90 flex items-baseline gap-1.5">
@@ -396,7 +400,14 @@ export default function LessonPlayer() {
             {/* Main column — player + title + description (3/4 width on lg+) */}
             <div className="lg:col-span-3 min-w-0">
               {/* Player block — see `playerView` above for the five states. */}
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.4)] border border-primary/30">
+              {/* The locked panel is taller than 16:9 on a phone, so the fixed
+                  aspect ratio is dropped there — otherwise overflow-hidden
+                  clips the CTA. Every other state keeps the video ratio. */}
+              <div
+                className={`relative w-full rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(251,146,60,0.4)] border border-primary/30 ${
+                  playerView === "locked" ? "sm:aspect-video" : "aspect-video"
+                }`}
+              >
                 {/* `tokens` is spread in only for signed assets; public ones
                     play unsigned exactly as before. */}
                 {playerView === "player" && (

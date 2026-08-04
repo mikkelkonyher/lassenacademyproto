@@ -9,6 +9,8 @@ import { getInitials, timeAgo } from "../../utils/timeAgo";
 import type { ForumNotification } from "../../types/forum";
 
 interface NotificationBellProps {
+  /** Extra classes on the wrapper — the page uses it to reorder on mobile. */
+  className?: string;
   notifications: ForumNotification[];
   unreadCount: number;
   showNotifications: boolean;
@@ -20,6 +22,7 @@ interface NotificationBellProps {
 }
 
 export default function NotificationBell({
+  className = "",
   notifications,
   unreadCount,
   showNotifications,
@@ -32,7 +35,7 @@ export default function NotificationBell({
   const ct = t.communityPage;
 
   return (
-    <div className="relative" ref={notifRef}>
+    <div className={`relative ${className}`} ref={notifRef}>
       <button
         onClick={onToggle}
         className="relative p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
@@ -45,9 +48,11 @@ export default function NotificationBell({
         )}
       </button>
 
-      {/* Notifications Dropdown */}
+      {/* Notifications Dropdown. Its width is clamped to the viewport (minus
+          the page's px-4 gutters) so the panel cannot spill off-screen on
+          narrow phones. */}
       {showNotifications && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-white/10 bg-[#1a2030] shadow-2xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-[min(20rem,calc(100vw-2rem))] sm:w-96 rounded-2xl border border-white/10 bg-[#1a2030] shadow-2xl z-50 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
             <h3 className="text-sm font-semibold text-white">
               {ct.notifications}
