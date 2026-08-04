@@ -29,6 +29,16 @@ Lassen Music Academy — a React SPA for a Danish music education platform built
 
 **Supabase MCP access:** You may freely use the Supabase MCP to **read** anything (e.g. `list_tables`, `execute_sql` SELECTs, `get_logs`, `get_advisors`, `list_migrations`) without asking. But **always ask for the user's permission before writing anything** — any `apply_migration`, `execute_sql` that mutates data/schema (INSERT/UPDATE/DELETE/DDL), `deploy_edge_function`, branch operations, or other state-changing call.
 
+**Database migrations:** `supabase/migrations/` holds the full schema history so the project can be rebuilt from Git alone. The 28 files up to `20260728124914` are **verbatim** extracts of what was actually applied, pulled out of `supabase_migrations.schema_migrations` and byte-for-byte checksum-verified against it — don't reformat or "tidy" them, or they stop matching the remote history. `supabase/config.toml` carries `project_id` and the per-function `verify_jwt` flags.
+
+`20260804090000_reconcile_dashboard_storage_changes.sql` is the one exception: it covers four storage changes (the `news-images` and `course-thumbnails` buckets, the two admin news-image policies, and the raised `avatars` size limit) that were made in the Dashboard and so never entered the migration history. It has **not** been applied to the live project — it is a no-op there — so `supabase migration list` correctly shows it as local only. It is idempotent.
+
+**Rule going forward:** after any `apply_migration` via MCP, extract the new migration into `supabase/migrations/` with the same version and name, so the repo does not drift again:
+
+```sql
+select array_to_string(statements, E'\n') from supabase_migrations.schema_migrations where version = '<version>';
+```
+
 **Mux:** Video hosting for course content. Assets are managed via the Mux MCP (configured in local scope `~/.claude.json` as HTTP transport, **not** in `.mcp.json`). **Paid lessons use `signed` playback**; only the free-preview lesson is `public`. Each asset carries exactly one playback ID — the old public IDs were deleted, so streaming a paid lesson requires a token from `get-mux-token`. `MUX_TOKEN_ID` and `MUX_TOKEN_SECRET` env vars store API credentials for direct API calls (e.g. track deletion, which the MCP's delete track tool doesn't handle reliably).
 
 Posters do **not** come from `image.mux.com`: a signed playback ID refuses unsigned image requests, and Mux requires thumbnail options (`width`, `time`, `fit_mode`) to be JWT claims rather than query parameters. Since anonymous catalogue visitors and non-owners can't hold a token, posters live in the `course-thumbnails` Storage bucket via `courses.image_url` and `lessons.thumbnail_url` (see `src/utils/courseImage.ts`).

@@ -1,0 +1,79 @@
+# Supabase CLI configuration.
+#
+# This file is what makes `supabase/migrations/` usable: without it the CLI has
+# no project to link to, so `supabase db push` cannot run from a fresh clone.
+# See the "Recreating the project from scratch" section in README.md.
+
+project_id = "spcajxfpubloyzbagfrp"
+
+[db]
+# Matches the Postgres version of the hosted project. Only affects the local
+# dev stack (`supabase start`); the hosted database ignores it.
+major_version = 17
+
+# ---------------------------------------------------------------------------
+# Edge Functions
+#
+# `verify_jwt` controls the API gateway check that runs BEFORE the function is
+# invoked. It defaults to true, so only the functions that need it off are
+# listed here — the two that are not listed (`delete-account` and
+# `create-checkout-session`) keep the default.
+#
+# Off does not mean unauthenticated: every function below except
+# `fetch-podcast-feed` still reads the Authorization header and calls
+# `getUser()` itself. The gateway check is disabled where a caller cannot
+# present a Supabase JWT at all, or where anonymous access is a requirement.
+#
+# Recording these here replaces the `--no-verify-jwt` flags that previously had
+# to be remembered by hand on every deploy.
+# ---------------------------------------------------------------------------
+
+# Stripe signs its webhooks with its own secret and cannot present a Supabase
+# JWT — the signature is the authentication.
+[functions.stripe-webhook]
+verify_jwt = false
+
+# Free-preview lessons must play for logged-out visitors, so the function does
+# its own optional-auth handling and returns 401 AUTH_REQUIRED when needed.
+[functions.get-mux-token]
+verify_jwt = false
+
+# Public contact form: submitted by anonymous visitors with only the anon key.
+[functions.send-contact-message]
+verify_jwt = false
+
+# Public podcast proxy: no user context involved at all.
+[functions.fetch-podcast-feed]
+verify_jwt = false
+
+# Forum, news and profile mutations. These authenticate in code — they read the
+# bearer token, resolve the user with getUser(), and reject anonymous callers.
+[functions.create-forum-post]
+verify_jwt = false
+
+[functions.update-forum-post]
+verify_jwt = false
+
+[functions.delete-forum-post]
+verify_jwt = false
+
+[functions.create-forum-comment]
+verify_jwt = false
+
+[functions.update-forum-comment]
+verify_jwt = false
+
+[functions.delete-forum-comment]
+verify_jwt = false
+
+[functions.create-news]
+verify_jwt = false
+
+[functions.update-news]
+verify_jwt = false
+
+[functions.delete-news]
+verify_jwt = false
+
+[functions.update-profile]
+verify_jwt = false
