@@ -212,15 +212,28 @@ Deno.serve(async (req: Request) => {
       return jsonError("Failed to create comment", "INSERT_FAILED", 500, corsHeaders);
     }
 
-    // Notify the post author (skip if the commenter IS the author)
+    // Notify the post author (skip if the commenter IS the author).
+    // This is the ONLY place a comment notification is created. An
+    // on_forum_comment_created trigger used to insert a second, identical row
+    // here; it was dropped in 20260805072417_fix_duplicate_forum_notifications.
     if (post.user_id !== user.id) {
-      await supabaseAdmin.from("forum_notifications").insert({
-        user_id: post.user_id,
-        post_id: post_id,
-        comment_id: comment.id,
-        commenter_id: user.id,
-        is_read: false,
-      });
+      const { error: notifyError } = await supabaseAdmin
+        .from("forum_notifications")
+        .insert({
+          user_id: post.user_id,
+          post_id: post_id,
+          comment_id: comment.id,
+          commenter_id: user.id,
+          is_read: false,
+        });
+
+      // A failed notification must not fail the comment — that is already
+      // written. Report it instead of dropping it silently, since nothing else
+      // creates this row any more.
+      if (notifyError) {
+        console.error("Notification insert error:", notifyError);
+        await reportError("create-forum-comment", notifyError);
+      }
     }
 
     // Log this action for rate limiting tracking
