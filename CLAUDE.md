@@ -57,6 +57,17 @@ Posters do **not** come from `image.mux.com`: a signed playback ID refuses unsig
 
 Supabase Edge Functions live in `supabase/functions/<function-name>/index.ts`. These are Deno runtime files (not compiled by the project's TypeScript config). Local copies mirror what is deployed to Supabase.
 
+> ### ⚠️ Before go-live: the CORS allowlist must move to the real domain
+>
+> The site will launch on **`https://www.lassenmusicacademy.com/`** (not `lassenmusik.com` — that's the separate music store the navbar links out to). Until then everything is hardcoded to `lassenacademyproto.vercel.app`, and **the live site breaks on the new domain until all of this is done and redeployed**:
+>
+> - `ALLOWED_ORIGINS` is copied into **16 of the 17 functions** — every one except `stripe-webhook`, which Stripe calls server-to-server. There is no shared CORS module.
+> - **Don't just append the new domain.** The fallback is positional — `ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[1]` — so appending leaves `[1]` on the old Vercel URL. Put production at index 1, or replace the lookup with an explicit `PRODUCTION_ORIGIN` constant so it can't break again.
+> - `create-checkout-session` feeds the **same array** into `getSiteUrl()` → Stripe's `success_url`/`cancel_url`. Wrong order sends paying customers back to the old domain.
+> - `stripe-webhook` hardcodes the domain **separately** as the `SITE_URL` fallback (Stripe sends no `Origin`), which builds the course link in the purchase email.
+> - `www` and apex are **different CORS origins** — allowlist both unless Vercel redirects apex → www before any XHR.
+> - Also update **Supabase Dashboard → Authentication → URL Configuration** (Site URL + Redirect URLs), or password reset breaks: `AuthContext.tsx` builds the link from `window.location.origin`.
+
 **Community forum functions** (all require JWT auth, sanitize input, detect spam, enforce rate limits):
 - `create-forum-post` — Creates a new post (max 5/hour)
 - `update-forum-post` — Updates a post with ownership check (max 20 edits/hour)
