@@ -1,0 +1,40 @@
+meta {
+  name: Course Material Storage - Accepts our signed URL
+  type: http
+  seq: 39
+}
+
+get {
+  url: {{material_signed_url}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // The counterpart to step 38: proves the signature Storage verifies is the
+  // one the Edge Function mints, and that the object really is reachable. Steps
+  // 38 and 39 together are the only checks that prove the paywall holds at the
+  // storage layer rather than only in our own code — the same role steps 27-28
+  // play for Mux.
+  // Header names are case-insensitive per HTTP and Storage returns them
+  // capitalised ("Content-Type"), so normalise before looking anything up.
+  const headers = {};
+  for (const [k, v] of Object.entries(res.headers || {})) {
+    headers[k.toLowerCase()] = v;
+  }
+
+  if (headers["content-type"] !== "application/pdf") {
+    throw new Error(`Expected application/pdf, got: ${headers["content-type"]}`);
+  }
+
+  // `download` on createSignedUrl sets this, which is what makes the browser
+  // save the file under the course slug instead of rendering it inline.
+  const disposition = headers["content-disposition"] || "";
+  if (!disposition.includes("attachment")) {
+    throw new Error(`Expected an attachment disposition, got: ${disposition}`);
+  }
+}

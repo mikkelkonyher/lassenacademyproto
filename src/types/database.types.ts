@@ -33,6 +33,7 @@ export type Database = {
           instructor: string
           level_da: string
           level_en: string
+          pdf_path: string | null
           price_dkk: number | null
           published: boolean | null
           slug: string
@@ -54,6 +55,7 @@ export type Database = {
           instructor: string
           level_da: string
           level_en: string
+          pdf_path?: string | null
           price_dkk?: number | null
           published?: boolean | null
           slug: string
@@ -75,6 +77,7 @@ export type Database = {
           instructor?: string
           level_da?: string
           level_en?: string
+          pdf_path?: string | null
           price_dkk?: number | null
           published?: boolean | null
           slug?: string

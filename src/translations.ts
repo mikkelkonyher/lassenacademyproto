@@ -177,7 +177,7 @@ export const translations = {
         },
         {
           heading: "4. Brugsrettigheder og indhold",
-          body: "Dit køb giver dig en personlig, ikke-overdragelig licens til at streame kursusindhold via din konto. Du må ikke downloade, kopiere, distribuere, sælge eller dele indhold fra platformen uden skriftlig tilladelse. Alt kursusindhold, videoer, noter og materialer er beskyttet af ophavsret og tilhører Lassen Music Academy eller vores undervisere.",
+          body: "Dit køb giver dig en personlig, ikke-overdragelig licens til at streame kursusindhold via din konto. Kursusmateriale, der stilles til rådighed som download (f.eks. PDF med akkorder og noter), må du gemme og bruge til eget personligt brug. Du må ikke downloade videoindhold, og du må ikke kopiere, distribuere, sælge eller dele indhold fra platformen — herunder downloadet kursusmateriale — uden skriftlig tilladelse. Alt kursusindhold, videoer, noter og materialer er beskyttet af ophavsret og tilhører Lassen Music Academy eller vores undervisere.",
         },
         {
           heading: "5. Community-regler",
@@ -337,6 +337,13 @@ export const translations = {
         "Der opstod en fejl under afspilningen. Prøv at genindlæse siden.",
       tokenRetry: "Genindlæs",
       loadingVideo: "Indlæser video…",
+    },
+
+    // Download-knap til kursusmateriale (PDF) — vises kun for kursets købere
+    courseMaterial: {
+      download: "Download kursusmateriale (PDF)",
+      preparing: "Forbereder download…",
+      error: "Filen kunne ikke hentes. Prøv igen.",
     },
     progress: {
       completed: "Gennemført",
@@ -806,7 +813,7 @@ export const translations = {
         },
         {
           heading: "4. Usage Rights and Content",
-          body: "Your purchase grants you a personal, non-transferable license to stream course content through your account. You may not download, copy, distribute, sell, or share content from the platform without written permission. All course content, videos, notes, and materials are protected by copyright and belong to Lassen Music Academy or our instructors.",
+          body: "Your purchase grants you a personal, non-transferable license to stream course content through your account. Course material offered as a download (e.g. a PDF with chords and notes) may be saved and used for your own personal use. You may not download video content, and you may not copy, distribute, sell, or share content from the platform — including downloaded course material — without written permission. All course content, videos, notes, and materials are protected by copyright and belong to Lassen Music Academy or our instructors.",
         },
         {
           heading: "5. Community Guidelines",
@@ -966,6 +973,13 @@ export const translations = {
         "Something went wrong while starting playback. Try reloading the page.",
       tokenRetry: "Reload",
       loadingVideo: "Loading video…",
+    },
+
+    // Course material (PDF) download button — only shown to course owners
+    courseMaterial: {
+      download: "Download course material (PDF)",
+      preparing: "Preparing download…",
+      error: "Couldn't fetch the file. Please try again.",
     },
     progress: {
       completed: "Completed",

@@ -1,0 +1,33 @@
+meta {
+  name: Course Material Storage - Refuses an unsigned request
+  type: http
+  seq: 38
+}
+
+get {
+  url: {{supabase_url}}/storage/v1/object/public/course-materials/{{test_course_id}}/materiale.pdf
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{supabase_anon_key}}
+}
+
+assert {
+  res.status: eq 400
+}
+
+script:post-response {
+  // The paywall's real boundary. Every other bucket in the project is public
+  // and served through this exact path, which bypasses RLS entirely — if
+  // course-materials were ever flipped to public, this request would start
+  // returning the PDF to anyone and this step is what would catch it.
+  //
+  // Storage deliberately answers "Bucket not found" rather than "forbidden",
+  // so a private bucket is indistinguishable from a missing one.
+  const body = typeof res.body === "string" ? res.body : JSON.stringify(res.body);
+  if (body.includes("%PDF")) {
+    throw new Error("Private bucket served the PDF over the public path!");
+  }
+}

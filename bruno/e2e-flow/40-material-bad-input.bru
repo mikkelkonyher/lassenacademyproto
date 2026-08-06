@@ -1,0 +1,33 @@
+meta {
+  name: Course Material - Bad input rejected
+  type: http
+  seq: 40
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/get-course-material
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "not-a-uuid"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.code: eq INVALID_INPUT
+}
+
+script:post-response {
+  // The UUID shape check runs before any database work, so malformed input
+  // never reaches the courses or purchases lookup.
+}

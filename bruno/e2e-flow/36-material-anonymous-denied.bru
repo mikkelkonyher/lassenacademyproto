@@ -1,0 +1,33 @@
+meta {
+  name: Course Material - Anonymous denied
+  type: http
+  seq: 36
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/get-course-material
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "{{test_course_id}}"
+  }
+}
+
+assert {
+  res.status: eq 401
+  res.body.code: eq AUTH_REQUIRED
+}
+
+script:post-response {
+  // Unlike get-mux-token there is no anonymous case to support here: free
+  // previews are a video concept, course material is always paid-for. A caller
+  // without a JWT must be rejected outright rather than treated as anonymous.
+}

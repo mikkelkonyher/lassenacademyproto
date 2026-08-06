@@ -19,6 +19,7 @@ import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import LoginModal from "../components/LoginModal";
 import WatchlistButton from "../components/WatchlistButton";
+import CourseMaterialButton from "../components/CourseMaterialButton";
 import BuyCourseModal from "../components/BuyCourseModal";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
@@ -484,6 +485,12 @@ export default function LessonPlayer() {
                   variant="pill"
                   onRequireLogin={openLogin}
                 />
+                {/* Course material — only buyers see it, and only when the
+                    course actually has a PDF attached. The edge function
+                    re-checks ownership, so this is a UI gate only. */}
+                {ownsCourse && course.pdf_path && (
+                  <CourseMaterialButton courseId={course.id} />
+                )}
               </div>
 
               {/* Instructor row */}

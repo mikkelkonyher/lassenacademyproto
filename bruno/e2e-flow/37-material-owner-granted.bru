@@ -1,0 +1,58 @@
+meta {
+  name: Course Material - Owner granted a signed URL
+  type: http
+  seq: 37
+}
+
+post {
+  url: {{supabase_url}}/functions/v1/get-course-material
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+  apikey: {{supabase_anon_key}}
+}
+
+body:json {
+  {
+    "course_id": "{{test_course_id}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // Depends on the same durable purchase row as step 20, plus a PDF actually
+  // present in the private course-materials bucket with courses.pdf_path
+  // pointing at it. Without the file this correctly answers 404 — that is a
+  // missing fixture, not a regression in the function.
+  const { url, filename, expires_at } = res.body;
+
+  if (!url) {
+    throw new Error(`Owner did not receive a URL: ${JSON.stringify(res.body)}`);
+  }
+  if (!url.includes("/storage/v1/object/sign/course-materials/")) {
+    throw new Error(`Not a signed course-materials URL: ${url.slice(0, 120)}`);
+  }
+  // The token is the whole point — an unsigned URL would be useless against a
+  // private bucket, and step 38 proves the object refuses one.
+  if (!url.includes("token=")) {
+    throw new Error(`Signed URL carries no token: ${url.slice(0, 120)}`);
+  }
+  if (!filename || !filename.endsWith(".pdf")) {
+    throw new Error(`Expected a .pdf filename, got: ${filename}`);
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  if (!expires_at || expires_at <= now) {
+    throw new Error(`URL already expired: expires_at=${expires_at}, now=${now}`);
+  }
+
+  bru.setVar("material_signed_url", url);
+  bru.setVar("material_filename", filename);
+}
